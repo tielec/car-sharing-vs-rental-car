@@ -113,7 +113,7 @@ rentalCar:
   vehicles:
     compact:
       name: C1クラス（コンパクト）
-      defaultFuelEfficiency: 15 # km/L
+      defaultFuelEfficiency: 18 # km/L
       # 補償オプション料金（24時間あたり）
       insuranceBasicPerDay: 1100
       insurancePremiumPerDay: 2200
@@ -140,7 +140,7 @@ rentalCar:
 
     compactMinivan:
       name: W1クラス（コンパクトミニバン）
-      defaultFuelEfficiency: 12
+      defaultFuelEfficiency: 14
       insuranceBasicPerDay: 1430
       insurancePremiumPerDay: 2530
       regularRates:
@@ -164,7 +164,7 @@ rentalCar:
 
     minivan:
       name: W4クラス（ミニバン）
-      defaultFuelEfficiency: 10
+      defaultFuelEfficiency: 11
       insuranceBasicPerDay: 1430
       insurancePremiumPerDay: 2530
       regularRates:
