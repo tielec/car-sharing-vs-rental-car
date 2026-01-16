@@ -6,13 +6,14 @@ defaults:
   days: 1
   hours: 0
   distance: 100
-  hasRefuel: false
-  hasWash: false
+  hasRefuel: true # 給油をする（20L以上）
+  hasWash: true # 水洗い洗車をする
+  hasCarShareInsurance: true # 安心補償サービス（550円）
   tollFee: 0
   fuelPrice: 145 # 円/L
   # レンタカー設定
   isMember: true # 会員料金 or 通常料金
-  insuranceType: none # none | basic | premium
+  insuranceType: basic # none | basic | premium - 免責補償がデフォルト
 
 # 入力制限
 limits:
