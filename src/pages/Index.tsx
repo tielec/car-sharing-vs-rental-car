@@ -99,7 +99,7 @@ const Index = () => {
               <Car className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-foreground">カーシェア vs レンタカー</h1>
+              <h1 className="text-lg font-bold text-foreground">タイムズカーシェア vs タイムズレンタカー</h1>
               <p className="text-xs text-muted-foreground">料金比較ツール</p>
             </div>
           </div>
