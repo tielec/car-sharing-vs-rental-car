@@ -14,6 +14,7 @@ export interface CarShareResult {
   timeCharge: number;
   distanceCharge: number;
   serviceDiscount: number;
+  insuranceCharge: number;
   total: number;
 }
 
@@ -122,7 +123,8 @@ export function calculateCarSharePrice(
   hours: number,
   distance: number,
   hasRefuel: boolean,
-  hasWash: boolean
+  hasWash: boolean,
+  hasInsurance: boolean
 ): CarShareResult {
   const vehicle = getCarShareVehicle(vehicleType);
   const thresholdKm = settings.carShare.distanceChargeThresholdKm;
@@ -137,12 +139,16 @@ export function calculateCarSharePrice(
   // Service discount (refuel/wash)
   const serviceDiscount = calculateServiceDiscount(vehicle, hasRefuel, hasWash);
   
-  const total = Math.max(0, timeCharge + distanceCharge - serviceDiscount);
+  // Insurance charge (per use, not per day)
+  const insuranceCharge = hasInsurance ? settings.carShare.insurancePerUse : 0;
+  
+  const total = Math.max(0, timeCharge + distanceCharge - serviceDiscount + insuranceCharge);
   
   return {
     timeCharge,
     distanceCharge,
     serviceDiscount,
+    insuranceCharge,
     total,
   };
 }
@@ -220,12 +226,13 @@ export function compareServices(
   distance: number,
   hasRefuel: boolean,
   hasWash: boolean,
+  hasCarShareInsurance: boolean,
   fuelPrice: number,
   fuelEfficiency: number,
   isMember: boolean,
   insuranceType: InsuranceType
 ): ComparisonResult {
-  const carShare = calculateCarSharePrice(vehicleType, hours, distance, hasRefuel, hasWash);
+  const carShare = calculateCarSharePrice(vehicleType, hours, distance, hasRefuel, hasWash, hasCarShareInsurance);
   const rentalCar = calculateRentalCarPrice(vehicleType, hours, distance, fuelPrice, fuelEfficiency, isMember, insuranceType);
   
   const difference = Math.abs(carShare.total - rentalCar.total);

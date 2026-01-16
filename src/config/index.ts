@@ -66,6 +66,7 @@ export interface Settings {
   };
   carShare: {
     distanceChargeThresholdKm: number;
+    insurancePerUse: number;
     discountMinutes: DiscountMinutes;
     vehicles: Record<VehicleType, CarShareVehicle>;
   };
