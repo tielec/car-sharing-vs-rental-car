@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CarSharePriceTable } from "@/components/CarSharePriceTable";
 import { RentalCarPriceTable } from "@/components/RentalCarPriceTable";
+import { CalculationGuide } from "@/components/CalculationGuide";
 
 const Index = () => {
   // Use defaults from YAML config
@@ -153,10 +154,11 @@ const Index = () => {
 
         {/* Tabs for different views */}
         <Tabs defaultValue="compare" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="compare">料金比較</TabsTrigger>
             <TabsTrigger value="carshare">カーシェア料金表</TabsTrigger>
             <TabsTrigger value="rental">レンタカー料金表</TabsTrigger>
+            <TabsTrigger value="guide">計算の仕組み</TabsTrigger>
           </TabsList>
 
           {/* Comparison Tab */}
@@ -396,6 +398,11 @@ const Index = () => {
           {/* Rental Car Price Table Tab */}
           <TabsContent value="rental">
             <RentalCarPriceTable />
+          </TabsContent>
+
+          {/* Calculation Guide Tab */}
+          <TabsContent value="guide">
+            <CalculationGuide />
           </TabsContent>
         </Tabs>
       </main>
