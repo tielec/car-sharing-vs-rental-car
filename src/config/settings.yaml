@@ -142,26 +142,26 @@ rentalCar:
       memberExtraHourRate: 739
 
     compactMinivan:
-      name: M1・M2クラス（コンパクトミニバン）
+      name: W1クラス（コンパクトミニバン）
       defaultFuelEfficiency: 12
       regularRates:
         - maxHours: 6
-          price: 5390
+          price: 8981
         - maxHours: 12
-          price: 6820
+          price: 11005
         - maxHours: 24
-          price: 7480
-      regularExtraDayRate: 6270
-      regularExtraHourRate: 924
+          price: 12903
+      regularExtraDayRate: 11484
+      regularExtraHourRate: 1452
       memberRates:
         - maxHours: 6
-          price: 5390
+          price: 7185
         - maxHours: 12
-          price: 6820
+          price: 8804
         - maxHours: 24
-          price: 7480
-      memberExtraDayRate: 6270
-      memberExtraHourRate: 739
+          price: 10322
+      memberExtraDayRate: 9187
+      memberExtraHourRate: 1161
 
     minivan:
       name: W1・W2・W3クラス（ミニバン・ワゴン）
