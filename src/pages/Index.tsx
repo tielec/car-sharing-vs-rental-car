@@ -143,15 +143,20 @@ const Index = () => {
                 onChange={setTotalHours}
                 maxDays={10}
               />
-              <InputField
-                label="走行距離"
-                value={distance}
-                onChange={setDistance}
-                min={settings.limits.distance.min}
-                max={settings.limits.distance.max}
-                unit="km"
-                icon={MapPin}
-              />
+              <div className="space-y-1.5">
+                <InputField
+                  label="走行距離"
+                  value={distance}
+                  onChange={setDistance}
+                  min={settings.limits.distance.min}
+                  max={settings.limits.distance.max}
+                  unit="km"
+                  icon={MapPin}
+                />
+                <p className="text-sm text-muted-foreground pl-1">
+                  目安: 箱根 約100km / 軽井沢 約300km
+                </p>
+              </div>
               <InputField
                 label="高速料金"
                 value={tollFee}
