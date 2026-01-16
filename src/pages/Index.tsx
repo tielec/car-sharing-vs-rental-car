@@ -361,10 +361,24 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="border-t border-border bg-card py-4 mt-8">
-        <div className="container text-center text-sm text-muted-foreground space-y-1">
-          <p>※ 本ツールの料金データは2026年1月16日時点の情報に基づいています。</p>
-          <p>※ 料金は参考情報です。実際の料金は各サービスの公式サイトでご確認ください。</p>
-          <p>※ 本ツールの利用により生じた損害について、一切の責任を負いかねます。</p>
+        <div className="container text-center text-sm text-muted-foreground space-y-3">
+          <div className="space-y-1">
+            <p>※ 本ツールの料金データは2026年1月16日時点の情報に基づいています。</p>
+            <p>※ 料金は参考情報です。実際の料金は各サービスの公式サイトでご確認ください。</p>
+            <p>※ 本ツールの利用により生じた損害について、一切の責任を負いかねます。</p>
+          </div>
+          <p className="pt-2 border-t border-border">
+            このアプリは{" "}
+            <a 
+              href="https://lovable.dev/invite/HN8QQET" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:underline font-medium"
+            >
+              Lovable
+            </a>
+            {" "}で作成しました
+          </p>
         </div>
       </footer>
     </div>
