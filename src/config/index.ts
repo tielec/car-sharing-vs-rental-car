@@ -23,8 +23,17 @@ export interface RentalCarRate {
 export interface RentalCarVehicle {
   name: string;
   defaultFuelEfficiency: number;
-  rates: RentalCarRate[];
-  extraDayRate: number;
+  regularRates: RentalCarRate[];
+  regularExtraDayRate: number;
+  regularExtraHourRate: number;
+  memberRates: RentalCarRate[];
+  memberExtraDayRate: number;
+  memberExtraHourRate: number;
+}
+
+export interface InsuranceOption {
+  name: string;
+  pricePerDay: number;
 }
 
 export interface DiscountMinutes {
@@ -32,6 +41,8 @@ export interface DiscountMinutes {
   washOnly: number;
   refuelAndWash: number;
 }
+
+export type InsuranceType = "none" | "basic" | "premium";
 
 export interface Settings {
   defaults: {
@@ -43,6 +54,8 @@ export interface Settings {
     hasWash: boolean;
     tollFee: number;
     fuelPrice: number;
+    isMember: boolean;
+    insuranceType: InsuranceType;
   };
   limits: {
     hours: { min: number; max: number };
@@ -56,6 +69,10 @@ export interface Settings {
   };
   rentalCar: {
     defaultFuelPrice: number;
+    insurance: {
+      basic: InsuranceOption;
+      premium: InsuranceOption;
+    };
     vehicles: Record<VehicleType, RentalCarVehicle>;
   };
 }
@@ -75,4 +92,16 @@ export function getCarShareVehicle(type: VehicleType): CarShareVehicle {
 
 export function getRentalCarVehicle(type: VehicleType): RentalCarVehicle {
   return settings.rentalCar.vehicles[type];
+}
+
+// Helper to get insurance price
+export function getInsurancePrice(type: InsuranceType, days: number): number {
+  if (type === "none") return 0;
+  const option = settings.rentalCar.insurance[type];
+  return option.pricePerDay * days;
+}
+
+export function getInsuranceName(type: InsuranceType): string {
+  if (type === "none") return "";
+  return settings.rentalCar.insurance[type].name;
 }
