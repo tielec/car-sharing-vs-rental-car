@@ -154,7 +154,7 @@ const Index = () => {
                   icon={MapPin}
                 />
                 <p className="text-sm text-muted-foreground pl-1">
-                  目安: 箱根 約100km / 軽井沢 約300km
+                  東京発の目安: 箱根往復 約180km / 軽井沢往復 約300km
                 </p>
               </div>
               <InputField
