@@ -19,6 +19,7 @@ const Index = () => {
   const [distance, setDistance] = useState(settings.defaults.distance);
   const [hasRefuel, setHasRefuel] = useState(settings.defaults.hasRefuel);
   const [hasWash, setHasWash] = useState(settings.defaults.hasWash);
+  const [hasCarShareInsurance, setHasCarShareInsurance] = useState(false);
   const [tollFee, setTollFee] = useState(settings.defaults.tollFee);
   
   // Rental car specific settings
@@ -37,8 +38,8 @@ const Index = () => {
   };
 
   const result = useMemo(() => {
-    return compareServices(vehicleType, totalHours, distance, hasRefuel, hasWash, fuelPrice, fuelEfficiency, isMember, insuranceType);
-  }, [vehicleType, totalHours, distance, hasRefuel, hasWash, fuelPrice, fuelEfficiency, isMember, insuranceType]);
+    return compareServices(vehicleType, totalHours, distance, hasRefuel, hasWash, hasCarShareInsurance, fuelPrice, fuelEfficiency, isMember, insuranceType);
+  }, [vehicleType, totalHours, distance, hasRefuel, hasWash, hasCarShareInsurance, fuelPrice, fuelEfficiency, isMember, insuranceType]);
 
   // Calculate discount label
   const getDiscountLabel = () => {
@@ -66,6 +67,9 @@ const Index = () => {
       : []),
     ...(result.carShare.serviceDiscount > 0 
       ? [{ label: getDiscountLabel(), value: result.carShare.serviceDiscount, isDiscount: true }] 
+      : []),
+    ...(result.carShare.insuranceCharge > 0 
+      ? [{ label: "安心補償サービス", value: result.carShare.insuranceCharge }] 
       : []),
     ...(tollFee > 0 
       ? [{ label: "高速料金", value: tollFee }] 
@@ -129,6 +133,7 @@ const Index = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-3 p-4 rounded-lg bg-muted/50 border border-border">
+                <p className="text-xs text-muted-foreground font-medium">カーシェア特典</p>
                 <div className="flex items-center space-x-3">
                   <Checkbox
                     id="refuel"
@@ -157,6 +162,21 @@ const Index = () => {
                   >
                     <Droplets className="w-4 h-4 text-primary" />
                     水洗い洗車をする
+                  </label>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Checkbox
+                    id="carShareInsurance"
+                    checked={hasCarShareInsurance}
+                    onCheckedChange={(checked) => setHasCarShareInsurance(checked === true)}
+                    className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                  />
+                  <label 
+                    htmlFor="carShareInsurance" 
+                    className="text-sm font-medium text-foreground cursor-pointer flex items-center gap-2"
+                  >
+                    <Shield className="w-4 h-4 text-primary" />
+                    安心補償サービス（550円）
                   </label>
                 </div>
               </div>

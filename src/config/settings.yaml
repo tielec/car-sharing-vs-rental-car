@@ -31,6 +31,9 @@ carShare:
   # 距離料金が発生する閾値（km）- 超えた分だけ課金
   distanceChargeThresholdKm: 20
   
+  # 安心補償サービス（1利用あたり）
+  insurancePerUse: 550
+  
   # 給油・洗車割引（分単位）
   # 給油: 30分割引、洗車: 30分割引、両方: 60分割引
   discountMinutes:
