@@ -25,8 +25,8 @@ export function DurationInput({ totalHours, onChange, maxDays = 10 }: DurationIn
 
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium text-foreground flex items-center gap-2">
-        <Clock className="w-4 h-4 text-primary" />
+      <label className="text-base font-medium text-foreground flex items-center gap-2">
+        <Clock className="w-5 h-5 text-primary" />
         利用時間
       </label>
       <div className="flex gap-2">
@@ -37,10 +37,10 @@ export function DurationInput({ totalHours, onChange, maxDays = 10 }: DurationIn
             onChange={(e) => handleDaysChange(parseInt(e.target.value) || 0)}
             min={0}
             max={maxDays}
-            className="pr-10 h-12 text-lg font-medium focus-visible:ring-primary focus-visible:ring-offset-0"
+            className="pr-10 h-14 text-xl font-medium focus-visible:ring-primary focus-visible:ring-offset-0"
             placeholder="0"
           />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-base">
             日
           </span>
         </div>
@@ -51,15 +51,15 @@ export function DurationInput({ totalHours, onChange, maxDays = 10 }: DurationIn
             onChange={(e) => handleHoursChange(parseInt(e.target.value) || 0)}
             min={0}
             max={23}
-            className="pr-12 h-12 text-lg font-medium focus-visible:ring-primary focus-visible:ring-offset-0"
+            className="pr-14 h-14 text-xl font-medium focus-visible:ring-primary focus-visible:ring-offset-0"
             placeholder="0"
           />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-base">
             時間
           </span>
         </div>
       </div>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         合計: {totalHours}時間
       </p>
     </div>
