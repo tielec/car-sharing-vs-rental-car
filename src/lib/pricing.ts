@@ -232,50 +232,152 @@ export function compareServices(
   isMember: boolean,
   insuranceType: InsuranceType
 ): ComparisonResult {
-  const carShare = calculateCarSharePrice(vehicleType, hours, distance, hasRefuel, hasWash, hasCarShareInsurance);
-  const rentalCar = calculateRentalCarPrice(vehicleType, hours, distance, fuelPrice, fuelEfficiency, isMember, insuranceType);
-  
-  const difference = Math.abs(carShare.total - rentalCar.total);
-  const cheaper = carShare.total < rentalCar.total 
-    ? "carShare" 
-    : carShare.total > rentalCar.total 
-      ? "rentalCar" 
-      : "same";
-  
-  const moreExpensive = Math.max(carShare.total, rentalCar.total);
-  const savingsRate = moreExpensive > 0 ? (difference / moreExpensive) * 100 : 0;
-  
+  const carShareResult = calculateCarSharePrice(
+    vehicleType,
+    hours,
+    distance,
+    hasRefuel,
+    hasWash,
+    hasCarShareInsurance
+  );
+
+  const rentalCarResult = calculateRentalCarPrice(
+    vehicleType,
+    hours,
+    distance,
+    fuelPrice,
+    fuelEfficiency,
+    isMember,
+    insuranceType
+  );
+
+  const difference = Math.abs(carShareResult.total - rentalCarResult.total);
+  const cheaper = carShareResult.total < rentalCarResult.total ? 'carShare' 
+    : carShareResult.total > rentalCarResult.total ? 'rentalCar' 
+    : 'same';
+  const moreExpensivePrice = Math.max(carShareResult.total, rentalCarResult.total);
+  const savingsRate = moreExpensivePrice > 0 ? (difference / moreExpensivePrice) * 100 : 0;
+
   // Calculate break-even distance
   let breakEvenDistance: number | null = null;
-  const thresholdKm = settings.carShare.distanceChargeThresholdKm;
   
-  const carShareVehicle = getCarShareVehicle(vehicleType);
+  // Binary search for break-even point
+  const maxSearchDistance = 1000;
+  let low = 0;
+  let high = maxSearchDistance;
   
-  const carShareFixed = carShare.timeCharge - carShare.serviceDiscount;
-  const rentalFixed = rentalCar.baseCharge + rentalCar.insuranceCharge;
-  
-  const carShareDistanceRate = carShareVehicle.distanceRate;
-  const rentalDistanceRate = fuelPrice / fuelEfficiency;
-  
-  // Only calculate break-even if distance rates differ
-  if (Math.abs(carShareDistanceRate - rentalDistanceRate) > 0.01) {
-    const adjustedCarShareFixed = carShareFixed - thresholdKm * carShareDistanceRate;
+  while (high - low > 1) {
+    const mid = Math.floor((low + high) / 2);
+    const csPrice = calculateCarSharePrice(vehicleType, hours, mid, hasRefuel, hasWash, hasCarShareInsurance).total;
+    const rcPrice = calculateRentalCarPrice(vehicleType, hours, mid, fuelPrice, fuelEfficiency, isMember, insuranceType).total;
     
-    if (cheaper === "carShare" && carShareDistanceRate > rentalDistanceRate) {
-      breakEvenDistance = Math.round((rentalFixed - adjustedCarShareFixed) / (carShareDistanceRate - rentalDistanceRate));
-      if (breakEvenDistance <= distance || breakEvenDistance <= 0) breakEvenDistance = null;
-    } else if (cheaper === "rentalCar" && rentalDistanceRate > carShareDistanceRate) {
-      breakEvenDistance = Math.round((adjustedCarShareFixed - rentalFixed) / (rentalDistanceRate - carShareDistanceRate));
-      if (breakEvenDistance <= distance || breakEvenDistance <= 0) breakEvenDistance = null;
+    if (csPrice <= rcPrice) {
+      low = mid;
+    } else {
+      high = mid;
     }
   }
   
+  // Verify break-even exists
+  const lowCsPrice = calculateCarSharePrice(vehicleType, hours, low, hasRefuel, hasWash, hasCarShareInsurance).total;
+  const lowRcPrice = calculateRentalCarPrice(vehicleType, hours, low, fuelPrice, fuelEfficiency, isMember, insuranceType).total;
+  const highCsPrice = calculateCarSharePrice(vehicleType, hours, high, hasRefuel, hasWash, hasCarShareInsurance).total;
+  const highRcPrice = calculateRentalCarPrice(vehicleType, hours, high, fuelPrice, fuelEfficiency, isMember, insuranceType).total;
+  
+  if ((lowCsPrice <= lowRcPrice) !== (highCsPrice <= highRcPrice)) {
+    breakEvenDistance = high;
+  }
+
   return {
-    carShare,
-    rentalCar,
+    carShare: carShareResult,
+    rentalCar: rentalCarResult,
     cheaper,
     difference,
     savingsRate,
     breakEvenDistance,
   };
+}
+
+export interface PriceProgressionDataPoint {
+  distance: number;
+  carShare: number;
+  rentalCar: number;
+}
+
+export function generatePriceProgressionData(
+  vehicleType: VehicleType,
+  hours: number,
+  hasRefuel: boolean,
+  hasWash: boolean,
+  hasCarShareInsurance: boolean,
+  fuelPrice: number,
+  fuelEfficiency: number,
+  isMember: boolean,
+  insuranceType: InsuranceType,
+  currentDistance: number
+): PriceProgressionDataPoint[] {
+  // Determine max distance for the chart
+  const maxDistance = Math.max(Math.min(currentDistance * 2, 500), 200);
+  const step = Math.max(Math.floor(maxDistance / 25), 10);
+  
+  const data: PriceProgressionDataPoint[] = [];
+  
+  for (let distance = 0; distance <= maxDistance; distance += step) {
+    const carShareResult = calculateCarSharePrice(
+      vehicleType,
+      hours,
+      distance,
+      hasRefuel,
+      hasWash,
+      hasCarShareInsurance
+    );
+    
+    const rentalCarResult = calculateRentalCarPrice(
+      vehicleType,
+      hours,
+      distance,
+      fuelPrice,
+      fuelEfficiency,
+      isMember,
+      insuranceType
+    );
+    
+    data.push({
+      distance,
+      carShare: carShareResult.total,
+      rentalCar: rentalCarResult.total,
+    });
+  }
+  
+  // Ensure current distance is included
+  if (!data.some(d => d.distance === currentDistance) && currentDistance <= maxDistance) {
+    const carShareResult = calculateCarSharePrice(
+      vehicleType,
+      hours,
+      currentDistance,
+      hasRefuel,
+      hasWash,
+      hasCarShareInsurance
+    );
+    
+    const rentalCarResult = calculateRentalCarPrice(
+      vehicleType,
+      hours,
+      currentDistance,
+      fuelPrice,
+      fuelEfficiency,
+      isMember,
+      insuranceType
+    );
+    
+    data.push({
+      distance: currentDistance,
+      carShare: carShareResult.total,
+      rentalCar: rentalCarResult.total,
+    });
+    
+    data.sort((a, b) => a.distance - b.distance);
+  }
+  
+  return data;
 }

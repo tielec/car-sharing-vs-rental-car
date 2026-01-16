@@ -7,7 +7,8 @@ import { InputField } from "@/components/InputField";
 import { DurationInput } from "@/components/DurationInput";
 import { PriceCard } from "@/components/PriceCard";
 import { ComparisonResult } from "@/components/ComparisonResult";
-import { compareServices, type VehicleType, type InsuranceType } from "@/lib/pricing";
+import { compareServices, generatePriceProgressionData, type VehicleType, type InsuranceType } from "@/lib/pricing";
+import { PriceComparisonChart } from "@/components/PriceComparisonChart";
 import { settings, getCarShareVehicle, getRentalCarVehicle, getInsuranceName } from "@/config";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -41,6 +42,13 @@ const Index = () => {
   const result = useMemo(() => {
     return compareServices(vehicleType, totalHours, distance, hasRefuel, hasWash, hasCarShareInsurance, fuelPrice, fuelEfficiency, isMember, insuranceType);
   }, [vehicleType, totalHours, distance, hasRefuel, hasWash, hasCarShareInsurance, fuelPrice, fuelEfficiency, isMember, insuranceType]);
+
+  const chartData = useMemo(() => {
+    return generatePriceProgressionData(
+      vehicleType, totalHours, hasRefuel, hasWash, hasCarShareInsurance,
+      fuelPrice, fuelEfficiency, isMember, insuranceType, distance
+    );
+  }, [vehicleType, totalHours, hasRefuel, hasWash, hasCarShareInsurance, fuelPrice, fuelEfficiency, isMember, insuranceType, distance]);
 
   // Calculate discount label
   const getDiscountLabel = () => {
@@ -344,6 +352,12 @@ const Index = () => {
           </div>
 
           <ComparisonResult result={result} currentDistance={distance} />
+
+          <PriceComparisonChart 
+            data={chartData} 
+            currentDistance={distance}
+            breakEvenDistance={result.breakEvenDistance}
+          />
         </section>
 
         {/* Info Section */}
