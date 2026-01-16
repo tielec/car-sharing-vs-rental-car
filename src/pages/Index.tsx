@@ -6,7 +6,7 @@ import { VehicleSelector } from "@/components/VehicleSelector";
 import { InputField } from "@/components/InputField";
 import { DurationInput } from "@/components/DurationInput";
 import { PriceCard } from "@/components/PriceCard";
-import { ComparisonResult } from "@/components/ComparisonResult";
+import { ComparisonResult, BreakEvenMessage } from "@/components/ComparisonResult";
 import { compareServices, generatePriceProgressionData, type VehicleType, type InsuranceType } from "@/lib/pricing";
 import { PriceComparisonChart } from "@/components/PriceComparisonChart";
 import { settings, getCarShareVehicle, getRentalCarVehicle, getInsuranceName } from "@/config";
@@ -351,13 +351,15 @@ const Index = () => {
             />
           </div>
 
+          <ComparisonResult result={result} />
+
           <PriceComparisonChart 
             data={chartData} 
             currentDistance={distance}
             breakEvenDistance={result.breakEvenDistance}
           />
 
-          <ComparisonResult result={result} currentDistance={distance} />
+          <BreakEvenMessage result={result} currentDistance={distance} />
         </section>
 
         {/* Info Section */}
