@@ -108,16 +108,18 @@ rentalCar:
     compact:
       name: K・C1・C2クラス（コンパクト）
       defaultFuelEfficiency: 15 # km/L - ユーザーが上書き可能
-      # 時間帯別料金
+      # 時間帯別料金（会員料金・税込）
       rates:
         - maxHours: 6
-          price: 4290
+          price: 4250
         - maxHours: 12
-          price: 5390
+          price: 5161
         - maxHours: 24
-          price: 5940
+          price: 6072
       # 24時間以降、1日毎の追加料金
-      extraDayRate: 4950
+      extraDayRate: 5385
+      # 追加1時間毎
+      extraHourRate: 739
 
     compactMinivan:
       name: M1・M2クラス（コンパクトミニバン）
