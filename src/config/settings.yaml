@@ -7,6 +7,7 @@ defaults:
   hours: 0
   distance: 100
   hasRefuel: false
+  hasWash: false
   tollFee: 0
   fuelPrice: 160 # 円/L
 
@@ -26,6 +27,13 @@ limits:
 carShare:
   # 距離料金が発生する閾値（km）- 超えた分だけ課金
   distanceChargeThresholdKm: 20
+  
+  # 給油・洗車割引（分単位）
+  # 給油: 30分割引、洗車: 30分割引、両方: 60分割引
+  discountMinutes:
+    refuelOnly: 30
+    washOnly: 30
+    refuelAndWash: 60
   
   vehicles:
     compact:
@@ -50,7 +58,6 @@ carShare:
       # 72時間以降、1日毎の追加料金
       dailyRateAfter72h: 5500
       distanceRate: 20
-      refuelDiscount: 330
 
     compactMinivan:
       name: ミドル
@@ -71,7 +78,6 @@ carShare:
           maxPrice: 18700
       dailyRateAfter72h: 6600
       distanceRate: 20
-      refuelDiscount: 330
 
     minivan:
       name: プレミアム
@@ -92,7 +98,6 @@ carShare:
           maxPrice: 27500
       dailyRateAfter72h: 7700
       distanceRate: 20
-      refuelDiscount: 330
 
 # タイムズレンタカー料金
 rentalCar:

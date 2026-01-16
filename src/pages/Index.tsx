@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Car, MapPin, Fuel, Banknote, Settings as SettingsIcon } from "lucide-react";
+import { Car, MapPin, Fuel, Banknote, Settings as SettingsIcon, Droplets } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { VehicleSelector } from "@/components/VehicleSelector";
 import { InputField } from "@/components/InputField";
@@ -16,6 +16,7 @@ const Index = () => {
   const [totalHours, setTotalHours] = useState(settings.defaults.days * 24 + settings.defaults.hours);
   const [distance, setDistance] = useState(settings.defaults.distance);
   const [hasRefuel, setHasRefuel] = useState(settings.defaults.hasRefuel);
+  const [hasWash, setHasWash] = useState(settings.defaults.hasWash);
   const [tollFee, setTollFee] = useState(settings.defaults.tollFee);
   
   // User-configurable fuel settings
@@ -30,16 +31,24 @@ const Index = () => {
   };
 
   const result = useMemo(() => {
-    return compareServices(vehicleType, totalHours, distance, hasRefuel, fuelPrice, fuelEfficiency);
-  }, [vehicleType, totalHours, distance, hasRefuel, fuelPrice, fuelEfficiency]);
+    return compareServices(vehicleType, totalHours, distance, hasRefuel, hasWash, fuelPrice, fuelEfficiency);
+  }, [vehicleType, totalHours, distance, hasRefuel, hasWash, fuelPrice, fuelEfficiency]);
+
+  // Calculate discount label
+  const getDiscountLabel = () => {
+    if (hasRefuel && hasWash) return "給油・洗車割引（60分）";
+    if (hasRefuel) return "給油割引（30分）";
+    if (hasWash) return "洗車割引（30分）";
+    return "";
+  };
 
   const carShareItems = [
     { label: "時間料金", value: result.carShare.timeCharge },
     ...(result.carShare.distanceCharge > 0 
       ? [{ label: `距離料金（${distance}km）`, value: result.carShare.distanceCharge }] 
       : []),
-    ...(result.carShare.refuelDiscount > 0 
-      ? [{ label: "給油・洗車割引", value: result.carShare.refuelDiscount, isDiscount: true }] 
+    ...(result.carShare.serviceDiscount > 0 
+      ? [{ label: getDiscountLabel(), value: result.carShare.serviceDiscount, isDiscount: true }] 
       : []),
     ...(tollFee > 0 
       ? [{ label: "高速料金", value: tollFee }] 
@@ -99,20 +108,37 @@ const Index = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex items-center space-x-3 p-4 rounded-lg bg-muted/50 border border-border">
-                <Checkbox
-                  id="refuel"
-                  checked={hasRefuel}
-                  onCheckedChange={(checked) => setHasRefuel(checked === true)}
-                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                />
-                <label 
-                  htmlFor="refuel" 
-                  className="text-sm font-medium text-foreground cursor-pointer flex items-center gap-2"
-                >
-                  <Fuel className="w-4 h-4 text-primary" />
-                  給油・洗車をする
-                </label>
+              <div className="flex flex-col gap-3 p-4 rounded-lg bg-muted/50 border border-border">
+                <div className="flex items-center space-x-3">
+                  <Checkbox
+                    id="refuel"
+                    checked={hasRefuel}
+                    onCheckedChange={(checked) => setHasRefuel(checked === true)}
+                    className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                  />
+                  <label 
+                    htmlFor="refuel" 
+                    className="text-sm font-medium text-foreground cursor-pointer flex items-center gap-2"
+                  >
+                    <Fuel className="w-4 h-4 text-primary" />
+                    給油をする（20L以上）
+                  </label>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Checkbox
+                    id="wash"
+                    checked={hasWash}
+                    onCheckedChange={(checked) => setHasWash(checked === true)}
+                    className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                  />
+                  <label 
+                    htmlFor="wash" 
+                    className="text-sm font-medium text-foreground cursor-pointer flex items-center gap-2"
+                  >
+                    <Droplets className="w-4 h-4 text-primary" />
+                    水洗い洗車をする
+                  </label>
+                </div>
               </div>
               
               <InputField
@@ -186,6 +212,7 @@ const Index = () => {
           <p className="font-medium text-foreground">料金について</p>
           <ul className="list-disc list-inside space-y-1 text-xs">
             <li>カーシェアは{settings.carShare.distanceChargeThresholdKm}km超で距離料金（¥{getCarShareVehicle(vehicleType).distanceRate}/km）が発生</li>
+            <li>給油割引は20L以上（または燃料計の半分以上）が対象</li>
             <li>レンタカーのガソリン代は燃費{fuelEfficiency}km/L、¥{fuelPrice}/Lで計算</li>
             <li>実際の料金は時期やプランにより異なる場合があります</li>
           </ul>

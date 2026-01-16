@@ -13,13 +13,18 @@ export interface CarShareVehicle {
   maxRates: MaxRate[];
   dailyRateAfter72h: number;
   distanceRate: number;
-  refuelDiscount: number;
 }
 
 export interface RentalCarVehicle {
   name: string;
   dailyRate: number;
   defaultFuelEfficiency: number;
+}
+
+export interface DiscountMinutes {
+  refuelOnly: number;
+  washOnly: number;
+  refuelAndWash: number;
 }
 
 export interface Settings {
@@ -29,6 +34,7 @@ export interface Settings {
     hours: number;
     distance: number;
     hasRefuel: boolean;
+    hasWash: boolean;
     tollFee: number;
     fuelPrice: number;
   };
@@ -39,6 +45,7 @@ export interface Settings {
   };
   carShare: {
     distanceChargeThresholdKm: number;
+    discountMinutes: DiscountMinutes;
     vehicles: Record<VehicleType, CarShareVehicle>;
   };
   rentalCar: {
