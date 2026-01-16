@@ -11,7 +11,7 @@ export type { VehicleType };
 export interface CarShareResult {
   timeCharge: number;
   distanceCharge: number;
-  refuelDiscount: number;
+  serviceDiscount: number;
   total: number;
 }
 
@@ -56,11 +56,37 @@ function calculateCarShareTimeCharge(vehicle: CarShareVehicle, hours: number): n
   return base72h + extraDays * vehicle.dailyRateAfter72h;
 }
 
+/**
+ * Calculate service discount (refuel/wash) in yen
+ * Discount is based on time (minutes) * rate per 15min
+ */
+function calculateServiceDiscount(
+  vehicle: CarShareVehicle,
+  hasRefuel: boolean,
+  hasWash: boolean
+): number {
+  const { discountMinutes } = settings.carShare;
+  
+  let discountMins = 0;
+  if (hasRefuel && hasWash) {
+    discountMins = discountMinutes.refuelAndWash;
+  } else if (hasRefuel) {
+    discountMins = discountMinutes.refuelOnly;
+  } else if (hasWash) {
+    discountMins = discountMinutes.washOnly;
+  }
+  
+  // Convert minutes to 15-min units and multiply by rate
+  const units15min = discountMins / 15;
+  return units15min * vehicle.rate15min;
+}
+
 export function calculateCarSharePrice(
   vehicleType: VehicleType,
   hours: number,
   distance: number,
-  hasRefuel: boolean
+  hasRefuel: boolean,
+  hasWash: boolean
 ): CarShareResult {
   const vehicle = getCarShareVehicle(vehicleType);
   const thresholdKm = settings.carShare.distanceChargeThresholdKm;
@@ -72,16 +98,15 @@ export function calculateCarSharePrice(
   const chargeableDistance = Math.max(0, distance - thresholdKm);
   const distanceCharge = chargeableDistance * vehicle.distanceRate;
   
-  // Refuel discount (assume 10L refuel = discount, based on distance)
-  const estimatedFuel = distance / 12;
-  const refuelDiscount = hasRefuel ? Math.floor(estimatedFuel / 10) * vehicle.refuelDiscount : 0;
+  // Service discount (refuel/wash)
+  const serviceDiscount = calculateServiceDiscount(vehicle, hasRefuel, hasWash);
   
-  const total = Math.max(0, timeCharge + distanceCharge - refuelDiscount);
+  const total = Math.max(0, timeCharge + distanceCharge - serviceDiscount);
   
   return {
     timeCharge,
     distanceCharge,
-    refuelDiscount,
+    serviceDiscount,
     total,
   };
 }
@@ -117,10 +142,11 @@ export function compareServices(
   hours: number,
   distance: number,
   hasRefuel: boolean,
+  hasWash: boolean,
   fuelPrice: number,
   fuelEfficiency: number
 ): ComparisonResult {
-  const carShare = calculateCarSharePrice(vehicleType, hours, distance, hasRefuel);
+  const carShare = calculateCarSharePrice(vehicleType, hours, distance, hasRefuel, hasWash);
   const rentalCar = calculateRentalCarPrice(vehicleType, hours, distance, fuelPrice, fuelEfficiency);
   
   const difference = Math.abs(carShare.total - rentalCar.total);
@@ -139,7 +165,7 @@ export function compareServices(
   
   const carShareVehicle = getCarShareVehicle(vehicleType);
   
-  const carShareFixed = carShare.timeCharge - (hasRefuel ? carShare.refuelDiscount : 0);
+  const carShareFixed = carShare.timeCharge - carShare.serviceDiscount;
   const rentalFixed = rentalCar.baseCharge;
   
   const carShareDistanceRate = carShareVehicle.distanceRate;
@@ -147,16 +173,6 @@ export function compareServices(
   
   // Only calculate break-even if distance rates differ
   if (Math.abs(carShareDistanceRate - rentalDistanceRate) > 0.01) {
-    // Account for the threshold in break-even calculation
-    const carShareDistanceCost = (d: number) => Math.max(0, d - thresholdKm) * carShareDistanceRate;
-    const rentalDistanceCost = (d: number) => d * rentalDistanceRate;
-    
-    // Simplified: find where total costs equal
-    // carShareFixed + carShareDistanceCost(d) = rentalFixed + rentalDistanceCost(d)
-    // For d > thresholdKm:
-    // carShareFixed + (d - thresholdKm) * carShareDistanceRate = rentalFixed + d * rentalDistanceRate
-    // d * carShareDistanceRate - thresholdKm * carShareDistanceRate = rentalFixed - carShareFixed + d * rentalDistanceRate
-    // d * (carShareDistanceRate - rentalDistanceRate) = rentalFixed - carShareFixed + thresholdKm * carShareDistanceRate
     const adjustedCarShareFixed = carShareFixed - thresholdKm * carShareDistanceRate;
     
     if (cheaper === "carShare" && carShareDistanceRate > rentalDistanceRate) {
