@@ -24,70 +24,73 @@ limits:
 
 # タイムズカーシェア料金
 carShare:
-  # 距離料金が発生する時間閾値
-  distanceChargeThreshold: 6
+  # 距離料金が発生する閾値（km）- 超えた分だけ課金
+  distanceChargeThresholdKm: 20
   
   vehicles:
     compact:
-      name: コンパクトカー
-      description: 2〜4名向け
-      hourlyRates:
+      name: ベーシック
+      description: コンパクトカー（2〜4名向け）
+      # 15分単位料金
+      rate15min: 220
+      # 最大時間料金テーブル
+      maxRates:
         - maxHours: 6
-          rate: 220
+          maxPrice: 4290
         - maxHours: 12
-          rate: 170
+          maxPrice: 5500
         - maxHours: 24
-          rate: 155
+          maxPrice: 6600
         - maxHours: 36
-          rate: 145
+          maxPrice: 8800
         - maxHours: 48
-          rate: 135
+          maxPrice: 9900
         - maxHours: 72
-          rate: 125
-        - maxHours: 9999 # Infinity
-          rate: 115
+          maxPrice: 14300
+      # 72時間以降、1日毎の追加料金
+      dailyRateAfter72h: 5500
       distanceRate: 20
       refuelDiscount: 330
 
     compactMinivan:
-      name: コンパクトミニバン
-      description: 4〜6名向け
-      hourlyRates:
+      name: ミドル
+      description: コンパクトミニバン（4〜6名向け）
+      rate15min: 330
+      maxRates:
         - maxHours: 6
-          rate: 330
+          maxPrice: 6490
         - maxHours: 12
-          rate: 260
+          maxPrice: 7700
         - maxHours: 24
-          rate: 240
+          maxPrice: 8800
         - maxHours: 36
-          rate: 230
+          maxPrice: 11000
         - maxHours: 48
-          rate: 215
+          maxPrice: 13200
         - maxHours: 72
-          rate: 195
-        - maxHours: 9999
-          rate: 175
+          maxPrice: 18700
+      dailyRateAfter72h: 6600
       distanceRate: 20
       refuelDiscount: 330
 
     minivan:
-      name: ミニバン
-      description: 6〜8名向け
-      hourlyRates:
+      name: プレミアム
+      description: ミニバン（6〜8名向け）
+      rate15min: 440
+      maxRates:
         - maxHours: 6
-          rate: 440
+          maxPrice: 8690
         - maxHours: 12
-          rate: 350
+          maxPrice: 9900
         - maxHours: 24
-          rate: 320
+          maxPrice: 12100
         - maxHours: 36
-          rate: 305
+          maxPrice: 17600
         - maxHours: 48
-          rate: 290
+          maxPrice: 20900
         - maxHours: 72
-          rate: 265
-        - maxHours: 9999
-          rate: 235
+          maxPrice: 27500
+      dailyRateAfter72h: 7700
       distanceRate: 20
       refuelDiscount: 330
 

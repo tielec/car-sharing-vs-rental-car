@@ -1,15 +1,17 @@
 import YAML from "yaml";
 import settingsYaml from "./settings.yaml?raw";
 
-export interface HourlyRate {
+export interface MaxRate {
   maxHours: number;
-  rate: number;
+  maxPrice: number;
 }
 
 export interface CarShareVehicle {
   name: string;
   description: string;
-  hourlyRates: HourlyRate[];
+  rate15min: number;
+  maxRates: MaxRate[];
+  dailyRateAfter72h: number;
   distanceRate: number;
   refuelDiscount: number;
 }
@@ -36,7 +38,7 @@ export interface Settings {
     tollFee: { min: number; max: number };
   };
   carShare: {
-    distanceChargeThreshold: number;
+    distanceChargeThresholdKm: number;
     vehicles: Record<VehicleType, CarShareVehicle>;
   };
   rentalCar: {

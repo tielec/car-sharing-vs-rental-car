@@ -2,7 +2,8 @@ import {
   settings, 
   getCarShareVehicle, 
   getRentalCarVehicle,
-  type VehicleType 
+  type VehicleType,
+  type CarShareVehicle
 } from "@/config";
 
 export type { VehicleType };
@@ -29,6 +30,32 @@ export interface ComparisonResult {
   breakEvenDistance: number | null;
 }
 
+/**
+ * Calculate car share time charge using 15-min rate with max rate caps
+ */
+function calculateCarShareTimeCharge(vehicle: CarShareVehicle, hours: number): number {
+  if (hours <= 0) return 0;
+  
+  // For durations up to 72 hours
+  if (hours <= 72) {
+    // Calculate 15-min unit charge
+    const units15min = Math.ceil(hours * 4); // Convert hours to 15-min units
+    const rate15minTotal = units15min * vehicle.rate15min;
+    
+    // Find applicable max rate
+    const applicableMaxRate = vehicle.maxRates.find(r => hours <= r.maxHours);
+    const maxPrice = applicableMaxRate?.maxPrice ?? Infinity;
+    
+    // Return the cheaper of the two
+    return Math.min(rate15minTotal, maxPrice);
+  }
+  
+  // For durations over 72 hours
+  const base72h = vehicle.maxRates.find(r => r.maxHours === 72)?.maxPrice ?? 0;
+  const extraDays = Math.ceil((hours - 72) / 24);
+  return base72h + extraDays * vehicle.dailyRateAfter72h;
+}
+
 export function calculateCarSharePrice(
   vehicleType: VehicleType,
   hours: number,
@@ -36,27 +63,14 @@ export function calculateCarSharePrice(
   hasRefuel: boolean
 ): CarShareResult {
   const vehicle = getCarShareVehicle(vehicleType);
-  const threshold = settings.carShare.distanceChargeThreshold;
+  const thresholdKm = settings.carShare.distanceChargeThresholdKm;
   
-  // Calculate time charge using tiered rates
-  let timeCharge = 0;
-  let remainingHours = hours;
-  let previousMaxHours = 0;
+  // Calculate time charge
+  const timeCharge = calculateCarShareTimeCharge(vehicle, hours);
   
-  for (const tier of vehicle.hourlyRates) {
-    const maxH = tier.maxHours === 9999 ? Infinity : tier.maxHours;
-    const hoursInThisTier = Math.min(remainingHours, maxH - previousMaxHours);
-    if (hoursInThisTier <= 0) break;
-    
-    timeCharge += hoursInThisTier * tier.rate;
-    remainingHours -= hoursInThisTier;
-    previousMaxHours = maxH;
-    
-    if (remainingHours <= 0) break;
-  }
-  
-  // Distance charge only applies after threshold hours
-  const distanceCharge = hours > threshold ? distance * vehicle.distanceRate : 0;
+  // Distance charge: only for km exceeding threshold
+  const chargeableDistance = Math.max(0, distance - thresholdKm);
+  const distanceCharge = chargeableDistance * vehicle.distanceRate;
   
   // Refuel discount (assume 10L refuel = discount, based on distance)
   const estimatedFuel = distance / 12;
@@ -121,23 +135,36 @@ export function compareServices(
   
   // Calculate break-even distance
   let breakEvenDistance: number | null = null;
-  const threshold = settings.carShare.distanceChargeThreshold;
+  const thresholdKm = settings.carShare.distanceChargeThresholdKm;
   
-  if (hours > threshold) {
-    const carShareVehicle = getCarShareVehicle(vehicleType);
+  const carShareVehicle = getCarShareVehicle(vehicleType);
+  
+  const carShareFixed = carShare.timeCharge - (hasRefuel ? carShare.refuelDiscount : 0);
+  const rentalFixed = rentalCar.baseCharge;
+  
+  const carShareDistanceRate = carShareVehicle.distanceRate;
+  const rentalDistanceRate = fuelPrice / fuelEfficiency;
+  
+  // Only calculate break-even if distance rates differ
+  if (Math.abs(carShareDistanceRate - rentalDistanceRate) > 0.01) {
+    // Account for the threshold in break-even calculation
+    const carShareDistanceCost = (d: number) => Math.max(0, d - thresholdKm) * carShareDistanceRate;
+    const rentalDistanceCost = (d: number) => d * rentalDistanceRate;
     
-    const carShareFixed = carShare.timeCharge - (hasRefuel ? carShare.refuelDiscount : 0);
-    const rentalFixed = rentalCar.baseCharge;
-    
-    const carShareDistanceRate = carShareVehicle.distanceRate;
-    const rentalDistanceRate = fuelPrice / fuelEfficiency;
+    // Simplified: find where total costs equal
+    // carShareFixed + carShareDistanceCost(d) = rentalFixed + rentalDistanceCost(d)
+    // For d > thresholdKm:
+    // carShareFixed + (d - thresholdKm) * carShareDistanceRate = rentalFixed + d * rentalDistanceRate
+    // d * carShareDistanceRate - thresholdKm * carShareDistanceRate = rentalFixed - carShareFixed + d * rentalDistanceRate
+    // d * (carShareDistanceRate - rentalDistanceRate) = rentalFixed - carShareFixed + thresholdKm * carShareDistanceRate
+    const adjustedCarShareFixed = carShareFixed - thresholdKm * carShareDistanceRate;
     
     if (cheaper === "carShare" && carShareDistanceRate > rentalDistanceRate) {
-      breakEvenDistance = Math.round((rentalFixed - carShareFixed) / (carShareDistanceRate - rentalDistanceRate));
-      if (breakEvenDistance <= distance) breakEvenDistance = null;
+      breakEvenDistance = Math.round((rentalFixed - adjustedCarShareFixed) / (carShareDistanceRate - rentalDistanceRate));
+      if (breakEvenDistance <= distance || breakEvenDistance <= 0) breakEvenDistance = null;
     } else if (cheaper === "rentalCar" && rentalDistanceRate > carShareDistanceRate) {
-      breakEvenDistance = Math.round((carShareFixed - rentalFixed) / (rentalDistanceRate - carShareDistanceRate));
-      if (breakEvenDistance <= distance) breakEvenDistance = null;
+      breakEvenDistance = Math.round((adjustedCarShareFixed - rentalFixed) / (rentalDistanceRate - carShareDistanceRate));
+      if (breakEvenDistance <= distance || breakEvenDistance <= 0) breakEvenDistance = null;
     }
   }
   

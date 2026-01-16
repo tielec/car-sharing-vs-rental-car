@@ -185,7 +185,7 @@ const Index = () => {
         <section className="bg-muted/50 rounded-xl p-5 border border-border text-sm text-muted-foreground space-y-2">
           <p className="font-medium text-foreground">料金について</p>
           <ul className="list-disc list-inside space-y-1 text-xs">
-            <li>カーシェアは{settings.carShare.distanceChargeThreshold}時間超で距離料金（¥{getCarShareVehicle(vehicleType).distanceRate}/km）が発生</li>
+            <li>カーシェアは{settings.carShare.distanceChargeThresholdKm}km超で距離料金（¥{getCarShareVehicle(vehicleType).distanceRate}/km）が発生</li>
             <li>レンタカーのガソリン代は燃費{fuelEfficiency}km/L、¥{fuelPrice}/Lで計算</li>
             <li>実際の料金は時期やプランにより異なる場合があります</li>
           </ul>
