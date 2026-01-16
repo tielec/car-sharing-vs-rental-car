@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Car, MapPin, Fuel, Banknote, Settings as SettingsIcon, Droplets, Shield, Users } from "lucide-react";
+import heroCover from "@/assets/hero-cover.png";
 import { Checkbox } from "@/components/ui/checkbox";
 import { VehicleSelector } from "@/components/VehicleSelector";
 import { InputField } from "@/components/InputField";
@@ -107,6 +108,15 @@ const Index = () => {
       </header>
 
       <main className="container py-6 space-y-6">
+        {/* Hero Cover Image */}
+        <section className="animate-fade-in">
+          <img 
+            src={heroCover} 
+            alt="カーシェア vs レンタカー比較" 
+            className="w-full h-auto rounded-xl border border-border card-shadow"
+          />
+        </section>
+
         {/* Tool Description */}
         <section className="bg-muted/50 rounded-xl p-5 border border-border animate-fade-in">
           <h2 className="text-lg font-semibold text-foreground mb-2">このツールについて</h2>
