@@ -333,7 +333,7 @@ const Index = () => {
             />
           </div>
 
-          <ComparisonResult result={result} />
+          <ComparisonResult result={result} currentDistance={distance} />
         </section>
 
         {/* Info Section */}
