@@ -367,18 +367,17 @@ const Index = () => {
             <p>※ 料金は参考情報です。実際の料金は各サービスの公式サイトでご確認ください。</p>
             <p>※ 本ツールの利用により生じた損害について、一切の責任を負いかねます。</p>
           </div>
-          <p className="pt-2 border-t border-border">
-            このアプリは{" "}
+          <div className="pt-4 border-t border-border">
             <a 
               href="https://lovable.dev/invite/HN8QQET" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-primary hover:underline font-medium"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold hover:from-pink-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
             >
-              Lovable
+              <span>💜</span>
+              <span>Made with Lovable</span>
             </a>
-            {" "}で作成しました
-          </p>
+          </div>
         </div>
       </footer>
     </div>
