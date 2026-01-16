@@ -107,6 +107,29 @@ const Index = () => {
       </header>
 
       <main className="container py-6 space-y-6">
+        {/* Tool Description */}
+        <section className="bg-muted/50 rounded-xl p-5 border border-border animate-fade-in">
+          <h2 className="text-lg font-semibold text-foreground mb-2">このツールについて</h2>
+          <p className="text-base text-muted-foreground leading-relaxed">
+            タイムズカーシェアとタイムズレンタカーの料金を比較できるツールです。
+            利用時間・走行距離・車種を入力すると、それぞれの概算料金と、どちらがお得かを自動計算します。
+          </p>
+          <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
+            <li className="flex items-start gap-2">
+              <span className="text-primary font-bold">✓</span>
+              <span>時間・距離に応じた料金を自動計算</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary font-bold">✓</span>
+              <span>ガソリン代・高速料金も考慮</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary font-bold">✓</span>
+              <span>損益分岐点の距離を表示</span>
+            </li>
+          </ul>
+        </section>
+
         {/* Input Section */}
         <section className="bg-card rounded-xl p-5 card-shadow border border-border animate-fade-in">
           <h2 className="text-lg font-bold text-foreground mb-5">利用条件を入力</h2>
