@@ -191,7 +191,7 @@ const Index = () => {
                     className="text-sm font-medium text-foreground cursor-pointer flex items-center gap-2"
                   >
                     <Shield className="w-4 h-4 text-primary" />
-                    安心補償サービス（550円）
+                    安心補償サービス（{settings.carShare.insurancePerUse.toLocaleString()}円）
                   </label>
                 </div>
               </div>
@@ -315,7 +315,7 @@ const Index = () => {
             <li>カーシェアは{settings.carShare.distanceChargeThresholdKm}km超で距離料金（¥{getCarShareVehicle(vehicleType).distanceRate}/km）が発生</li>
             <li>給油割引は20L以上（または燃料計の半分以上）が対象</li>
             <li>レンタカーのガソリン代は燃費{fuelEfficiency}km/L、¥{fuelPrice}/Lで計算</li>
-            <li>免責補償: ¥1,100/日、安心補償: ¥2,200/日</li>
+            <li>免責補償: ¥{rentalVehicle.insuranceBasicPerDay.toLocaleString()}/日、安心補償: ¥{rentalVehicle.insurancePremiumPerDay.toLocaleString()}/日</li>
             <li>実際の料金は時期やプランにより異なる場合があります</li>
           </ul>
         </section>
