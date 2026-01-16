@@ -121,22 +121,22 @@ rentalCar:
       # 通常料金（税込）
       regularRates:
         - maxHours: 6
-          price: 5313
+          price: 6198
         - maxHours: 12
-          price: 6451
-        - maxHours: 24
           price: 7590
-      regularExtraDayRate: 6732
+        - maxHours: 24
+          price: 8855
+      regularExtraDayRate: 7920
       regularExtraHourRate: 1056
       # 会員料金（税込）
       memberRates:
         - maxHours: 6
-          price: 4250
+          price: 4958
         - maxHours: 12
-          price: 5161
-        - maxHours: 24
           price: 6072
-      memberExtraDayRate: 5385
+        - maxHours: 24
+          price: 7084
+      memberExtraDayRate: 6336
       memberExtraHourRate: 844
 
     compactMinivan:
