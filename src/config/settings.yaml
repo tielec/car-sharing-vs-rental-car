@@ -109,7 +109,7 @@ rentalCar:
   
   vehicles:
     compact:
-      name: K・C1・C2クラス（コンパクト）
+      name: C1クラス（コンパクト）
       defaultFuelEfficiency: 15 # km/L
       # 補償オプション料金（24時間あたり）
       insuranceBasicPerDay: 1100
