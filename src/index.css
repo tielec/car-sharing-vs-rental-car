@@ -19,14 +19,14 @@
     --popover: 20 5% 90%;
     --popover-foreground: 24 9% 10%;
 
-    /* Car Share - Blue theme */
-    --carshare: 205 85% 50%;
-    --carshare-light: 205 85% 95%;
-    --carshare-foreground: 0 0% 100%;
+    /* Car Share - Times Yellow theme (#FDD101) */
+    --carshare: 50 99% 50%;
+    --carshare-light: 50 99% 92%;
+    --carshare-foreground: 0 0% 0%;
 
-    /* Rental Car - Gray theme */
-    --rental: 220 10% 45%;
-    --rental-light: 220 10% 95%;
+    /* Rental Car - Black theme (#000000) */
+    --rental: 0 0% 25%;
+    --rental-light: 0 0% 92%;
     --rental-foreground: 0 0% 100%;
 
     /* Savings/Cheaper - Green theme */
@@ -97,12 +97,12 @@
     --popover: 30 6% 25%;
     --popover-foreground: 60 9% 97%;
 
-    --carshare: 205 85% 55%;
-    --carshare-light: 205 50% 20%;
-    --carshare-foreground: 0 0% 100%;
+    --carshare: 50 99% 55%;
+    --carshare-light: 50 60% 20%;
+    --carshare-foreground: 0 0% 0%;
 
-    --rental: 220 10% 60%;
-    --rental-light: 220 10% 20%;
+    --rental: 0 0% 60%;
+    --rental-light: 0 0% 20%;
     --rental-foreground: 0 0% 100%;
 
     --savings: 152 65% 50%;
