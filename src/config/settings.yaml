@@ -127,7 +127,7 @@ rentalCar:
         - maxHours: 24
           price: 7590
       regularExtraDayRate: 6732
-      regularExtraHourRate: 924
+      regularExtraHourRate: 1056
       # 会員料金（税込）
       memberRates:
         - maxHours: 6
@@ -137,7 +137,7 @@ rentalCar:
         - maxHours: 24
           price: 6072
       memberExtraDayRate: 5385
-      memberExtraHourRate: 739
+      memberExtraHourRate: 844
 
     compactMinivan:
       name: W1クラス（コンパクトミニバン）
