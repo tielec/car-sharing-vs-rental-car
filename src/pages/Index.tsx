@@ -114,7 +114,7 @@ const Index = () => {
           <div className="space-y-5">
             <VehicleSelector value={vehicleType} onChange={handleVehicleChange} />
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <DurationInput
                 totalHours={totalHours}
                 onChange={setTotalHours}
@@ -129,11 +129,26 @@ const Index = () => {
                 unit="km"
                 icon={MapPin}
               />
+              <InputField
+                label="高速料金"
+                value={tollFee}
+                onChange={setTollFee}
+                min={settings.limits.tollFee.min}
+                max={settings.limits.tollFee.max}
+                unit="円"
+                icon={Banknote}
+                optional
+              />
             </div>
 
+            {/* Service-specific Settings */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-3 p-4 rounded-lg bg-muted/50 border border-border">
-                <p className="text-xs text-muted-foreground font-medium">カーシェア特典</p>
+              {/* Car Share Settings */}
+              <div className="flex flex-col gap-3 p-4 rounded-lg bg-muted/30 border border-border">
+                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <Car className="w-4 h-4 text-muted-foreground" />
+                  カーシェア設定
+                </div>
                 <div className="flex items-center space-x-3">
                   <Checkbox
                     id="refuel"
@@ -180,31 +195,18 @@ const Index = () => {
                   </label>
                 </div>
               </div>
-              
-              <InputField
-                label="高速料金"
-                value={tollFee}
-                onChange={setTollFee}
-                min={settings.limits.tollFee.min}
-                max={settings.limits.tollFee.max}
-                unit="円"
-                icon={Banknote}
-                optional
-              />
-            </div>
 
-            {/* Rental Car Settings */}
-            <div className="p-4 rounded-lg bg-muted/30 border border-border space-y-4">
-              <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                <Car className="w-4 h-4 text-muted-foreground" />
-                レンタカー設定
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Rental Car Settings */}
+              <div className="flex flex-col gap-3 p-4 rounded-lg bg-muted/30 border border-border">
+                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <Car className="w-4 h-4 text-muted-foreground" />
+                  レンタカー設定
+                </div>
+                
                 {/* Membership Type */}
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Users className="w-4 h-4" />
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Users className="w-3 h-3" />
                     料金プラン
                   </div>
                   <RadioGroup 
@@ -225,8 +227,8 @@ const Index = () => {
 
                 {/* Insurance Type */}
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Shield className="w-4 h-4" />
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Shield className="w-3 h-3" />
                     補償オプション
                   </div>
                   <RadioGroup 
@@ -250,6 +252,7 @@ const Index = () => {
                 </div>
               </div>
             </div>
+
 
             {/* Fuel Settings */}
             <Collapsible>
