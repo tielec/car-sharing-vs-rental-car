@@ -167,9 +167,10 @@ export function calculateRentalCarPrice(
   // Select rates based on membership
   const rates = isMember ? vehicle.memberRates : vehicle.regularRates;
   const extraDayRate = isMember ? vehicle.memberExtraDayRate : vehicle.regularExtraDayRate;
+  const extraHourRate = isMember ? vehicle.memberExtraHourRate : vehicle.regularExtraHourRate;
   
   // Calculate base charge using tiered rates
-  const baseCharge = calculateRentalCarBaseCharge(rates, extraDayRate, hours);
+  const baseCharge = calculateRentalCarBaseCharge(rates, extraDayRate, extraHourRate, hours);
   
   // Calculate fuel cost
   const fuelNeeded = distance / fuelEfficiency;
@@ -191,11 +192,16 @@ export function calculateRentalCarPrice(
 
 /**
  * Calculate rental car base charge using tiered rates
- * 6h, 12h, 24h tiers, then extraDayRate for each additional day
+ * 6h, 12h, 24h tiers, then hourly rate accumulates until reaching extraDayRate
+ * 
+ * Logic: After 24h, each extra hour adds extraHourRate, but caps at extraDayRate per 24h period
+ * Example: 26h = 24h rate + 2 * hourlyRate (if 2*hourlyRate < extraDayRate)
+ * Example: 48h = 24h rate + extraDayRate (hit the 1-day cap)
  */
 function calculateRentalCarBaseCharge(
   rates: { maxHours: number; price: number }[],
   extraDayRate: number,
+  extraHourRate: number,
   hours: number
 ): number {
   if (hours <= 0) return 0;
@@ -214,10 +220,22 @@ function calculateRentalCarBaseCharge(
     return sortedRates[sortedRates.length - 1]?.price ?? 0;
   }
   
-  // For hours > 24: 24h rate + extra days
+  // For hours > 24: 24h rate + tiered extra charges
   const rate24h = sortedRates.find(r => r.maxHours === 24)?.price ?? 0;
-  const extraDays = Math.ceil((hours - 24) / 24);
-  return rate24h + extraDays * extraDayRate;
+  const extraHours = hours - 24;
+  
+  // Calculate how many full 24h periods and remaining hours
+  const fullExtraDays = Math.floor(extraHours / 24);
+  const remainingHours = extraHours % 24;
+  
+  // Full extra days are charged at extraDayRate
+  let extraCharge = fullExtraDays * extraDayRate;
+  
+  // Remaining hours: charge hourly but cap at extraDayRate
+  const remainingHourCharge = Math.ceil(remainingHours) * extraHourRate;
+  extraCharge += Math.min(remainingHourCharge, extraDayRate);
+  
+  return rate24h + extraCharge;
 }
 
 export function compareServices(
