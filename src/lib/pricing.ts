@@ -153,9 +153,8 @@ export function calculateRentalCarPrice(
 ): RentalCarResult {
   const vehicle = getRentalCarVehicle(vehicleType);
   
-  // Calculate days (round up)
-  const days = Math.ceil(hours / 24);
-  const baseCharge = days * vehicle.dailyRate;
+  // Calculate base charge using tiered rates
+  const baseCharge = calculateRentalCarBaseCharge(vehicle.rates, vehicle.extraDayRate, hours);
   
   // Calculate fuel cost
   const fuelNeeded = distance / fuelEfficiency;
@@ -168,6 +167,37 @@ export function calculateRentalCarPrice(
     fuelCharge,
     total,
   };
+}
+
+/**
+ * Calculate rental car base charge using tiered rates
+ * 6h, 12h, 24h tiers, then extraDayRate for each additional day
+ */
+function calculateRentalCarBaseCharge(
+  rates: { maxHours: number; price: number }[],
+  extraDayRate: number,
+  hours: number
+): number {
+  if (hours <= 0) return 0;
+  
+  // Find the applicable rate for hours up to 24
+  const sortedRates = [...rates].sort((a, b) => a.maxHours - b.maxHours);
+  
+  if (hours <= 24) {
+    // Find the first tier that covers the duration
+    for (const rate of sortedRates) {
+      if (hours <= rate.maxHours) {
+        return rate.price;
+      }
+    }
+    // If no tier found (shouldn't happen), use 24h rate
+    return sortedRates[sortedRates.length - 1]?.price ?? 0;
+  }
+  
+  // For hours > 24: 24h rate + extra days
+  const rate24h = sortedRates.find(r => r.maxHours === 24)?.price ?? 0;
+  const extraDays = Math.ceil((hours - 24) / 24);
+  return rate24h + extraDays * extraDayRate;
 }
 
 export function compareServices(
