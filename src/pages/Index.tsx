@@ -99,8 +99,8 @@ const Index = () => {
               <Car className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-foreground">タイムズカーシェア vs タイムズレンタカー</h1>
-              <p className="text-xs text-muted-foreground">料金比較ツール</p>
+              <h1 className="text-xl font-bold text-foreground">タイムズカーシェア vs タイムズレンタカー</h1>
+              <p className="text-sm text-muted-foreground">料金比較ツール</p>
             </div>
           </div>
         </div>
@@ -109,7 +109,7 @@ const Index = () => {
       <main className="container py-6 space-y-6">
         {/* Input Section */}
         <section className="bg-card rounded-xl p-5 card-shadow border border-border animate-fade-in">
-          <h2 className="text-base font-bold text-foreground mb-5">利用条件を入力</h2>
+          <h2 className="text-lg font-bold text-foreground mb-5">利用条件を入力</h2>
           
           <div className="space-y-5">
             <VehicleSelector value={vehicleType} onChange={handleVehicleChange} />
@@ -145,7 +145,7 @@ const Index = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Car Share Settings */}
               <div className="flex flex-col gap-3 p-4 rounded-lg bg-muted/30 border border-border">
-                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                <div className="flex items-center gap-2 text-base font-medium text-foreground">
                   <Car className="w-4 h-4 text-muted-foreground" />
                   カーシェア設定
                 </div>
@@ -158,7 +158,7 @@ const Index = () => {
                   />
                   <label 
                     htmlFor="refuel" 
-                    className="text-sm font-medium text-foreground cursor-pointer flex items-center gap-2"
+                    className="text-base font-medium text-foreground cursor-pointer flex items-center gap-2"
                   >
                     <Fuel className="w-4 h-4 text-primary" />
                     給油をする（20L以上）
@@ -173,7 +173,7 @@ const Index = () => {
                   />
                   <label 
                     htmlFor="wash" 
-                    className="text-sm font-medium text-foreground cursor-pointer flex items-center gap-2"
+                    className="text-base font-medium text-foreground cursor-pointer flex items-center gap-2"
                   >
                     <Droplets className="w-4 h-4 text-primary" />
                     水洗い洗車をする
@@ -188,7 +188,7 @@ const Index = () => {
                   />
                   <label 
                     htmlFor="carShareInsurance" 
-                    className="text-sm font-medium text-foreground cursor-pointer flex items-center gap-2"
+                    className="text-base font-medium text-foreground cursor-pointer flex items-center gap-2"
                   >
                     <Shield className="w-4 h-4 text-primary" />
                     安心補償サービス（{settings.carShare.insurancePerUse.toLocaleString()}円）
@@ -198,15 +198,15 @@ const Index = () => {
 
               {/* Rental Car Settings */}
               <div className="flex flex-col gap-3 p-4 rounded-lg bg-muted/30 border border-border">
-                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                <div className="flex items-center gap-2 text-base font-medium text-foreground">
                   <Car className="w-4 h-4 text-muted-foreground" />
                   レンタカー設定
                 </div>
                 
                 {/* Membership Type */}
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Users className="w-3 h-3" />
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Users className="w-4 h-4" />
                     料金プラン
                   </div>
                   <RadioGroup 
@@ -216,19 +216,19 @@ const Index = () => {
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="member" id="member" />
-                      <Label htmlFor="member" className="text-sm cursor-pointer">会員料金</Label>
+                      <Label htmlFor="member" className="text-base cursor-pointer">会員料金</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="regular" id="regular" />
-                      <Label htmlFor="regular" className="text-sm cursor-pointer">通常料金</Label>
+                      <Label htmlFor="regular" className="text-base cursor-pointer">通常料金</Label>
                     </div>
                   </RadioGroup>
                 </div>
 
                 {/* Insurance Type */}
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Shield className="w-3 h-3" />
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Shield className="w-4 h-4" />
                     補償オプション
                   </div>
                   <RadioGroup 
@@ -238,15 +238,15 @@ const Index = () => {
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="none" id="ins-none" />
-                      <Label htmlFor="ins-none" className="text-sm cursor-pointer">なし</Label>
+                      <Label htmlFor="ins-none" className="text-base cursor-pointer">なし</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="basic" id="ins-basic" />
-                      <Label htmlFor="ins-basic" className="text-sm cursor-pointer">免責補償</Label>
+                      <Label htmlFor="ins-basic" className="text-base cursor-pointer">免責補償</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="premium" id="ins-premium" />
-                      <Label htmlFor="ins-premium" className="text-sm cursor-pointer">安心補償</Label>
+                      <Label htmlFor="ins-premium" className="text-base cursor-pointer">安心補償</Label>
                     </div>
                   </RadioGroup>
                 </div>
@@ -256,8 +256,8 @@ const Index = () => {
 
             {/* Fuel Settings */}
             <Collapsible>
-              <CollapsibleTrigger className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                <SettingsIcon className="w-4 h-4" />
+              <CollapsibleTrigger className="flex items-center gap-2 text-base text-muted-foreground hover:text-foreground transition-colors">
+                <SettingsIcon className="w-5 h-5" />
                 燃料設定を変更
               </CollapsibleTrigger>
               <CollapsibleContent className="pt-4">
@@ -288,7 +288,7 @@ const Index = () => {
 
         {/* Results Section */}
         <section className="space-y-4">
-          <h2 className="text-base font-bold text-foreground">料金比較</h2>
+          <h2 className="text-lg font-bold text-foreground">料金比較</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <PriceCard
@@ -309,9 +309,9 @@ const Index = () => {
         </section>
 
         {/* Info Section */}
-        <section className="bg-muted/50 rounded-xl p-5 border border-border text-sm text-muted-foreground space-y-2">
+        <section className="bg-muted/50 rounded-xl p-5 border border-border text-base text-muted-foreground space-y-2">
           <p className="font-medium text-foreground">料金について</p>
-          <ul className="list-disc list-inside space-y-1 text-xs">
+          <ul className="list-disc list-inside space-y-1 text-sm">
             <li>カーシェアは{settings.carShare.distanceChargeThresholdKm}km超で距離料金（¥{getCarShareVehicle(vehicleType).distanceRate}/km）が発生</li>
             <li>給油割引は20L以上（または燃料計の半分以上）が対象</li>
             <li>レンタカーのガソリン代は燃費{fuelEfficiency}km/L、¥{fuelPrice}/Lで計算</li>
@@ -323,7 +323,7 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="border-t border-border bg-card py-4 mt-8">
-        <div className="container text-center text-xs text-muted-foreground space-y-1">
+        <div className="container text-center text-sm text-muted-foreground space-y-1">
           <p>※ 本ツールの料金データは2026年1月16日時点の情報に基づいています。</p>
           <p>※ 料金は参考情報です。実際の料金は各サービスの公式サイトでご確認ください。</p>
           <p>※ 本ツールの利用により生じた損害について、一切の責任を負いかねます。</p>

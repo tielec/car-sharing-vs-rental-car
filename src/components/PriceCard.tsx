@@ -37,7 +37,7 @@ export function PriceCard({ title, variant, items, isCheaper }: PriceCardProps) 
       
       <h3
         className={cn(
-          "text-lg font-bold mb-4 flex items-center gap-2",
+          "text-xl font-bold mb-4 flex items-center gap-2",
           variant === "carshare" ? "text-carshare" : "text-rental"
         )}
       >
@@ -61,7 +61,7 @@ export function PriceCard({ title, variant, items, isCheaper }: PriceCardProps) 
           >
             <span
               className={cn(
-                "text-sm",
+                "text-base",
                 item.isTotal ? "font-bold text-foreground" : "text-muted-foreground",
                 item.isDiscount && "text-savings"
               )}
