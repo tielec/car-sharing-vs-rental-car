@@ -9,7 +9,7 @@ defaults:
   hasRefuel: false
   hasWash: false
   tollFee: 0
-  fuelPrice: 160 # 円/L
+  fuelPrice: 145 # 円/L
   # レンタカー設定
   isMember: true # 会員料金 or 通常料金
   insuranceType: none # none | basic | premium
