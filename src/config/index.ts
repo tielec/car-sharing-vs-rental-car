@@ -17,16 +17,18 @@ export interface CarShareVehicle {
 export interface RentalCarVehicle {
   name: string;
   dailyRate: number;
-  fuelEfficiency: number;
+  defaultFuelEfficiency: number;
 }
 
 export interface Settings {
   defaults: {
     vehicleType: VehicleType;
+    days: number;
     hours: number;
     distance: number;
     hasRefuel: boolean;
     tollFee: number;
+    fuelPrice: number;
   };
   limits: {
     hours: { min: number; max: number };
@@ -38,7 +40,7 @@ export interface Settings {
     vehicles: Record<VehicleType, CarShareVehicle>;
   };
   rentalCar: {
-    fuelPrice: number;
+    defaultFuelPrice: number;
     vehicles: Record<VehicleType, RentalCarVehicle>;
   };
 }

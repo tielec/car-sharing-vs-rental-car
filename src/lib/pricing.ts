@@ -75,17 +75,18 @@ export function calculateCarSharePrice(
 export function calculateRentalCarPrice(
   vehicleType: VehicleType,
   hours: number,
-  distance: number
+  distance: number,
+  fuelPrice: number,
+  fuelEfficiency: number
 ): RentalCarResult {
   const vehicle = getRentalCarVehicle(vehicleType);
-  const fuelPrice = settings.rentalCar.fuelPrice;
   
   // Calculate days (round up)
   const days = Math.ceil(hours / 24);
   const baseCharge = days * vehicle.dailyRate;
   
   // Calculate fuel cost
-  const fuelNeeded = distance / vehicle.fuelEfficiency;
+  const fuelNeeded = distance / fuelEfficiency;
   const fuelCharge = Math.round(fuelNeeded * fuelPrice);
   
   const total = baseCharge + fuelCharge;
@@ -101,10 +102,12 @@ export function compareServices(
   vehicleType: VehicleType,
   hours: number,
   distance: number,
-  hasRefuel: boolean
+  hasRefuel: boolean,
+  fuelPrice: number,
+  fuelEfficiency: number
 ): ComparisonResult {
   const carShare = calculateCarSharePrice(vehicleType, hours, distance, hasRefuel);
-  const rentalCar = calculateRentalCarPrice(vehicleType, hours, distance);
+  const rentalCar = calculateRentalCarPrice(vehicleType, hours, distance, fuelPrice, fuelEfficiency);
   
   const difference = Math.abs(carShare.total - rentalCar.total);
   const cheaper = carShare.total < rentalCar.total 
@@ -122,13 +125,12 @@ export function compareServices(
   
   if (hours > threshold) {
     const carShareVehicle = getCarShareVehicle(vehicleType);
-    const rentalVehicle = getRentalCarVehicle(vehicleType);
     
     const carShareFixed = carShare.timeCharge - (hasRefuel ? carShare.refuelDiscount : 0);
     const rentalFixed = rentalCar.baseCharge;
     
     const carShareDistanceRate = carShareVehicle.distanceRate;
-    const rentalDistanceRate = settings.rentalCar.fuelPrice / rentalVehicle.fuelEfficiency;
+    const rentalDistanceRate = fuelPrice / fuelEfficiency;
     
     if (cheaper === "carShare" && carShareDistanceRate > rentalDistanceRate) {
       breakEvenDistance = Math.round((rentalFixed - carShareFixed) / (carShareDistanceRate - rentalDistanceRate));
