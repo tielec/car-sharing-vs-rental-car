@@ -34,8 +34,8 @@
     --savings-light: 152 65% 92%;
     --savings-foreground: 0 0% 100%;
 
-    --primary: 37 92% 50%;
-    --primary-foreground: 47 100% 96%;
+    --primary: 50 99% 50%;
+    --primary-foreground: 0 0% 0%;
 
     --secondary: 24 5% 44%;
     --secondary-foreground: 60 9% 97%;
@@ -43,15 +43,15 @@
     --muted: 23 5% 82%;
     --muted-foreground: 24 9% 10%;
 
-    --accent: 47 100% 96%;
-    --accent-foreground: 37 92% 50%;
+    --accent: 50 99% 92%;
+    --accent-foreground: 0 0% 0%;
 
     --destructive: 0 72% 50%;
     --destructive-foreground: 0 85% 97%;
 
     --border: 23 5% 82%;
     --input: 23 5% 82%;
-    --ring: 37 92% 50%;
+    --ring: 50 99% 50%;
 
     --radius: 1rem;
 
@@ -109,8 +109,8 @@
     --savings-light: 152 40% 18%;
     --savings-foreground: 0 0% 100%;
 
-    --primary: 43 96% 56%;
-    --primary-foreground: 20 91% 14%;
+    --primary: 50 99% 55%;
+    --primary-foreground: 0 0% 0%;
 
     --secondary: 24 5% 44%;
     --secondary-foreground: 60 9% 97%;
