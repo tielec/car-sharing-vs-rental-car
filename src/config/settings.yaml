@@ -1,0 +1,111 @@
+# カーシェア vs レンタカー 料金比較ツール設定
+
+# デフォルト入力値
+defaults:
+  vehicleType: compact # compact | compactMinivan | minivan
+  hours: 24
+  distance: 100
+  hasRefuel: false
+  tollFee: 0
+
+# 入力制限
+limits:
+  hours:
+    min: 1
+    max: 240
+  distance:
+    min: 0
+    max: 3000
+  tollFee:
+    min: 0
+    max: 100000
+
+# タイムズカーシェア料金
+carShare:
+  # 距離料金が発生する時間閾値
+  distanceChargeThreshold: 6
+  
+  vehicles:
+    compact:
+      name: コンパクトカー
+      description: 2〜4名向け
+      hourlyRates:
+        - maxHours: 6
+          rate: 220
+        - maxHours: 12
+          rate: 170
+        - maxHours: 24
+          rate: 155
+        - maxHours: 36
+          rate: 145
+        - maxHours: 48
+          rate: 135
+        - maxHours: 72
+          rate: 125
+        - maxHours: 9999 # Infinity
+          rate: 115
+      distanceRate: 20
+      refuelDiscount: 330
+
+    compactMinivan:
+      name: コンパクトミニバン
+      description: 4〜6名向け
+      hourlyRates:
+        - maxHours: 6
+          rate: 330
+        - maxHours: 12
+          rate: 260
+        - maxHours: 24
+          rate: 240
+        - maxHours: 36
+          rate: 230
+        - maxHours: 48
+          rate: 215
+        - maxHours: 72
+          rate: 195
+        - maxHours: 9999
+          rate: 175
+      distanceRate: 20
+      refuelDiscount: 330
+
+    minivan:
+      name: ミニバン
+      description: 6〜8名向け
+      hourlyRates:
+        - maxHours: 6
+          rate: 440
+        - maxHours: 12
+          rate: 350
+        - maxHours: 24
+          rate: 320
+        - maxHours: 36
+          rate: 305
+        - maxHours: 48
+          rate: 290
+        - maxHours: 72
+          rate: 265
+        - maxHours: 9999
+          rate: 235
+      distanceRate: 20
+      refuelDiscount: 330
+
+# タイムズレンタカー料金
+rentalCar:
+  # ガソリン単価（円/L）
+  fuelPrice: 160
+  
+  vehicles:
+    compact:
+      name: コンパクトカー
+      dailyRate: 5390
+      fuelEfficiency: 15 # km/L
+
+    compactMinivan:
+      name: コンパクトミニバン
+      dailyRate: 6820
+      fuelEfficiency: 12
+
+    minivan:
+      name: ミニバン
+      dailyRate: 8250
+      fuelEfficiency: 10

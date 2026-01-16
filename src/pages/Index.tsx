@@ -5,23 +5,23 @@ import { VehicleSelector } from "@/components/VehicleSelector";
 import { InputField } from "@/components/InputField";
 import { PriceCard } from "@/components/PriceCard";
 import { ComparisonResult } from "@/components/ComparisonResult";
-import { 
-  compareServices, 
-  type VehicleType,
-  carSharePricing,
-  rentalCarPricing 
-} from "@/lib/pricing";
+import { compareServices, type VehicleType } from "@/lib/pricing";
+import { settings, getCarShareVehicle, getRentalCarVehicle } from "@/config";
 
 const Index = () => {
-  const [vehicleType, setVehicleType] = useState<VehicleType>("compact");
-  const [hours, setHours] = useState(24);
-  const [distance, setDistance] = useState(100);
-  const [hasRefuel, setHasRefuel] = useState(false);
-  const [tollFee, setTollFee] = useState(0);
+  // Use defaults from YAML config
+  const [vehicleType, setVehicleType] = useState<VehicleType>(settings.defaults.vehicleType);
+  const [hours, setHours] = useState(settings.defaults.hours);
+  const [distance, setDistance] = useState(settings.defaults.distance);
+  const [hasRefuel, setHasRefuel] = useState(settings.defaults.hasRefuel);
+  const [tollFee, setTollFee] = useState(settings.defaults.tollFee);
 
   const result = useMemo(() => {
     return compareServices(vehicleType, hours, distance, hasRefuel);
   }, [vehicleType, hours, distance, hasRefuel]);
+
+  const carShareVehicle = getCarShareVehicle(vehicleType);
+  const rentalVehicle = getRentalCarVehicle(vehicleType);
 
   const carShareItems = [
     { label: "時間料金", value: result.carShare.timeCharge },
@@ -76,8 +76,8 @@ const Index = () => {
                 label="利用時間"
                 value={hours}
                 onChange={setHours}
-                min={1}
-                max={240}
+                min={settings.limits.hours.min}
+                max={settings.limits.hours.max}
                 unit="時間"
                 icon={Clock}
               />
@@ -85,8 +85,8 @@ const Index = () => {
                 label="走行距離"
                 value={distance}
                 onChange={setDistance}
-                min={0}
-                max={3000}
+                min={settings.limits.distance.min}
+                max={settings.limits.distance.max}
                 unit="km"
                 icon={MapPin}
               />
@@ -113,8 +113,8 @@ const Index = () => {
                 label="高速料金"
                 value={tollFee}
                 onChange={setTollFee}
-                min={0}
-                max={100000}
+                min={settings.limits.tollFee.min}
+                max={settings.limits.tollFee.max}
                 unit="円"
                 icon={Banknote}
                 optional
@@ -149,8 +149,8 @@ const Index = () => {
         <section className="bg-muted/50 rounded-xl p-5 border border-border text-sm text-muted-foreground space-y-2">
           <p className="font-medium text-foreground">料金について</p>
           <ul className="list-disc list-inside space-y-1 text-xs">
-            <li>カーシェアは6時間超で距離料金（¥{carSharePricing[vehicleType].distanceRate}/km）が発生</li>
-            <li>レンタカーのガソリン代は燃費{rentalCarPricing[vehicleType].fuelEfficiency}km/L、¥{rentalCarPricing[vehicleType].fuelPrice}/Lで計算</li>
+            <li>カーシェアは{settings.carShare.distanceChargeThreshold}時間超で距離料金（¥{carShareVehicle.distanceRate}/km）が発生</li>
+            <li>レンタカーのガソリン代は燃費{rentalVehicle.fuelEfficiency}km/L、¥{settings.rentalCar.fuelPrice}/Lで計算</li>
             <li>実際の料金は時期やプランにより異なる場合があります</li>
           </ul>
         </section>
