@@ -3,10 +3,12 @@
 # デフォルト入力値
 defaults:
   vehicleType: compact # compact | compactMinivan | minivan
-  hours: 24
+  days: 1
+  hours: 0
   distance: 100
   hasRefuel: false
   tollFee: 0
+  fuelPrice: 160 # 円/L
 
 # 入力制限
 limits:
@@ -91,21 +93,21 @@ carShare:
 
 # タイムズレンタカー料金
 rentalCar:
-  # ガソリン単価（円/L）
-  fuelPrice: 160
+  # デフォルトのガソリン単価（円/L）- ユーザーが上書き可能
+  defaultFuelPrice: 160
   
   vehicles:
     compact:
       name: コンパクトカー
       dailyRate: 5390
-      fuelEfficiency: 15 # km/L
+      defaultFuelEfficiency: 15 # km/L - ユーザーが上書き可能
 
     compactMinivan:
       name: コンパクトミニバン
       dailyRate: 6820
-      fuelEfficiency: 12
+      defaultFuelEfficiency: 12
 
     minivan:
       name: ミニバン
       dailyRate: 8250
-      fuelEfficiency: 10
+      defaultFuelEfficiency: 10
