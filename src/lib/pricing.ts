@@ -31,29 +31,62 @@ export interface ComparisonResult {
 }
 
 /**
- * Calculate car share time charge using 15-min rate with max rate caps
+ * Calculate car share time charge using tiered max rate system
+ * 
+ * Logic: For each tier, accumulate 15-min charges on top of previous tier's max,
+ * but cap at current tier's max. Then move to next tier.
+ * 
+ * Example (Basic):
+ * - 0-6h: min(15min累積, 4290) → 最大4290円
+ * - 6-12h: 4290 + min(追加15min累積, 5500-4290) → 最大5500円
+ * - 12-24h: 5500 + min(追加15min累積, 6600-5500) → 最大6600円
+ * - etc.
  */
 function calculateCarShareTimeCharge(vehicle: CarShareVehicle, hours: number): number {
   if (hours <= 0) return 0;
   
-  // For durations up to 72 hours
-  if (hours <= 72) {
-    // Calculate 15-min unit charge
-    const units15min = Math.ceil(hours * 4); // Convert hours to 15-min units
-    const rate15minTotal = units15min * vehicle.rate15min;
-    
-    // Find applicable max rate
-    const applicableMaxRate = vehicle.maxRates.find(r => hours <= r.maxHours);
-    const maxPrice = applicableMaxRate?.maxPrice ?? Infinity;
-    
-    // Return the cheaper of the two
-    return Math.min(rate15minTotal, maxPrice);
-  }
+  const maxRates = vehicle.maxRates;
+  const rate15min = vehicle.rate15min;
   
   // For durations over 72 hours
-  const base72h = vehicle.maxRates.find(r => r.maxHours === 72)?.maxPrice ?? 0;
-  const extraDays = Math.ceil((hours - 72) / 24);
-  return base72h + extraDays * vehicle.dailyRateAfter72h;
+  if (hours > 72) {
+    const base72h = maxRates.find(r => r.maxHours === 72)?.maxPrice ?? 0;
+    const extraDays = Math.ceil((hours - 72) / 24);
+    return base72h + extraDays * vehicle.dailyRateAfter72h;
+  }
+  
+  // For durations up to 72 hours - calculate tier by tier
+  let totalCharge = 0;
+  let previousTierMaxHours = 0;
+  let previousTierMaxPrice = 0;
+  
+  for (const tier of maxRates) {
+    if (hours <= previousTierMaxHours) break;
+    
+    // Hours in this tier
+    const hoursInTier = Math.min(hours, tier.maxHours) - previousTierMaxHours;
+    if (hoursInTier <= 0) break;
+    
+    // Calculate 15-min charge for hours in this tier
+    const units15min = Math.ceil(hoursInTier * 4);
+    const tierCharge = units15min * rate15min;
+    
+    // Cap at this tier's max (relative to previous tier)
+    const tierMaxDelta = tier.maxPrice - previousTierMaxPrice;
+    const cappedTierCharge = Math.min(tierCharge, tierMaxDelta);
+    
+    totalCharge = previousTierMaxPrice + cappedTierCharge;
+    
+    // If we've hit the max for this tier, update for next iteration
+    if (tierCharge >= tierMaxDelta) {
+      previousTierMaxPrice = tier.maxPrice;
+    }
+    previousTierMaxHours = tier.maxHours;
+    
+    if (hours <= tier.maxHours) break;
+  }
+  
+  return totalCharge;
 }
 
 /**
