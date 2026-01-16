@@ -351,13 +351,13 @@ const Index = () => {
             />
           </div>
 
-          <ComparisonResult result={result} currentDistance={distance} />
-
           <PriceComparisonChart 
             data={chartData} 
             currentDistance={distance}
             breakEvenDistance={result.breakEvenDistance}
           />
+
+          <ComparisonResult result={result} currentDistance={distance} />
         </section>
 
         {/* Info Section */}
