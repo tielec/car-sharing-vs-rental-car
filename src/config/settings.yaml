@@ -164,23 +164,23 @@ rentalCar:
       memberExtraHourRate: 1161
 
     minivan:
-      name: W1・W2・W3クラス（ミニバン・ワゴン）
+      name: W4クラス（ミニバン）
       defaultFuelEfficiency: 10
       regularRates:
         - maxHours: 6
-          price: 6490
+          price: 15939
         - maxHours: 12
-          price: 8250
+          price: 19354
         - maxHours: 24
-          price: 9130
-      regularExtraDayRate: 7590
-      regularExtraHourRate: 924
+          price: 22770
+      regularExtraDayRate: 20196
+      regularExtraHourRate: 2640
       memberRates:
         - maxHours: 6
-          price: 6490
+          price: 12751
         - maxHours: 12
-          price: 8250
+          price: 15483
         - maxHours: 24
-          price: 9130
-      memberExtraDayRate: 7590
-      memberExtraHourRate: 739
+          price: 18216
+      memberExtraDayRate: 16156
+      memberExtraHourRate: 2112
