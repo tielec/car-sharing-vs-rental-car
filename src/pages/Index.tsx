@@ -13,6 +13,9 @@ import { settings, getCarShareVehicle, getRentalCarVehicle, getInsuranceName } f
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CarSharePriceTable } from "@/components/CarSharePriceTable";
+import { RentalCarPriceTable } from "@/components/RentalCarPriceTable";
 
 const Index = () => {
   // Use defaults from YAML config
@@ -148,231 +151,253 @@ const Index = () => {
           </ul>
         </section>
 
-        {/* Input Section */}
-        <section className="bg-card rounded-xl p-5 card-shadow border border-border animate-fade-in">
-          <h2 className="text-lg font-bold text-foreground mb-5">利用条件を入力</h2>
-          
-          <div className="space-y-5">
-            <VehicleSelector value={vehicleType} onChange={handleVehicleChange} />
-            
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <DurationInput
-                totalHours={totalHours}
-                onChange={setTotalHours}
-                maxDays={10}
-              />
-              <div className="space-y-1.5">
-                <InputField
-                  label="走行距離"
-                  value={distance}
-                  onChange={setDistance}
-                  min={settings.limits.distance.min}
-                  max={settings.limits.distance.max}
-                  unit="km"
-                  icon={MapPin}
-                />
-                <p className="text-sm text-muted-foreground pl-1">
-                  東京発の目安: 箱根往復 約180km / 軽井沢往復 約300km
-                </p>
-              </div>
-              <InputField
-                label="高速料金"
-                value={tollFee}
-                onChange={setTollFee}
-                min={settings.limits.tollFee.min}
-                max={settings.limits.tollFee.max}
-                unit="円"
-                icon={Banknote}
-                optional
-              />
-            </div>
+        {/* Tabs for different views */}
+        <Tabs defaultValue="compare" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsTrigger value="compare">料金比較</TabsTrigger>
+            <TabsTrigger value="carshare">カーシェア料金表</TabsTrigger>
+            <TabsTrigger value="rental">レンタカー料金表</TabsTrigger>
+          </TabsList>
 
-            {/* Service-specific Settings */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Car Share Settings */}
-              <div className="flex flex-col gap-3 p-4 rounded-lg bg-muted/30 border border-border">
-                <div className="flex items-center gap-2 text-base font-medium text-foreground">
-                  <Car className="w-4 h-4 text-muted-foreground" />
-                  カーシェア設定
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Checkbox
-                    id="refuel"
-                    checked={hasRefuel}
-                    onCheckedChange={(checked) => setHasRefuel(checked === true)}
-                    className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                  />
-                  <label 
-                    htmlFor="refuel" 
-                    className="text-base font-medium text-foreground cursor-pointer flex items-center gap-2"
-                  >
-                    <Fuel className="w-4 h-4 text-primary" />
-                    給油をする（20L以上）
-                  </label>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Checkbox
-                    id="wash"
-                    checked={hasWash}
-                    onCheckedChange={(checked) => setHasWash(checked === true)}
-                    className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                  />
-                  <label 
-                    htmlFor="wash" 
-                    className="text-base font-medium text-foreground cursor-pointer flex items-center gap-2"
-                  >
-                    <Droplets className="w-4 h-4 text-primary" />
-                    水洗い洗車をする
-                  </label>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Checkbox
-                    id="carShareInsurance"
-                    checked={hasCarShareInsurance}
-                    onCheckedChange={(checked) => setHasCarShareInsurance(checked === true)}
-                    className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                  />
-                  <label 
-                    htmlFor="carShareInsurance" 
-                    className="text-base font-medium text-foreground cursor-pointer flex items-center gap-2"
-                  >
-                    <Shield className="w-4 h-4 text-primary" />
-                    安心補償サービス（{settings.carShare.insurancePerUse.toLocaleString()}円）
-                  </label>
-                </div>
-              </div>
-
-              {/* Rental Car Settings */}
-              <div className="flex flex-col gap-3 p-4 rounded-lg bg-muted/30 border border-border">
-                <div className="flex items-center gap-2 text-base font-medium text-foreground">
-                  <Car className="w-4 h-4 text-muted-foreground" />
-                  レンタカー設定
-                </div>
+          {/* Comparison Tab */}
+          <TabsContent value="compare" className="space-y-6">
+            {/* Input Section */}
+            <section className="bg-card rounded-xl p-5 card-shadow border border-border animate-fade-in">
+              <h2 className="text-lg font-bold text-foreground mb-5">利用条件を入力</h2>
+              
+              <div className="space-y-5">
+                <VehicleSelector value={vehicleType} onChange={handleVehicleChange} />
                 
-                {/* Membership Type */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Users className="w-4 h-4" />
-                    料金プラン
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <DurationInput
+                    totalHours={totalHours}
+                    onChange={setTotalHours}
+                    maxDays={10}
+                  />
+                  <div className="space-y-1.5">
+                    <InputField
+                      label="走行距離"
+                      value={distance}
+                      onChange={setDistance}
+                      min={settings.limits.distance.min}
+                      max={settings.limits.distance.max}
+                      unit="km"
+                      icon={MapPin}
+                    />
+                    <p className="text-sm text-muted-foreground pl-1">
+                      東京発の目安: 箱根往復 約180km / 軽井沢往復 約300km
+                    </p>
                   </div>
-                  <RadioGroup 
-                    value={isMember ? "member" : "regular"} 
-                    onValueChange={(v) => setIsMember(v === "member")}
-                    className="flex gap-4"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="member" id="member" />
-                      <Label htmlFor="member" className="text-base cursor-pointer">会員料金</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="regular" id="regular" />
-                      <Label htmlFor="regular" className="text-base cursor-pointer">通常料金</Label>
-                    </div>
-                  </RadioGroup>
+                  <InputField
+                    label="高速料金"
+                    value={tollFee}
+                    onChange={setTollFee}
+                    min={settings.limits.tollFee.min}
+                    max={settings.limits.tollFee.max}
+                    unit="円"
+                    icon={Banknote}
+                    optional
+                  />
                 </div>
 
-                {/* Insurance Type */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Shield className="w-4 h-4" />
-                    補償オプション
+                {/* Service-specific Settings */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Car Share Settings */}
+                  <div className="flex flex-col gap-3 p-4 rounded-lg bg-muted/30 border border-border">
+                    <div className="flex items-center gap-2 text-base font-medium text-foreground">
+                      <Car className="w-4 h-4 text-muted-foreground" />
+                      カーシェア設定
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Checkbox
+                        id="refuel"
+                        checked={hasRefuel}
+                        onCheckedChange={(checked) => setHasRefuel(checked === true)}
+                        className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                      />
+                      <label 
+                        htmlFor="refuel" 
+                        className="text-base font-medium text-foreground cursor-pointer flex items-center gap-2"
+                      >
+                        <Fuel className="w-4 h-4 text-primary" />
+                        給油をする（20L以上）
+                      </label>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Checkbox
+                        id="wash"
+                        checked={hasWash}
+                        onCheckedChange={(checked) => setHasWash(checked === true)}
+                        className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                      />
+                      <label 
+                        htmlFor="wash" 
+                        className="text-base font-medium text-foreground cursor-pointer flex items-center gap-2"
+                      >
+                        <Droplets className="w-4 h-4 text-primary" />
+                        水洗い洗車をする
+                      </label>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Checkbox
+                        id="carShareInsurance"
+                        checked={hasCarShareInsurance}
+                        onCheckedChange={(checked) => setHasCarShareInsurance(checked === true)}
+                        className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                      />
+                      <label 
+                        htmlFor="carShareInsurance" 
+                        className="text-base font-medium text-foreground cursor-pointer flex items-center gap-2"
+                      >
+                        <Shield className="w-4 h-4 text-primary" />
+                        安心補償サービス（{settings.carShare.insurancePerUse.toLocaleString()}円）
+                      </label>
+                    </div>
                   </div>
-                  <RadioGroup 
-                    value={insuranceType} 
-                    onValueChange={(v) => setInsuranceType(v as InsuranceType)}
-                    className="flex flex-wrap gap-3"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="none" id="ins-none" />
-                      <Label htmlFor="ins-none" className="text-base cursor-pointer">なし</Label>
+
+                  {/* Rental Car Settings */}
+                  <div className="flex flex-col gap-3 p-4 rounded-lg bg-muted/30 border border-border">
+                    <div className="flex items-center gap-2 text-base font-medium text-foreground">
+                      <Car className="w-4 h-4 text-muted-foreground" />
+                      レンタカー設定
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="basic" id="ins-basic" />
-                      <Label htmlFor="ins-basic" className="text-base cursor-pointer">免責補償</Label>
+                    
+                    {/* Membership Type */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Users className="w-4 h-4" />
+                        料金プラン
+                      </div>
+                      <RadioGroup 
+                        value={isMember ? "member" : "regular"} 
+                        onValueChange={(v) => setIsMember(v === "member")}
+                        className="flex gap-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="member" id="member" />
+                          <Label htmlFor="member" className="text-base cursor-pointer">会員料金</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="regular" id="regular" />
+                          <Label htmlFor="regular" className="text-base cursor-pointer">通常料金</Label>
+                        </div>
+                      </RadioGroup>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="premium" id="ins-premium" />
-                      <Label htmlFor="ins-premium" className="text-base cursor-pointer">安心補償</Label>
+
+                    {/* Insurance Type */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Shield className="w-4 h-4" />
+                        補償オプション
+                      </div>
+                      <RadioGroup 
+                        value={insuranceType} 
+                        onValueChange={(v) => setInsuranceType(v as InsuranceType)}
+                        className="flex flex-wrap gap-3"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="none" id="ins-none" />
+                          <Label htmlFor="ins-none" className="text-base cursor-pointer">なし</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="basic" id="ins-basic" />
+                          <Label htmlFor="ins-basic" className="text-base cursor-pointer">免責補償</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="premium" id="ins-premium" />
+                          <Label htmlFor="ins-premium" className="text-base cursor-pointer">安心補償</Label>
+                        </div>
+                      </RadioGroup>
                     </div>
-                  </RadioGroup>
+                  </div>
                 </div>
+
+
+                {/* Fuel Settings */}
+                <Collapsible>
+                  <CollapsibleTrigger className="flex items-center gap-2 text-base text-muted-foreground hover:text-foreground transition-colors">
+                    <SettingsIcon className="w-5 h-5" />
+                    燃料設定を変更
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="pt-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-lg bg-muted/30 border border-border">
+                      <InputField
+                        label="ガソリン単価"
+                        value={fuelPrice}
+                        onChange={setFuelPrice}
+                        min={100}
+                        max={300}
+                        unit="円/L"
+                        icon={Fuel}
+                      />
+                      <InputField
+                        label="想定燃費"
+                        value={fuelEfficiency}
+                        onChange={setFuelEfficiency}
+                        min={5}
+                        max={30}
+                        unit="km/L"
+                        icon={Car}
+                      />
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
               </div>
-            </div>
+            </section>
 
+            {/* Results Section */}
+            <section className="space-y-4">
+              <h2 className="text-lg font-bold text-foreground">料金比較</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <PriceCard
+                  title="タイムズカーシェア"
+                  variant="carshare"
+                  items={carShareItems}
+                  isCheaper={result.cheaper === "carShare"}
+                />
+                <PriceCard
+                  title="タイムズレンタカー"
+                  variant="rental"
+                  items={rentalItems}
+                  isCheaper={result.cheaper === "rentalCar"}
+                />
+              </div>
 
-            {/* Fuel Settings */}
-            <Collapsible>
-              <CollapsibleTrigger className="flex items-center gap-2 text-base text-muted-foreground hover:text-foreground transition-colors">
-                <SettingsIcon className="w-5 h-5" />
-                燃料設定を変更
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pt-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-lg bg-muted/30 border border-border">
-                  <InputField
-                    label="ガソリン単価"
-                    value={fuelPrice}
-                    onChange={setFuelPrice}
-                    min={100}
-                    max={300}
-                    unit="円/L"
-                    icon={Fuel}
-                  />
-                  <InputField
-                    label="想定燃費"
-                    value={fuelEfficiency}
-                    onChange={setFuelEfficiency}
-                    min={5}
-                    max={30}
-                    unit="km/L"
-                    icon={Car}
-                  />
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
-        </section>
+              <ComparisonResult result={result} />
 
-        {/* Results Section */}
-        <section className="space-y-4">
-          <h2 className="text-lg font-bold text-foreground">料金比較</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <PriceCard
-              title="タイムズカーシェア"
-              variant="carshare"
-              items={carShareItems}
-              isCheaper={result.cheaper === "carShare"}
-            />
-            <PriceCard
-              title="タイムズレンタカー"
-              variant="rental"
-              items={rentalItems}
-              isCheaper={result.cheaper === "rentalCar"}
-            />
-          </div>
+              <PriceComparisonChart 
+                data={chartData} 
+                currentDistance={distance}
+                breakEvenDistance={result.breakEvenDistance}
+              />
 
-          <ComparisonResult result={result} />
+              <BreakEvenMessage result={result} currentDistance={distance} />
+            </section>
 
-          <PriceComparisonChart 
-            data={chartData} 
-            currentDistance={distance}
-            breakEvenDistance={result.breakEvenDistance}
-          />
+            {/* Info Section */}
+            <section className="bg-muted/50 rounded-xl p-5 border border-border text-base text-muted-foreground space-y-2">
+              <p className="font-medium text-foreground">料金について</p>
+              <ul className="list-disc list-inside space-y-1 text-sm">
+                <li>カーシェアは{settings.carShare.distanceChargeThresholdKm}km超で距離料金（¥{getCarShareVehicle(vehicleType).distanceRate}/km）が発生</li>
+                <li>給油割引は20L以上（または燃料計の半分以上）が対象</li>
+                <li>レンタカーのガソリン代は燃費{fuelEfficiency}km/L、¥{fuelPrice}/Lで計算</li>
+                <li>免責補償: ¥{rentalVehicle.insuranceBasicPerDay.toLocaleString()}/日、安心補償: ¥{rentalVehicle.insurancePremiumPerDay.toLocaleString()}/日</li>
+                <li>実際の料金は時期やプランにより異なる場合があります</li>
+              </ul>
+            </section>
+          </TabsContent>
 
-          <BreakEvenMessage result={result} currentDistance={distance} />
-        </section>
+          {/* Car Share Price Table Tab */}
+          <TabsContent value="carshare">
+            <CarSharePriceTable />
+          </TabsContent>
 
-        {/* Info Section */}
-        <section className="bg-muted/50 rounded-xl p-5 border border-border text-base text-muted-foreground space-y-2">
-          <p className="font-medium text-foreground">料金について</p>
-          <ul className="list-disc list-inside space-y-1 text-sm">
-            <li>カーシェアは{settings.carShare.distanceChargeThresholdKm}km超で距離料金（¥{getCarShareVehicle(vehicleType).distanceRate}/km）が発生</li>
-            <li>給油割引は20L以上（または燃料計の半分以上）が対象</li>
-            <li>レンタカーのガソリン代は燃費{fuelEfficiency}km/L、¥{fuelPrice}/Lで計算</li>
-            <li>免責補償: ¥{rentalVehicle.insuranceBasicPerDay.toLocaleString()}/日、安心補償: ¥{rentalVehicle.insurancePremiumPerDay.toLocaleString()}/日</li>
-            <li>実際の料金は時期やプランにより異なる場合があります</li>
-          </ul>
-        </section>
+          {/* Rental Car Price Table Tab */}
+          <TabsContent value="rental">
+            <RentalCarPriceTable />
+          </TabsContent>
+        </Tabs>
       </main>
 
       {/* Footer */}
