@@ -15,10 +15,16 @@ export interface CarShareVehicle {
   distanceRate: number;
 }
 
+export interface RentalCarRate {
+  maxHours: number;
+  price: number;
+}
+
 export interface RentalCarVehicle {
   name: string;
-  dailyRate: number;
   defaultFuelEfficiency: number;
+  rates: RentalCarRate[];
+  extraDayRate: number;
 }
 
 export interface DiscountMinutes {

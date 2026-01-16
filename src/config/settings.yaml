@@ -106,16 +106,39 @@ rentalCar:
   
   vehicles:
     compact:
-      name: コンパクトカー
-      dailyRate: 5390
+      name: K・C1・C2クラス（コンパクト）
       defaultFuelEfficiency: 15 # km/L - ユーザーが上書き可能
+      # 時間帯別料金
+      rates:
+        - maxHours: 6
+          price: 4290
+        - maxHours: 12
+          price: 5390
+        - maxHours: 24
+          price: 5940
+      # 24時間以降、1日毎の追加料金
+      extraDayRate: 4950
 
     compactMinivan:
-      name: コンパクトミニバン
-      dailyRate: 6820
+      name: M1・M2クラス（コンパクトミニバン）
       defaultFuelEfficiency: 12
+      rates:
+        - maxHours: 6
+          price: 5390
+        - maxHours: 12
+          price: 6820
+        - maxHours: 24
+          price: 7480
+      extraDayRate: 6270
 
     minivan:
-      name: ミニバン
-      dailyRate: 8250
+      name: W1・W2・W3クラス（ミニバン・ワゴン）
       defaultFuelEfficiency: 10
+      rates:
+        - maxHours: 6
+          price: 6490
+        - maxHours: 12
+          price: 8250
+        - maxHours: 24
+          price: 9130
+      extraDayRate: 7590
