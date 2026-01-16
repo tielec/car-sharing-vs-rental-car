@@ -2,11 +2,13 @@ import {
   settings, 
   getCarShareVehicle, 
   getRentalCarVehicle,
+  getInsurancePrice,
   type VehicleType,
-  type CarShareVehicle
+  type CarShareVehicle,
+  type InsuranceType
 } from "@/config";
 
-export type { VehicleType };
+export type { VehicleType, InsuranceType };
 
 export interface CarShareResult {
   timeCharge: number;
@@ -18,6 +20,7 @@ export interface CarShareResult {
 export interface RentalCarResult {
   baseCharge: number;
   fuelCharge: number;
+  insuranceCharge: number;
   total: number;
 }
 
@@ -149,22 +152,33 @@ export function calculateRentalCarPrice(
   hours: number,
   distance: number,
   fuelPrice: number,
-  fuelEfficiency: number
+  fuelEfficiency: number,
+  isMember: boolean,
+  insuranceType: InsuranceType
 ): RentalCarResult {
   const vehicle = getRentalCarVehicle(vehicleType);
   
+  // Select rates based on membership
+  const rates = isMember ? vehicle.memberRates : vehicle.regularRates;
+  const extraDayRate = isMember ? vehicle.memberExtraDayRate : vehicle.regularExtraDayRate;
+  
   // Calculate base charge using tiered rates
-  const baseCharge = calculateRentalCarBaseCharge(vehicle.rates, vehicle.extraDayRate, hours);
+  const baseCharge = calculateRentalCarBaseCharge(rates, extraDayRate, hours);
   
   // Calculate fuel cost
   const fuelNeeded = distance / fuelEfficiency;
   const fuelCharge = Math.round(fuelNeeded * fuelPrice);
   
-  const total = baseCharge + fuelCharge;
+  // Calculate insurance charge
+  const days = Math.max(1, Math.ceil(hours / 24));
+  const insuranceCharge = getInsurancePrice(insuranceType, days);
+  
+  const total = baseCharge + fuelCharge + insuranceCharge;
   
   return {
     baseCharge,
     fuelCharge,
+    insuranceCharge,
     total,
   };
 }
@@ -207,10 +221,12 @@ export function compareServices(
   hasRefuel: boolean,
   hasWash: boolean,
   fuelPrice: number,
-  fuelEfficiency: number
+  fuelEfficiency: number,
+  isMember: boolean,
+  insuranceType: InsuranceType
 ): ComparisonResult {
   const carShare = calculateCarSharePrice(vehicleType, hours, distance, hasRefuel, hasWash);
-  const rentalCar = calculateRentalCarPrice(vehicleType, hours, distance, fuelPrice, fuelEfficiency);
+  const rentalCar = calculateRentalCarPrice(vehicleType, hours, distance, fuelPrice, fuelEfficiency, isMember, insuranceType);
   
   const difference = Math.abs(carShare.total - rentalCar.total);
   const cheaper = carShare.total < rentalCar.total 
@@ -229,7 +245,7 @@ export function compareServices(
   const carShareVehicle = getCarShareVehicle(vehicleType);
   
   const carShareFixed = carShare.timeCharge - carShare.serviceDiscount;
-  const rentalFixed = rentalCar.baseCharge;
+  const rentalFixed = rentalCar.baseCharge + rentalCar.insuranceCharge;
   
   const carShareDistanceRate = carShareVehicle.distanceRate;
   const rentalDistanceRate = fuelPrice / fuelEfficiency;

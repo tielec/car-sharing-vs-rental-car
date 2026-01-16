@@ -10,6 +10,9 @@ defaults:
   hasWash: false
   tollFee: 0
   fuelPrice: 160 # 円/L
+  # レンタカー設定
+  isMember: true # 会員料金 or 通常料金
+  insuranceType: none # none | basic | premium
 
 # 入力制限
 limits:
@@ -104,43 +107,80 @@ rentalCar:
   # デフォルトのガソリン単価（円/L）- ユーザーが上書き可能
   defaultFuelPrice: 160
   
+  # 補償オプション料金（24時間あたり）
+  insurance:
+    basic:
+      name: 免責補償コース
+      pricePerDay: 1100
+    premium:
+      name: 安心補償コース
+      pricePerDay: 2200
+  
   vehicles:
     compact:
       name: K・C1・C2クラス（コンパクト）
-      defaultFuelEfficiency: 15 # km/L - ユーザーが上書き可能
-      # 時間帯別料金（会員料金・税込）
-      rates:
+      defaultFuelEfficiency: 15 # km/L
+      # 通常料金（税込）
+      regularRates:
+        - maxHours: 6
+          price: 5313
+        - maxHours: 12
+          price: 6451
+        - maxHours: 24
+          price: 7590
+      regularExtraDayRate: 6732
+      regularExtraHourRate: 924
+      # 会員料金（税込）
+      memberRates:
         - maxHours: 6
           price: 4250
         - maxHours: 12
           price: 5161
         - maxHours: 24
           price: 6072
-      # 24時間以降、1日毎の追加料金
-      extraDayRate: 5385
-      # 追加1時間毎
-      extraHourRate: 739
+      memberExtraDayRate: 5385
+      memberExtraHourRate: 739
 
     compactMinivan:
       name: M1・M2クラス（コンパクトミニバン）
       defaultFuelEfficiency: 12
-      rates:
+      regularRates:
         - maxHours: 6
           price: 5390
         - maxHours: 12
           price: 6820
         - maxHours: 24
           price: 7480
-      extraDayRate: 6270
+      regularExtraDayRate: 6270
+      regularExtraHourRate: 924
+      memberRates:
+        - maxHours: 6
+          price: 5390
+        - maxHours: 12
+          price: 6820
+        - maxHours: 24
+          price: 7480
+      memberExtraDayRate: 6270
+      memberExtraHourRate: 739
 
     minivan:
       name: W1・W2・W3クラス（ミニバン・ワゴン）
       defaultFuelEfficiency: 10
-      rates:
+      regularRates:
         - maxHours: 6
           price: 6490
         - maxHours: 12
           price: 8250
         - maxHours: 24
           price: 9130
-      extraDayRate: 7590
+      regularExtraDayRate: 7590
+      regularExtraHourRate: 924
+      memberRates:
+        - maxHours: 6
+          price: 6490
+        - maxHours: 12
+          price: 8250
+        - maxHours: 24
+          price: 9130
+      memberExtraDayRate: 7590
+      memberExtraHourRate: 739

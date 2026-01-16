@@ -1,14 +1,16 @@
 import { useState, useMemo } from "react";
-import { Car, MapPin, Fuel, Banknote, Settings as SettingsIcon, Droplets } from "lucide-react";
+import { Car, MapPin, Fuel, Banknote, Settings as SettingsIcon, Droplets, Shield, Users } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { VehicleSelector } from "@/components/VehicleSelector";
 import { InputField } from "@/components/InputField";
 import { DurationInput } from "@/components/DurationInput";
 import { PriceCard } from "@/components/PriceCard";
 import { ComparisonResult } from "@/components/ComparisonResult";
-import { compareServices, type VehicleType } from "@/lib/pricing";
-import { settings, getCarShareVehicle, getRentalCarVehicle } from "@/config";
+import { compareServices, type VehicleType, type InsuranceType } from "@/lib/pricing";
+import { settings, getCarShareVehicle, getRentalCarVehicle, getInsuranceName } from "@/config";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 const Index = () => {
   // Use defaults from YAML config
@@ -18,6 +20,10 @@ const Index = () => {
   const [hasRefuel, setHasRefuel] = useState(settings.defaults.hasRefuel);
   const [hasWash, setHasWash] = useState(settings.defaults.hasWash);
   const [tollFee, setTollFee] = useState(settings.defaults.tollFee);
+  
+  // Rental car specific settings
+  const [isMember, setIsMember] = useState(settings.defaults.isMember);
+  const [insuranceType, setInsuranceType] = useState<InsuranceType>(settings.defaults.insuranceType);
   
   // User-configurable fuel settings
   const rentalVehicle = getRentalCarVehicle(vehicleType);
@@ -31,8 +37,8 @@ const Index = () => {
   };
 
   const result = useMemo(() => {
-    return compareServices(vehicleType, totalHours, distance, hasRefuel, hasWash, fuelPrice, fuelEfficiency);
-  }, [vehicleType, totalHours, distance, hasRefuel, hasWash, fuelPrice, fuelEfficiency]);
+    return compareServices(vehicleType, totalHours, distance, hasRefuel, hasWash, fuelPrice, fuelEfficiency, isMember, insuranceType);
+  }, [vehicleType, totalHours, distance, hasRefuel, hasWash, fuelPrice, fuelEfficiency, isMember, insuranceType]);
 
   // Calculate discount label
   const getDiscountLabel = () => {
@@ -40,6 +46,17 @@ const Index = () => {
     if (hasRefuel) return "給油割引（30分）";
     if (hasWash) return "洗車割引（30分）";
     return "";
+  };
+
+  // Calculate days for display
+  const days = Math.max(1, Math.ceil(totalHours / 24));
+
+  // Get time tier label for rental
+  const getRentalTimeLabel = () => {
+    if (totalHours <= 6) return "6時間";
+    if (totalHours <= 12) return "12時間";
+    if (totalHours <= 24) return "24時間";
+    return `24時間 + ${days - 1}日`;
   };
 
   const carShareItems = [
@@ -57,8 +74,11 @@ const Index = () => {
   ];
 
   const rentalItems = [
-    { label: `基本料金（${Math.ceil(totalHours / 24)}日間）`, value: result.rentalCar.baseCharge },
+    { label: `基本料金（${getRentalTimeLabel()}）`, value: result.rentalCar.baseCharge },
     { label: `ガソリン代（${distance}km）`, value: result.rentalCar.fuelCharge },
+    ...(result.rentalCar.insuranceCharge > 0 
+      ? [{ label: `${getInsuranceName(insuranceType)}（${days}日）`, value: result.rentalCar.insuranceCharge }] 
+      : []),
     ...(tollFee > 0 
       ? [{ label: "高速料金", value: tollFee }] 
       : []),
@@ -153,6 +173,64 @@ const Index = () => {
               />
             </div>
 
+            {/* Rental Car Settings */}
+            <div className="p-4 rounded-lg bg-muted/30 border border-border space-y-4">
+              <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                <Car className="w-4 h-4 text-muted-foreground" />
+                レンタカー設定
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Membership Type */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Users className="w-4 h-4" />
+                    料金プラン
+                  </div>
+                  <RadioGroup 
+                    value={isMember ? "member" : "regular"} 
+                    onValueChange={(v) => setIsMember(v === "member")}
+                    className="flex gap-4"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="member" id="member" />
+                      <Label htmlFor="member" className="text-sm cursor-pointer">会員料金</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="regular" id="regular" />
+                      <Label htmlFor="regular" className="text-sm cursor-pointer">通常料金</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                {/* Insurance Type */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Shield className="w-4 h-4" />
+                    補償オプション
+                  </div>
+                  <RadioGroup 
+                    value={insuranceType} 
+                    onValueChange={(v) => setInsuranceType(v as InsuranceType)}
+                    className="flex flex-wrap gap-3"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="none" id="ins-none" />
+                      <Label htmlFor="ins-none" className="text-sm cursor-pointer">なし</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="basic" id="ins-basic" />
+                      <Label htmlFor="ins-basic" className="text-sm cursor-pointer">免責補償</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="premium" id="ins-premium" />
+                      <Label htmlFor="ins-premium" className="text-sm cursor-pointer">安心補償</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+              </div>
+            </div>
+
             {/* Fuel Settings */}
             <Collapsible>
               <CollapsibleTrigger className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -214,6 +292,7 @@ const Index = () => {
             <li>カーシェアは{settings.carShare.distanceChargeThresholdKm}km超で距離料金（¥{getCarShareVehicle(vehicleType).distanceRate}/km）が発生</li>
             <li>給油割引は20L以上（または燃料計の半分以上）が対象</li>
             <li>レンタカーのガソリン代は燃費{fuelEfficiency}km/L、¥{fuelPrice}/Lで計算</li>
+            <li>免責補償: ¥1,100/日、安心補償: ¥2,200/日</li>
             <li>実際の料金は時期やプランにより異なる場合があります</li>
           </ul>
         </section>
