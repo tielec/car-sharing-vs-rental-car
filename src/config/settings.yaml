@@ -107,19 +107,13 @@ rentalCar:
   # デフォルトのガソリン単価（円/L）- ユーザーが上書き可能
   defaultFuelPrice: 160
   
-  # 補償オプション料金（24時間あたり）
-  insurance:
-    basic:
-      name: 免責補償コース
-      pricePerDay: 1100
-    premium:
-      name: 安心補償コース
-      pricePerDay: 2200
-  
   vehicles:
     compact:
       name: K・C1・C2クラス（コンパクト）
       defaultFuelEfficiency: 15 # km/L
+      # 補償オプション料金（24時間あたり）
+      insuranceBasicPerDay: 1100
+      insurancePremiumPerDay: 2200
       # 通常料金（税込）
       regularRates:
         - maxHours: 6
@@ -144,6 +138,8 @@ rentalCar:
     compactMinivan:
       name: W1クラス（コンパクトミニバン）
       defaultFuelEfficiency: 12
+      insuranceBasicPerDay: 1430
+      insurancePremiumPerDay: 2530
       regularRates:
         - maxHours: 6
           price: 8981
@@ -166,6 +162,8 @@ rentalCar:
     minivan:
       name: W4クラス（ミニバン）
       defaultFuelEfficiency: 10
+      insuranceBasicPerDay: 1430
+      insurancePremiumPerDay: 2530
       regularRates:
         - maxHours: 6
           price: 15939

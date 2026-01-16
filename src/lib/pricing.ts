@@ -171,7 +171,7 @@ export function calculateRentalCarPrice(
   
   // Calculate insurance charge
   const days = Math.max(1, Math.ceil(hours / 24));
-  const insuranceCharge = getInsurancePrice(insuranceType, days);
+  const insuranceCharge = getInsurancePrice(vehicleType, insuranceType, days);
   
   const total = baseCharge + fuelCharge + insuranceCharge;
   
