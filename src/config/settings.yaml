@@ -5,7 +5,7 @@ defaults:
   vehicleType: compact # compact | compactMinivan | minivan
   days: 1
   hours: 0
-  distance: 100
+  distance: 400
   hasRefuel: true # 給油をする（20L以上）
   hasWash: true # 水洗い洗車をする
   hasCarShareInsurance: true # 安心補償サービス（550円）
