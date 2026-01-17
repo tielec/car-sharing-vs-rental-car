@@ -132,6 +132,9 @@ const Index = () => {
         {/* Tool Description */}
         <section className="bg-muted/50 rounded-xl p-5 border border-border animate-fade-in">
           <h2 className="text-lg font-semibold text-foreground mb-2">このツールについて</h2>
+          <p className="text-sm text-destructive font-medium mb-2">
+            ※ 本ツールは非公式のサービスです。タイムズモビリティ株式会社とは一切関係ありません。
+          </p>
           <p className="text-base text-muted-foreground leading-relaxed">
             タイムズカーシェアとタイムズレンタカーの料金を比較できるツールです。
             利用時間・走行距離・車種を入力すると、それぞれの概算料金と、どちらがお得かを自動計算します。
