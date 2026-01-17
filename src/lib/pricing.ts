@@ -420,13 +420,15 @@ export function generateTimeProgressionData(
   insuranceType: InsuranceType,
   currentHours: number
 ): TimeProgressionDataPoint[] {
-  // Determine max hours for the chart (up to 72 hours or double current, minimum 24)
-  const maxHours = Math.max(Math.min(currentHours * 2, 72), 24);
-  const step = maxHours <= 24 ? 1 : maxHours <= 48 ? 2 : 3;
+  // Determine hours range for the chart (currentHours ± 24 hours)
+  const minHours = Math.max(1, currentHours - 24);
+  const maxHours = currentHours + 24;
+  const range = maxHours - minHours;
+  const step = range <= 24 ? 1 : range <= 48 ? 2 : 3;
   
   const data: TimeProgressionDataPoint[] = [];
   
-  for (let hours = 1; hours <= maxHours; hours += step) {
+  for (let hours = minHours; hours <= maxHours; hours += step) {
     const carShareResult = calculateCarSharePrice(
       vehicleType,
       hours,
