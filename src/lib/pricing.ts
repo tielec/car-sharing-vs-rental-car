@@ -322,6 +322,12 @@ export interface PriceProgressionDataPoint {
   rentalCar: number;
 }
 
+export interface TimeProgressionDataPoint {
+  hours: number;
+  carShare: number;
+  rentalCar: number;
+}
+
 export function generatePriceProgressionData(
   vehicleType: VehicleType,
   hours: number,
@@ -395,6 +401,84 @@ export function generatePriceProgressionData(
     });
     
     data.sort((a, b) => a.distance - b.distance);
+  }
+  
+  return data;
+}
+
+export function generateTimeProgressionData(
+  vehicleType: VehicleType,
+  distance: number,
+  hasRefuel: boolean,
+  hasWash: boolean,
+  hasCarShareInsurance: boolean,
+  fuelPrice: number,
+  fuelEfficiency: number,
+  isMember: boolean,
+  insuranceType: InsuranceType,
+  currentHours: number
+): TimeProgressionDataPoint[] {
+  // Determine max hours for the chart (up to 72 hours or double current, minimum 24)
+  const maxHours = Math.max(Math.min(currentHours * 2, 72), 24);
+  const step = maxHours <= 24 ? 1 : maxHours <= 48 ? 2 : 3;
+  
+  const data: TimeProgressionDataPoint[] = [];
+  
+  for (let hours = 1; hours <= maxHours; hours += step) {
+    const carShareResult = calculateCarSharePrice(
+      vehicleType,
+      hours,
+      distance,
+      hasRefuel,
+      hasWash,
+      hasCarShareInsurance
+    );
+    
+    const rentalCarResult = calculateRentalCarPrice(
+      vehicleType,
+      hours,
+      distance,
+      fuelPrice,
+      fuelEfficiency,
+      isMember,
+      insuranceType
+    );
+    
+    data.push({
+      hours,
+      carShare: carShareResult.total,
+      rentalCar: rentalCarResult.total,
+    });
+  }
+  
+  // Ensure current hours is included
+  if (!data.some(d => d.hours === currentHours) && currentHours <= maxHours && currentHours >= 1) {
+    const carShareResult = calculateCarSharePrice(
+      vehicleType,
+      currentHours,
+      distance,
+      hasRefuel,
+      hasWash,
+      hasCarShareInsurance
+    );
+    
+    const rentalCarResult = calculateRentalCarPrice(
+      vehicleType,
+      currentHours,
+      distance,
+      fuelPrice,
+      fuelEfficiency,
+      isMember,
+      insuranceType
+    );
+    
+    data.push({
+      hours: currentHours,
+      carShare: carShareResult.total,
+      rentalCar: rentalCarResult.total,
+    });
+    
+    data.sort((a, b) => a.hours - b.hours);
   }
   
   return data;

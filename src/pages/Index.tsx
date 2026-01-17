@@ -7,7 +7,7 @@ import { InputField } from "@/components/InputField";
 import { DurationInput } from "@/components/DurationInput";
 import { PriceCard } from "@/components/PriceCard";
 import { ComparisonResult, BreakEvenMessage } from "@/components/ComparisonResult";
-import { compareServices, generatePriceProgressionData, type VehicleType, type InsuranceType } from "@/lib/pricing";
+import { compareServices, generatePriceProgressionData, generateTimeProgressionData, type VehicleType, type InsuranceType } from "@/lib/pricing";
 import { PriceComparisonChart } from "@/components/PriceComparisonChart";
 import { settings, getCarShareVehicle, getRentalCarVehicle, getInsuranceName } from "@/config";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -47,12 +47,19 @@ const Index = () => {
     return compareServices(vehicleType, totalHours, distance, hasRefuel, hasWash, hasCarShareInsurance, fuelPrice, fuelEfficiency, isMember, insuranceType);
   }, [vehicleType, totalHours, distance, hasRefuel, hasWash, hasCarShareInsurance, fuelPrice, fuelEfficiency, isMember, insuranceType]);
 
-  const chartData = useMemo(() => {
+  const distanceChartData = useMemo(() => {
     return generatePriceProgressionData(
       vehicleType, totalHours, hasRefuel, hasWash, hasCarShareInsurance,
       fuelPrice, fuelEfficiency, isMember, insuranceType, distance
     );
   }, [vehicleType, totalHours, hasRefuel, hasWash, hasCarShareInsurance, fuelPrice, fuelEfficiency, isMember, insuranceType, distance]);
+
+  const timeChartData = useMemo(() => {
+    return generateTimeProgressionData(
+      vehicleType, distance, hasRefuel, hasWash, hasCarShareInsurance,
+      fuelPrice, fuelEfficiency, isMember, insuranceType, totalHours
+    );
+  }, [vehicleType, distance, hasRefuel, hasWash, hasCarShareInsurance, fuelPrice, fuelEfficiency, isMember, insuranceType, totalHours]);
 
   // Calculate discount label
   const getDiscountLabel = () => {
@@ -372,8 +379,10 @@ const Index = () => {
               <ComparisonResult result={result} />
 
               <PriceComparisonChart 
-                data={chartData} 
+                distanceData={distanceChartData}
+                timeData={timeChartData}
                 currentDistance={distance}
+                currentHours={totalHours}
                 breakEvenDistance={result.breakEvenDistance}
               />
 
