@@ -340,13 +340,15 @@ export function generatePriceProgressionData(
   insuranceType: InsuranceType,
   currentDistance: number
 ): PriceProgressionDataPoint[] {
-  // Determine max distance for the chart
-  const maxDistance = Math.max(Math.min(currentDistance * 2, 1000), 200);
-  const step = Math.max(Math.floor(maxDistance / 25), 10);
+  // Determine distance range for the chart (currentDistance ± 250km)
+  const minDistance = Math.max(0, currentDistance - 250);
+  const maxDistance = currentDistance + 250;
+  const range = maxDistance - minDistance;
+  const step = Math.max(Math.floor(range / 25), 10);
   
   const data: PriceProgressionDataPoint[] = [];
   
-  for (let distance = 0; distance <= maxDistance; distance += step) {
+  for (let distance = minDistance; distance <= maxDistance; distance += step) {
     const carShareResult = calculateCarSharePrice(
       vehicleType,
       hours,
