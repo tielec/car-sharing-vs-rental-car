@@ -164,11 +164,11 @@ const Index = () => {
 
         {/* Tabs for different views */}
         <Tabs defaultValue="compare" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
-            <TabsTrigger value="compare">料金比較</TabsTrigger>
-            <TabsTrigger value="carshare">カーシェア料金表</TabsTrigger>
-            <TabsTrigger value="rental">レンタカー料金表</TabsTrigger>
-            <TabsTrigger value="guide">計算の仕組み</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto gap-1 mb-6">
+            <TabsTrigger value="compare" className="text-xs sm:text-sm py-2">料金比較</TabsTrigger>
+            <TabsTrigger value="carshare" className="text-xs sm:text-sm py-2">カーシェア料金表</TabsTrigger>
+            <TabsTrigger value="rental" className="text-xs sm:text-sm py-2">レンタカー料金表</TabsTrigger>
+            <TabsTrigger value="guide" className="text-xs sm:text-sm py-2">計算の仕組み</TabsTrigger>
           </TabsList>
 
           {/* Comparison Tab */}
