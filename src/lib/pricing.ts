@@ -341,7 +341,7 @@ export function generatePriceProgressionData(
   currentDistance: number
 ): PriceProgressionDataPoint[] {
   // Determine max distance for the chart
-  const maxDistance = Math.max(Math.min(currentDistance * 2, 500), 200);
+  const maxDistance = Math.max(Math.min(currentDistance * 2, 1000), 200);
   const step = Math.max(Math.floor(maxDistance / 25), 10);
   
   const data: PriceProgressionDataPoint[] = [];
