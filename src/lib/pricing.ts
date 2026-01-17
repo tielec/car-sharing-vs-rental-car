@@ -343,8 +343,7 @@ export function generatePriceProgressionData(
   // Determine distance range for the chart (currentDistance ± 250km)
   const minDistance = Math.max(0, currentDistance - 250);
   const maxDistance = currentDistance + 250;
-  const range = maxDistance - minDistance;
-  const step = Math.max(Math.floor(range / 25), 10);
+  const step = 10;
   
   const data: PriceProgressionDataPoint[] = [];
   
