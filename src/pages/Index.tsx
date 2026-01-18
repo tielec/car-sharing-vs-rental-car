@@ -389,6 +389,27 @@ const Index = () => {
               <BreakEvenMessage result={result} currentDistance={distance} />
             </section>
 
+            {/* Donation Section */}
+            <section className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 rounded-xl p-5 border border-amber-200 dark:border-amber-800 animate-fade-in">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">☕</span>
+                  <p className="text-base text-foreground">
+                    役に立ったら、コーヒー1杯分の支援をもらえると嬉しいです
+                  </p>
+                </div>
+                <a
+                  href="https://buy.stripe.com/your-payment-link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-5 py-2.5 rounded-lg font-medium transition-colors shadow-md hover:shadow-lg whitespace-nowrap"
+                >
+                  <span>☕</span>
+                  <span>応援する</span>
+                </a>
+              </div>
+            </section>
+
             {/* Info Section */}
             <section className="bg-muted/50 rounded-xl p-5 border border-border text-base text-muted-foreground space-y-2">
               <p className="font-medium text-foreground">料金について</p>
