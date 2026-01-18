@@ -392,10 +392,17 @@ const Index = () => {
             {/* 投げ銭セクション */}
             <section className="bg-muted/50 rounded-xl p-5 border border-border">
               <p className="font-medium text-foreground mb-4">開発者を応援する</p>
-              <stripe-pricing-table 
-                pricing-table-id="prctbl_1SqmtxLidBSdNvbgP2AjMvzQ"
-                publishable-key="pk_live_51SqkxPLidBSdNvbgA9IlXb0Q025UBKWWwEKSZRi1fTDbQ6rerJm85Mus9Zaip3Ii8vMgEC4eIUzUdxaAQ8oTpzRC00KP37CGyy">
-              </stripe-pricing-table>
+
+              {/* Stripe Pricing Table は親要素の横幅が狭いと縦並びになるため、十分な幅を確保（狭い画面では横スクロール） */}
+              <div className="w-full overflow-x-auto">
+                <div className="min-w-[1120px]">
+                  <stripe-pricing-table
+                    pricing-table-id="prctbl_1SqmtxLidBSdNvbgP2AjMvzQ"
+                    publishable-key="pk_live_51SqkxPLidBSdNvbgA9IlXb0Q025UBKWWwEKSZRi1fTDbQ6rerJm85Mus9Zaip3Ii8vMgEC4eIUzUdxaAQ8oTpzRC00KP37CGyy"
+                    style={{ width: "1120px" }}
+                  />
+                </div>
+              </div>
             </section>
 
             {/* Info Section */}
