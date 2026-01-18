@@ -390,25 +390,23 @@ const Index = () => {
             </section>
 
             {/* 投げ銭セクション */}
-            <section className="bg-muted/50 rounded-xl p-5 border border-border">
+            <section className="bg-muted/50 rounded-xl p-5 border border-border overflow-hidden">
               <p className="font-medium text-foreground mb-4">開発者を応援する</p>
 
-              {/* Stripe Pricing Table を80%に縮小（横並び維持のため十分な幅を確保） */}
-              <div className="w-full overflow-x-auto">
-                <div 
-                  className="origin-top-left"
-                  style={{ 
-                    transform: "scale(0.8)", 
-                    width: "1120px",
-                    marginBottom: "-20%" 
-                  }}
-                >
-                  <stripe-pricing-table
-                    pricing-table-id="prctbl_1SqmtxLidBSdNvbgP2AjMvzQ"
-                    publishable-key="pk_live_51SqkxPLidBSdNvbgA9IlXb0Q025UBKWWwEKSZRi1fTDbQ6rerJm85Mus9Zaip3Ii8vMgEC4eIUzUdxaAQ8oTpzRC00KP37CGyy"
-                    style={{ width: "1120px" }}
-                  />
-                </div>
+              {/* Stripe Pricing Table を80%に縮小 */}
+              <div 
+                className="origin-top-left"
+                style={{ 
+                  transform: "scale(0.8)", 
+                  width: "1120px",
+                  marginBottom: "-20%" 
+                }}
+              >
+                <stripe-pricing-table
+                  pricing-table-id="prctbl_1SqmtxLidBSdNvbgP2AjMvzQ"
+                  publishable-key="pk_live_51SqkxPLidBSdNvbgA9IlXb0Q025UBKWWwEKSZRi1fTDbQ6rerJm85Mus9Zaip3Ii8vMgEC4eIUzUdxaAQ8oTpzRC00KP37CGyy"
+                  style={{ width: "1120px" }}
+                />
               </div>
             </section>
 
