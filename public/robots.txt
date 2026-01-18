@@ -1,3 +1,4 @@
+# Search Engine Crawlers
 User-agent: Googlebot
 Allow: /
 
@@ -10,5 +11,23 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
+# LLM Crawlers
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Anthropic-AI
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
 User-agent: *
 Allow: /
+
+Sitemap: https://car-sharing-vs-rental-car.lovable.app/sitemap.xml
