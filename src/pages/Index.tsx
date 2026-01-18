@@ -393,13 +393,13 @@ const Index = () => {
             <section className="bg-muted/50 rounded-xl p-5 border border-border overflow-hidden">
               <p className="font-medium text-foreground mb-4">開発者を応援する</p>
 
-              {/* Stripe Pricing Table を80%に縮小 */}
+              {/* Stripe Pricing Table を70%に縮小してコンテナに収める */}
               <div 
                 className="origin-top-left"
                 style={{ 
-                  transform: "scale(0.8)", 
+                  transform: "scale(0.7)", 
                   width: "1120px",
-                  marginBottom: "-20%" 
+                  height: "280px"
                 }}
               >
                 <stripe-pricing-table
