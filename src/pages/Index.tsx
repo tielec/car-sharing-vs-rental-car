@@ -392,12 +392,10 @@ const Index = () => {
             {/* 投げ銭セクション */}
             <section className="bg-muted/50 rounded-xl p-5 border border-border">
               <p className="font-medium text-foreground mb-4">開発者を応援する</p>
-              <div className="max-w-md mx-auto">
-                <stripe-pricing-table 
-                  pricing-table-id="prctbl_1SqmtxLidBSdNvbgP2AjMvzQ"
-                  publishable-key="pk_live_51SqkxPLidBSdNvbgA9IlXb0Q025UBKWWwEKSZRi1fTDbQ6rerJm85Mus9Zaip3Ii8vMgEC4eIUzUdxaAQ8oTpzRC00KP37CGyy">
-                </stripe-pricing-table>
-              </div>
+              <stripe-pricing-table 
+                pricing-table-id="prctbl_1SqmtxLidBSdNvbgP2AjMvzQ"
+                publishable-key="pk_live_51SqkxPLidBSdNvbgA9IlXb0Q025UBKWWwEKSZRi1fTDbQ6rerJm85Mus9Zaip3Ii8vMgEC4eIUzUdxaAQ8oTpzRC00KP37CGyy">
+              </stripe-pricing-table>
             </section>
 
             {/* Info Section */}
