@@ -395,7 +395,7 @@ const Index = () => {
                 <div className="flex items-center gap-3">
                   <span className="text-3xl">☕</span>
                   <p className="text-base text-foreground">
-                    役に立ったら、コーヒー1杯分の支援をもらえると嬉しいです
+                    もし役に立ったら、コーヒー1杯分だけ応援してもらえると嬉しいです
                   </p>
                 </div>
                 <a
