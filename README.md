@@ -1,73 +1,72 @@
-# Welcome to your Lovable project
+# タイムズカーシェア vs タイムズレンタカー 料金比較ツール
 
-## Project info
+> タイムズカーシェアとタイムズレンタカー、どちらがお得？利用条件を入力するだけで自動計算します。
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 🌐 公開URL
 
-## How can I edit this code?
+**https://car-sharing-vs-rental-car.lovable.app**
 
-There are several ways of editing your application.
+## 📖 概要
 
-**Use Lovable**
+タイムズカーシェアとタイムズレンタカーの料金を比較し、どちらがお得かを自動計算するWebツールです。利用時間、走行距離、車種、各種オプションを入力するだけで、詳細な料金内訳と損益分岐点を確認できます。
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## ✨ 主な機能
 
-Changes made via Lovable will be committed automatically to this repo.
+- **料金の自動計算・比較** - 両サービスの料金を即座に比較
+- **損益分岐点の可視化** - 距離・時間別のグラフで分岐点を表示
+- **複数車種対応** - コンパクト / コンパクトミニバン / ミニバン
+- **カーシェアオプション** - 給油・洗車割引の計算対応
+- **レンタカーオプション** - 会員料金・各種補償（なし/免責補償/安心補償）対応
+- **詳細な料金表** - 各サービスの料金体系を一覧表示
+- **計算ロジック解説** - 計算の仕組みを詳しく説明
 
-**Use your preferred IDE**
+## 🛠️ 技術スタック
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **フレームワーク**: React 18 + TypeScript
+- **ビルドツール**: Vite
+- **スタイリング**: Tailwind CSS
+- **UIコンポーネント**: shadcn/ui
+- **グラフ描画**: Recharts
+- **設定管理**: YAML
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+## 🚀 ローカル開発
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# リポジトリをクローン
+git clone <repository-url>
+cd <project-directory>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# 依存関係のインストール
+npm install
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 開発サーバーを起動
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## ⚙️ 料金設定のカスタマイズ
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+料金データは `src/config/settings.yaml` で管理しています。
+価格改定時はこのファイルを更新してください。
 
-**Use GitHub Codespaces**
+```yaml
+# 例: カーシェア料金の設定
+carShare:
+  vehicleClasses:
+    - id: "basic"
+      name: "ベーシック"
+      rate15min: 220
+      ...
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## ⚠️ 注意事項
 
-## What technologies are used for this project?
+- **本ツールは非公式のサービスです**
+- タイムズモビリティ株式会社とは一切関係ありません
+- 料金データは **2026年1月16日** 時点のものです
+- 実際の料金は各サービスの公式サイトでご確認ください
+  - [タイムズカーシェア](https://share.timescar.jp/)
+  - [タイムズカーレンタル](https://rental.timescar.jp/)
 
-This project is built with:
+## 📄 ライセンス
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+MIT License
