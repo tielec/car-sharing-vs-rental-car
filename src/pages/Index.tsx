@@ -1,5 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Car, MapPin, Fuel, Banknote, Settings as SettingsIcon, Droplets, Shield, Users } from "lucide-react";
+import { useGasolinePrice } from "@/hooks/useGasolinePrice";
 import heroCover from "@/assets/hero-cover.png";
 import { Checkbox } from "@/components/ui/checkbox";
 import { VehicleSelector } from "@/components/VehicleSelector";
@@ -34,8 +35,16 @@ const Index = () => {
   
   // User-configurable fuel settings
   const rentalVehicle = getRentalCarVehicle(vehicleType);
-  const [fuelPrice, setFuelPrice] = useState(settings.defaults.fuelPrice);
+  const gasolinePrice = useGasolinePrice();
+  const [fuelPrice, setFuelPrice] = useState(gasolinePrice.price);
   const [fuelEfficiency, setFuelEfficiency] = useState(rentalVehicle.defaultFuelEfficiency);
+
+  // Update fuelPrice when gasoline API price loads
+  useEffect(() => {
+    if (!gasolinePrice.isLoading) {
+      setFuelPrice(gasolinePrice.price);
+    }
+  }, [gasolinePrice.isLoading, gasolinePrice.price]);
 
   // Update fuel efficiency when vehicle type changes
   const handleVehicleChange = (type: VehicleType) => {
@@ -333,15 +342,29 @@ const Index = () => {
                   </CollapsibleTrigger>
                   <CollapsibleContent className="pt-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-lg bg-muted/30 border border-border">
-                      <InputField
-                        label="ガソリン単価"
-                        value={fuelPrice}
-                        onChange={setFuelPrice}
-                        min={100}
-                        max={300}
-                        unit="円/L"
-                        icon={Fuel}
-                      />
+                      <div>
+                        <InputField
+                          label="ガソリン単価"
+                          value={fuelPrice}
+                          onChange={setFuelPrice}
+                          min={100}
+                          max={300}
+                          unit="円/L"
+                          icon={Fuel}
+                        />
+                        <p className="text-xs text-muted-foreground mt-1 pl-1">
+                          {gasolinePrice.isLoading ? "全国平均価格を取得中..." : (
+                            <>
+                              全国平均価格（自動取得）
+                              {gasolinePrice.fetchDate && <span className="ml-1">- {gasolinePrice.fetchDate}</span>}
+                              <br />
+                              <a href="https://ichioak.com/stat/gasoline_prices.json" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                                出典: ichioak.com
+                              </a>
+                            </>
+                          )}
+                        </p>
+                      </div>
                       <InputField
                         label="想定燃費"
                         value={fuelEfficiency}
