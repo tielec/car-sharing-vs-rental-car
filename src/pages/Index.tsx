@@ -1,5 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Car, MapPin, Fuel, Banknote, Settings as SettingsIcon, Droplets, Shield, Users } from "lucide-react";
+import { useGasolinePrice } from "@/hooks/useGasolinePrice";
 import heroCover from "@/assets/hero-cover.png";
 import { Checkbox } from "@/components/ui/checkbox";
 import { VehicleSelector } from "@/components/VehicleSelector";
