@@ -58,7 +58,10 @@ export function useGasolinePrice(): GasolinePriceResult {
 
     const controller = new AbortController();
 
-    fetch("https://ichioak.com/stat/gasoline_prices.json", { signal: controller.signal })
+    const apiUrl = "https://ichioak.com/stat/gasoline_prices.json";
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
+
+    fetch(proxyUrl, { signal: controller.signal })
       .then((res) => res.json())
       .then((data: GasolineApiResponse) => {
         const avg = Math.round(Number(data.average_price));
