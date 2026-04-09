@@ -35,8 +35,16 @@ const Index = () => {
   
   // User-configurable fuel settings
   const rentalVehicle = getRentalCarVehicle(vehicleType);
-  const [fuelPrice, setFuelPrice] = useState(settings.defaults.fuelPrice);
+  const gasolinePrice = useGasolinePrice();
+  const [fuelPrice, setFuelPrice] = useState(gasolinePrice.price);
   const [fuelEfficiency, setFuelEfficiency] = useState(rentalVehicle.defaultFuelEfficiency);
+
+  // Update fuelPrice when gasoline API price loads
+  useEffect(() => {
+    if (!gasolinePrice.isLoading) {
+      setFuelPrice(gasolinePrice.price);
+    }
+  }, [gasolinePrice.isLoading, gasolinePrice.price]);
 
   // Update fuel efficiency when vehicle type changes
   const handleVehicleChange = (type: VehicleType) => {
