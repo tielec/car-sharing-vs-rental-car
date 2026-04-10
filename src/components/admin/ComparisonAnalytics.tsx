@@ -136,7 +136,7 @@ export function ComparisonAnalytics() {
       </h2>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <div className="p-3 rounded-lg bg-muted/30 border border-border text-center">
           <p className="text-2xl font-bold text-foreground">{stats.totalLogs}</p>
           <p className="text-xs text-muted-foreground">総アクセス数</p>
