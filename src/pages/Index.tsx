@@ -57,6 +57,18 @@ const Index = () => {
     return compareServices(vehicleType, totalHours, distance, hasRefuel, hasWash, hasCarShareInsurance, fuelPrice, fuelEfficiency, isMember, insuranceType);
   }, [vehicleType, totalHours, distance, hasRefuel, hasWash, hasCarShareInsurance, fuelPrice, fuelEfficiency, isMember, insuranceType]);
 
+  // Determine cheaper service for logging
+  const cheaperService = result.carShare.total < result.rentalCar.total ? "carShare" 
+    : result.rentalCar.total < result.carShare.total ? "rentalCar" 
+    : null;
+
+  // Anonymous comparison logging (debounced)
+  useComparisonLogger({
+    vehicleType, totalHours, distance, tollFee,
+    hasRefuel, hasWash, hasCarShareInsurance,
+    isMember, insuranceType, cheaperService,
+  });
+
   const distanceChartData = useMemo(() => {
     return generatePriceProgressionData(
       vehicleType, totalHours, hasRefuel, hasWash, hasCarShareInsurance,
