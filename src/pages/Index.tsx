@@ -18,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CarSharePriceTable } from "@/components/CarSharePriceTable";
 import { RentalCarPriceTable } from "@/components/RentalCarPriceTable";
 import { CalculationGuide } from "@/components/CalculationGuide";
+import { useComparisonLogger } from "@/hooks/useComparisonLogger";
 
 const Index = () => {
   // Use defaults from YAML config
@@ -55,6 +56,18 @@ const Index = () => {
   const result = useMemo(() => {
     return compareServices(vehicleType, totalHours, distance, hasRefuel, hasWash, hasCarShareInsurance, fuelPrice, fuelEfficiency, isMember, insuranceType);
   }, [vehicleType, totalHours, distance, hasRefuel, hasWash, hasCarShareInsurance, fuelPrice, fuelEfficiency, isMember, insuranceType]);
+
+  // Determine cheaper service for logging
+  const cheaperService = result.carShare.total < result.rentalCar.total ? "carShare" 
+    : result.rentalCar.total < result.carShare.total ? "rentalCar" 
+    : null;
+
+  // Anonymous comparison logging (debounced)
+  useComparisonLogger({
+    vehicleType, totalHours, distance, tollFee,
+    hasRefuel, hasWash, hasCarShareInsurance,
+    isMember, insuranceType, cheaperService,
+  });
 
   const distanceChartData = useMemo(() => {
     return generatePriceProgressionData(

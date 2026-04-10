@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { Car, LogOut, Fuel, ArrowLeft, Trash2, RefreshCw, Clock } from "lucide-react";
+import { ComparisonAnalytics } from "@/components/admin/ComparisonAnalytics";
 import {
   Table,
   TableBody,
@@ -352,6 +353,8 @@ export default function Admin() {
             </Table>
           )}
         </section>
+        {/* Comparison Analytics */}
+        <ComparisonAnalytics />
       </main>
     </div>
   );
