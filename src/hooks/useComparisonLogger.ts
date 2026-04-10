@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import type { VehicleType, InsuranceType } from "@/lib/pricing";
 
 interface ComparisonLogData {
@@ -17,11 +18,13 @@ interface ComparisonLogData {
 }
 
 export function useComparisonLogger(data: ComparisonLogData) {
+  const { isAdmin } = useAuth();
   const sessionIdRef = useRef(crypto.randomUUID());
   const timerRef = useRef<ReturnType<typeof setTimeout>>();
   const hasLoggedRef = useRef(false);
 
   useEffect(() => {
+    if (isAdmin) return;
     if (timerRef.current) clearTimeout(timerRef.current);
 
     timerRef.current = setTimeout(async () => {
