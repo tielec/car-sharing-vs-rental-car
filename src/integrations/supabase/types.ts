@@ -32,6 +32,57 @@ export type Database = {
         }
         Relationships: []
       }
+      comparison_logs: {
+        Row: {
+          cheaper_service: string | null
+          created_at: string
+          distance: number | null
+          has_car_share_insurance: boolean | null
+          has_refuel: boolean | null
+          has_wash: boolean | null
+          id: string
+          insurance_type: string | null
+          is_member: boolean | null
+          session_id: string
+          toll_fee: number | null
+          total_hours: number | null
+          updated_at: string
+          vehicle_type: string | null
+        }
+        Insert: {
+          cheaper_service?: string | null
+          created_at?: string
+          distance?: number | null
+          has_car_share_insurance?: boolean | null
+          has_refuel?: boolean | null
+          has_wash?: boolean | null
+          id?: string
+          insurance_type?: string | null
+          is_member?: boolean | null
+          session_id: string
+          toll_fee?: number | null
+          total_hours?: number | null
+          updated_at?: string
+          vehicle_type?: string | null
+        }
+        Update: {
+          cheaper_service?: string | null
+          created_at?: string
+          distance?: number | null
+          has_car_share_insurance?: boolean | null
+          has_refuel?: boolean | null
+          has_wash?: boolean | null
+          id?: string
+          insurance_type?: string | null
+          is_member?: boolean | null
+          session_id?: string
+          toll_fee?: number | null
+          total_hours?: number | null
+          updated_at?: string
+          vehicle_type?: string | null
+        }
+        Relationships: []
+      }
       gasoline_price_overrides: {
         Row: {
           created_at: string
