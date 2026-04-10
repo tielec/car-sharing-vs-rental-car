@@ -15,6 +15,8 @@ interface ComparisonLogData {
   insuranceType: InsuranceType;
   cheaperService: string | null;
   hasInteracted: boolean;
+  donationClicked: boolean;
+  donationAmount: number | null;
 }
 
 export function useComparisonLogger(data: ComparisonLogData) {
@@ -43,6 +45,8 @@ export function useComparisonLogger(data: ComparisonLogData) {
             insurance_type: data.insuranceType,
             cheaper_service: data.cheaperService,
             has_interacted: data.hasInteracted,
+            donation_clicked: data.donationClicked,
+            donation_amount: data.donationAmount,
           },
           { onConflict: "session_id" }
         );
@@ -66,5 +70,7 @@ export function useComparisonLogger(data: ComparisonLogData) {
     data.isMember,
     data.insuranceType,
     data.cheaperService,
+    data.donationClicked,
+    data.donationAmount,
   ]);
 }
