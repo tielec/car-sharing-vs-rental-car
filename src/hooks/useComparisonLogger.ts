@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import type { VehicleType, InsuranceType } from "@/lib/pricing";
 
 interface ComparisonLogData {
