@@ -58,14 +58,21 @@ export function ComparisonAnalytics() {
 
     const vehicleCounts: Record<string, number> = {};
     const cheaperCounts: Record<string, number> = {};
-    let totalHours = 0;
-    let totalDistance = 0;
+    let totalHoursInteracted = 0;
+    let totalDistanceInteracted = 0;
     let interactedLogs = 0;
     let donationClicks = 0;
     const donationAmountCounts: Record<number, number> = {};
 
     data.forEach((log) => {
-      if (log.has_interacted) interactedLogs++;
+      if (log.has_interacted) {
+        interactedLogs++;
+        totalHoursInteracted += log.total_hours || 0;
+        totalDistanceInteracted += log.distance || 0;
+        if (log.cheaper_service) {
+          cheaperCounts[log.cheaper_service] = (cheaperCounts[log.cheaper_service] || 0) + 1;
+        }
+      }
       if (log.donation_clicked) {
         donationClicks++;
         if (log.donation_amount) {
@@ -75,11 +82,6 @@ export function ComparisonAnalytics() {
       if (log.vehicle_type) {
         vehicleCounts[log.vehicle_type] = (vehicleCounts[log.vehicle_type] || 0) + 1;
       }
-      if (log.cheaper_service) {
-        cheaperCounts[log.cheaper_service] = (cheaperCounts[log.cheaper_service] || 0) + 1;
-      }
-      totalHours += log.total_hours || 0;
-      totalDistance += log.distance || 0;
     });
 
     setStats({
@@ -87,8 +89,8 @@ export function ComparisonAnalytics() {
       interactedLogs,
       vehicleCounts,
       cheaperCounts,
-      avgHours: data.length > 0 ? Math.round(totalHours / data.length) : 0,
-      avgDistance: data.length > 0 ? Math.round(totalDistance / data.length) : 0,
+      avgHours: interactedLogs > 0 ? Math.round(totalHoursInteracted / interactedLogs) : 0,
+      avgDistance: interactedLogs > 0 ? Math.round(totalDistanceInteracted / interactedLogs) : 0,
       donationClicks,
       donationAmountCounts,
       recentLogs: data.slice(0, 20),
