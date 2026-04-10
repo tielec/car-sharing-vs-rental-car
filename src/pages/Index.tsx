@@ -18,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CarSharePriceTable } from "@/components/CarSharePriceTable";
 import { RentalCarPriceTable } from "@/components/RentalCarPriceTable";
 import { CalculationGuide } from "@/components/CalculationGuide";
+import { useComparisonLogger } from "@/hooks/useComparisonLogger";
 
 const Index = () => {
   // Use defaults from YAML config
