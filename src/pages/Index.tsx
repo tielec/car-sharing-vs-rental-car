@@ -208,14 +208,14 @@ const Index = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <DurationInput
                     totalHours={totalHours}
-                    onChange={setTotalHours}
+                    onChange={(v) => { setTotalHours(v); setHasInteracted(true); }}
                     maxDays={10}
                   />
                   <div className="space-y-1.5">
                     <InputField
                       label="走行距離"
                       value={distance}
-                      onChange={setDistance}
+                      onChange={(v) => { setDistance(v); setHasInteracted(true); }}
                       min={settings.limits.distance.min}
                       max={settings.limits.distance.max}
                       unit="km"
@@ -228,7 +228,7 @@ const Index = () => {
                   <InputField
                     label="高速料金"
                     value={tollFee}
-                    onChange={setTollFee}
+                    onChange={(v) => { setTollFee(v); setHasInteracted(true); }}
                     min={settings.limits.tollFee.min}
                     max={settings.limits.tollFee.max}
                     unit="円"
