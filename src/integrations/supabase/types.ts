@@ -37,6 +37,8 @@ export type Database = {
           cheaper_service: string | null
           created_at: string
           distance: number | null
+          donation_amount: number | null
+          donation_clicked: boolean
           has_car_share_insurance: boolean | null
           has_interacted: boolean
           has_refuel: boolean | null
@@ -54,6 +56,8 @@ export type Database = {
           cheaper_service?: string | null
           created_at?: string
           distance?: number | null
+          donation_amount?: number | null
+          donation_clicked?: boolean
           has_car_share_insurance?: boolean | null
           has_interacted?: boolean
           has_refuel?: boolean | null
@@ -71,6 +75,8 @@ export type Database = {
           cheaper_service?: string | null
           created_at?: string
           distance?: number | null
+          donation_amount?: number | null
+          donation_clicked?: boolean
           has_car_share_insurance?: boolean | null
           has_interacted?: boolean
           has_refuel?: boolean | null
