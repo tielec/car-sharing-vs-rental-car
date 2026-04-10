@@ -18,11 +18,13 @@ interface ComparisonLogData {
 }
 
 export function useComparisonLogger(data: ComparisonLogData) {
+  const { isAdmin } = useAuth();
   const sessionIdRef = useRef(crypto.randomUUID());
   const timerRef = useRef<ReturnType<typeof setTimeout>>();
   const hasLoggedRef = useRef(false);
 
   useEffect(() => {
+    if (isAdmin) return;
     if (timerRef.current) clearTimeout(timerRef.current);
 
     timerRef.current = setTimeout(async () => {
