@@ -1,43 +1,26 @@
 
 
-## 定期実行によるガソリン価格自動更新の実装計画
+## 定期自動取得オン時のAPI呼び出しスキップ
 
 ### 概要
-週1回、自動的にAPIからガソリン価格を取得し `gasoline_price_overrides` に保存するスケジュール機能を実装します。管理画面からオン/オフを切り替えられるようにします。
+`app_settings` の `auto_fetch_gasoline_price` が `"true"` の場合、`useGasolinePrice` フックでの直接API呼び出し（ステップ3）をスキップします。定期実行が価格を管理しているため、クライアントからの重複取得は不要です。
 
-### 実装内容
+### 変更内容
 
-#### 1. 新しいEdge Function: `gasoline-price-scheduled`
-- サービスロールキーで認証し、APIから価格を取得
-- 既存の `is_active` レコードを無効化し、新しいレコードを挿入
-- メモに「定期自動取得（日付）」を記録
-- `set_by` には専用のシステムユーザーIDまたは管理者IDを使用（サービスロールで直接DB操作）
+**`src/hooks/useGasolinePrice.ts`** のみ修正:
 
-#### 2. DB設定テーブル: `app_settings`
-- `key (text, PK)` / `value (text)` のシンプルなKVテーブル
-- `auto_fetch_gasoline_price` キーで定期実行のオン/オフを管理（値: `"true"` / `"false"`）
-- RLS: 誰でもSELECT可、管理者のみUPDATE/INSERT
+1. `load()` 関数内で、オーバーライドが見つからなかった場合に `app_settings` テーブルから `auto_fetch_gasoline_price` の値を取得
+2. 値が `"true"` の場合、キャッシュがあればキャッシュを使用、なければデフォルト値のままAPI呼び出しをスキップ
+3. `"false"` の場合のみ従来通りEdge Function経由でAPIから価格を取得
 
-#### 3. pg_cron ジョブの設定
-- `pg_cron` と `pg_net` 拡張を有効化（マイグレーション）
-- 毎週月曜 9:00 JST にEdge Functionを呼び出すcronジョブを登録
-- Edge Function側で `app_settings` を確認し、オフなら何もせず終了
+### ロジックフロー（変更後）
 
-#### 4. 管理画面UIの更新 (`Admin.tsx`)
-- 「定期自動取得」セクションを追加
-- Switch コンポーネントでオン/オフ切り替え
-- 現在のステータス表示（有効/無効、次回実行予定）
-
-### 変更ファイル一覧
-
-| ファイル | 内容 |
-|---|---|
-| DBマイグレーション | `app_settings` テーブル作成、`pg_cron`/`pg_net` 拡張有効化 |
-| SQLインサート | cronジョブ登録（`cron.schedule`） |
-| `supabase/functions/gasoline-price-scheduled/index.ts` | 新規: 定期実行用Edge Function |
-| `src/pages/Admin.tsx` | 修正: オン/オフ切り替えUI追加 |
-
-### セキュリティ
-- 定期実行Edge FunctionはサービスロールキーでDB操作
-- `app_settings` テーブルは管理者のみ変更可能
+```text
+1. DB: active override あり → その価格を使用（終了）
+2. DB: auto_fetch_gasoline_price == "true"
+   → キャッシュあり → キャッシュ使用（終了）
+   → キャッシュなし → デフォルト値のまま（終了）
+3. auto_fetch == "false" かつ キャッシュ有効 → キャッシュ使用（終了）
+4. auto_fetch == "false" かつ キャッシュ無効 → API取得
+```
 
