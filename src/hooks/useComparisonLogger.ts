@@ -13,6 +13,7 @@ interface ComparisonLogData {
   isMember: boolean;
   insuranceType: InsuranceType;
   cheaperService: string | null;
+  hasInteracted: boolean;
 }
 
 export function useComparisonLogger(data: ComparisonLogData) {
@@ -38,6 +39,7 @@ export function useComparisonLogger(data: ComparisonLogData) {
             is_member: data.isMember,
             insurance_type: data.insuranceType,
             cheaper_service: data.cheaperService,
+            has_interacted: data.hasInteracted,
           },
           { onConflict: "session_id" }
         );
