@@ -236,9 +236,20 @@ export default function Admin() {
                 />
               </div>
             </div>
-            <Button type="submit" disabled={submitting}>
-              {submitting ? "保存中..." : "価格を設定"}
-            </Button>
+            <div className="flex gap-2">
+              <Button type="submit" disabled={submitting}>
+                {submitting ? "保存中..." : "価格を設定"}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={fetchingApi}
+                onClick={handleFetchAndApply}
+              >
+                <RefreshCw className={`w-4 h-4 mr-1 ${fetchingApi ? "animate-spin" : ""}`} />
+                {fetchingApi ? "取得中..." : "API価格を自動反映"}
+              </Button>
+            </div>
           </form>
         </section>
 
