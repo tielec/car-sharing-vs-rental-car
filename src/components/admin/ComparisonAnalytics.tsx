@@ -137,6 +137,44 @@ export function ComparisonAnalytics() {
         利用データ分析
       </h2>
 
+      {/* Funnel Analysis */}
+      <div className="space-y-1">
+        <h3 className="text-sm font-medium text-foreground">ファネル分析</h3>
+        {(() => {
+          const steps = [
+            { label: "ページアクセス", count: stats.totalLogs, rate: null as number | null },
+            { label: "操作あり", count: stats.interactedLogs, rate: stats.totalLogs > 0 ? (stats.interactedLogs / stats.totalLogs) * 100 : 0 },
+            { label: "投げ銭クリック", count: stats.donationClicks, rate: stats.interactedLogs > 0 ? (stats.donationClicks / stats.interactedLogs) * 100 : 0 },
+          ];
+          const maxCount = steps[0].count || 1;
+          return (
+            <div className="space-y-1">
+              {steps.map((step, i) => (
+                <div key={step.label}>
+                  {i > 0 && (
+                    <div className="flex items-center gap-2 pl-4 py-0.5">
+                      <span className="text-muted-foreground text-xs">↓</span>
+                      <span className="text-xs font-medium text-primary">{step.rate!.toFixed(1)}%</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 relative">
+                      <div
+                        className="h-10 rounded-md bg-primary/20 flex items-center px-3 transition-all"
+                        style={{ width: `${Math.max((step.count / maxCount) * 100, 12)}%` }}
+                      >
+                        <span className="text-sm font-medium text-foreground whitespace-nowrap">{step.label}</span>
+                      </div>
+                    </div>
+                    <span className="text-sm font-bold text-foreground w-16 text-right">{step.count}件</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+      </div>
+
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <div className="p-3 rounded-lg bg-muted/30 border border-border text-center">
