@@ -353,6 +353,8 @@ export default function Admin() {
             </Table>
           )}
         </section>
+        {/* Comparison Analytics */}
+        <ComparisonAnalytics />
       </main>
     </div>
   );
