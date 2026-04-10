@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Car, LogOut, Fuel, ArrowLeft, Trash2, RefreshCw } from "lucide-react";
+import { Car, LogOut, Fuel, ArrowLeft, Trash2, RefreshCw, Clock } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -38,6 +39,8 @@ export default function Admin() {
   const [newNote, setNewNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [fetchingApi, setFetchingApi] = useState(false);
+  const [autoFetchEnabled, setAutoFetchEnabled] = useState(false);
+  const [autoFetchLoading, setAutoFetchLoading] = useState(false);
 
   const fetchOverrides = async () => {
     const { data } = await supabase
@@ -48,8 +51,18 @@ export default function Admin() {
     if (data) setOverrides(data);
   };
 
+  const fetchAutoFetchSetting = async () => {
+    const { data } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "auto_fetch_gasoline_price")
+      .single();
+    if (data) setAutoFetchEnabled(data.value === "true");
+  };
+
   useEffect(() => {
     fetchOverrides();
+    fetchAutoFetchSetting();
   }, []);
 
   const activeOverride = overrides.find((o) => o.is_active);
@@ -59,7 +72,6 @@ export default function Admin() {
     if (!user) return;
     setSubmitting(true);
 
-    // Deactivate existing active overrides
     if (activeOverride) {
       await supabase
         .from("gasoline_price_overrides")
@@ -103,7 +115,6 @@ export default function Admin() {
       const avg = Math.round(Number(data.average_price));
       if (avg <= 0) throw new Error("有効な価格が取得できませんでした");
 
-      // Deactivate existing
       if (activeOverride) {
         await supabase
           .from("gasoline_price_overrides")
@@ -134,6 +145,22 @@ export default function Admin() {
     await supabase.from("gasoline_price_overrides").delete().eq("id", id);
     toast({ title: "削除しました" });
     fetchOverrides();
+  };
+
+  const handleToggleAutoFetch = async (checked: boolean) => {
+    setAutoFetchLoading(true);
+    const { error } = await supabase
+      .from("app_settings")
+      .update({ value: checked ? "true" : "false", updated_at: new Date().toISOString() })
+      .eq("key", "auto_fetch_gasoline_price");
+
+    if (error) {
+      toast({ title: "エラー", description: error.message, variant: "destructive" });
+    } else {
+      setAutoFetchEnabled(checked);
+      toast({ title: checked ? "定期自動取得を有効にしました" : "定期自動取得を無効にしました" });
+    }
+    setAutoFetchLoading(false);
   };
 
   return (
@@ -205,6 +232,32 @@ export default function Admin() {
               )}
             </div>
           </div>
+        </section>
+
+        {/* Scheduled Auto-Fetch */}
+        <section className="bg-card rounded-xl p-5 border border-border space-y-4">
+          <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+            <Clock className="w-5 h-5" />
+            定期自動取得
+          </h2>
+          <div className="flex items-center justify-between p-4 rounded-lg bg-muted/30 border border-border">
+            <div>
+              <p className="font-medium text-foreground">毎週月曜 9:00（JST）に自動更新</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                APIからガソリン全国平均価格を取得し、上書き価格として自動反映します。
+              </p>
+            </div>
+            <Switch
+              checked={autoFetchEnabled}
+              onCheckedChange={handleToggleAutoFetch}
+              disabled={autoFetchLoading}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {autoFetchEnabled
+              ? "✅ 定期自動取得は有効です。次回の実行は次の月曜 9:00（JST）です。"
+              : "⏸️ 定期自動取得は無効です。手動での価格設定のみ有効です。"}
+          </p>
         </section>
 
         {/* Set Override */}
