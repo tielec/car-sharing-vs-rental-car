@@ -38,6 +38,7 @@ export type Database = {
           created_at: string
           distance: number | null
           has_car_share_insurance: boolean | null
+          has_interacted: boolean
           has_refuel: boolean | null
           has_wash: boolean | null
           id: string
@@ -54,6 +55,7 @@ export type Database = {
           created_at?: string
           distance?: number | null
           has_car_share_insurance?: boolean | null
+          has_interacted?: boolean
           has_refuel?: boolean | null
           has_wash?: boolean | null
           id?: string
@@ -70,6 +72,7 @@ export type Database = {
           created_at?: string
           distance?: number | null
           has_car_share_insurance?: boolean | null
+          has_interacted?: boolean
           has_refuel?: boolean | null
           has_wash?: boolean | null
           id?: string
