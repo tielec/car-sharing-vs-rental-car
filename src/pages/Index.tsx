@@ -29,6 +29,7 @@ const Index = () => {
   const [hasWash, setHasWash] = useState(settings.defaults.hasWash);
   const [hasCarShareInsurance, setHasCarShareInsurance] = useState(false);
   const [tollFee, setTollFee] = useState(settings.defaults.tollFee);
+  const [hasInteracted, setHasInteracted] = useState(false);
   
   // Rental car specific settings
   const [isMember, setIsMember] = useState(settings.defaults.isMember);
@@ -51,6 +52,7 @@ const Index = () => {
   const handleVehicleChange = (type: VehicleType) => {
     setVehicleType(type);
     setFuelEfficiency(getRentalCarVehicle(type).defaultFuelEfficiency);
+    setHasInteracted(true);
   };
 
   const result = useMemo(() => {
@@ -67,6 +69,7 @@ const Index = () => {
     vehicleType, totalHours, distance, tollFee,
     hasRefuel, hasWash, hasCarShareInsurance,
     isMember, insuranceType, cheaperService,
+    hasInteracted,
   });
 
   const distanceChartData = useMemo(() => {
