@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Car, LogOut, Fuel, ArrowLeft, Trash2 } from "lucide-react";
+import { Car, LogOut, Fuel, ArrowLeft, Trash2, RefreshCw } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -37,6 +37,7 @@ export default function Admin() {
   const [newPrice, setNewPrice] = useState("");
   const [newNote, setNewNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [fetchingApi, setFetchingApi] = useState(false);
 
   const fetchOverrides = async () => {
     const { data } = await supabase
@@ -91,6 +92,42 @@ export default function Admin() {
       .eq("is_active", true);
     toast({ title: "手動設定をクリアしました（自動取得に戻ります）" });
     fetchOverrides();
+  };
+
+  const handleFetchAndApply = async () => {
+    if (!user) return;
+    setFetchingApi(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("gasoline-price", { method: "GET" });
+      if (error || !data) throw new Error("API取得に失敗しました");
+      const avg = Math.round(Number(data.average_price));
+      if (avg <= 0) throw new Error("有効な価格が取得できませんでした");
+
+      // Deactivate existing
+      if (activeOverride) {
+        await supabase
+          .from("gasoline_price_overrides")
+          .update({ is_active: false })
+          .eq("is_active", true);
+      }
+
+      const fetchDate = data.fetch_date || new Date().toISOString().slice(0, 10);
+      const { error: insertError } = await supabase.from("gasoline_price_overrides").insert({
+        price: avg,
+        note: `API自動取得（${fetchDate}）`,
+        set_by: user.id,
+        is_active: true,
+      });
+
+      if (insertError) throw insertError;
+      toast({ title: `API価格 ${avg}円/L を上書きに反映しました` });
+      setNewPrice("");
+      setNewNote("");
+      fetchOverrides();
+    } catch (err: any) {
+      toast({ title: "エラー", description: err.message, variant: "destructive" });
+    }
+    setFetchingApi(false);
   };
 
   const handleDeleteOverride = async (id: string) => {
@@ -199,9 +236,20 @@ export default function Admin() {
                 />
               </div>
             </div>
-            <Button type="submit" disabled={submitting}>
-              {submitting ? "保存中..." : "価格を設定"}
-            </Button>
+            <div className="flex gap-2">
+              <Button type="submit" disabled={submitting}>
+                {submitting ? "保存中..." : "価格を設定"}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={fetchingApi}
+                onClick={handleFetchAndApply}
+              >
+                <RefreshCw className={`w-4 h-4 mr-1 ${fetchingApi ? "animate-spin" : ""}`} />
+                {fetchingApi ? "取得中..." : "API価格を自動反映"}
+              </Button>
+            </div>
           </form>
         </section>
 
