@@ -249,7 +249,7 @@ const Index = () => {
                       <Checkbox
                         id="refuel"
                         checked={hasRefuel}
-                        onCheckedChange={(checked) => setHasRefuel(checked === true)}
+                        onCheckedChange={(checked) => { setHasRefuel(checked === true); setHasInteracted(true); }}
                         className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                       />
                       <label 
@@ -264,7 +264,7 @@ const Index = () => {
                       <Checkbox
                         id="wash"
                         checked={hasWash}
-                        onCheckedChange={(checked) => setHasWash(checked === true)}
+                        onCheckedChange={(checked) => { setHasWash(checked === true); setHasInteracted(true); }}
                         className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                       />
                       <label 
@@ -279,7 +279,7 @@ const Index = () => {
                       <Checkbox
                         id="carShareInsurance"
                         checked={hasCarShareInsurance}
-                        onCheckedChange={(checked) => setHasCarShareInsurance(checked === true)}
+                        onCheckedChange={(checked) => { setHasCarShareInsurance(checked === true); setHasInteracted(true); }}
                         className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                       />
                       <label 
@@ -307,7 +307,7 @@ const Index = () => {
                       </div>
                       <RadioGroup 
                         value={isMember ? "member" : "regular"} 
-                        onValueChange={(v) => setIsMember(v === "member")}
+                        onValueChange={(v) => { setIsMember(v === "member"); setHasInteracted(true); }}
                         className="flex gap-4"
                       >
                         <div className="flex items-center space-x-2">
@@ -329,7 +329,7 @@ const Index = () => {
                       </div>
                       <RadioGroup 
                         value={insuranceType} 
-                        onValueChange={(v) => setInsuranceType(v as InsuranceType)}
+                        onValueChange={(v) => { setInsuranceType(v as InsuranceType); setHasInteracted(true); }}
                         className="flex flex-wrap gap-3"
                       >
                         <div className="flex items-center space-x-2">
