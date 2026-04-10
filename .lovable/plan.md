@@ -1,33 +1,40 @@
 
 
-## `comparison_logs` に投げ銭クリック追跡を追加
+## ファネル分析ビジュアライゼーションを追加
 
 ### 概要
-比較検討 → 役に立つ → 投げ銭、という流れを分析できるよう、同一セッションのログに投げ銭クリック情報を記録する。
+「ページアクセス → 操作あり → 投げ銭クリック」の3ステップファネルを視覚的に表示するセクションを管理画面に追加する。既存データ（`totalLogs`, `interactedLogs`, `donationClicks`）をそのまま活用できるため、DB変更は不要。
 
 ### 変更内容
 
-#### 1. DBマイグレーション
-- `comparison_logs` に `donation_clicked` (boolean, default false) と `donation_amount` (integer, nullable) カラムを追加
+#### `src/components/admin/ComparisonAnalytics.tsx`
+- サマリーカードの上にファネルチャートセクションを追加
+- 3段階の横バーで表現：
+  - **ページアクセス**（totalLogs）→ 100%基準
+  - **操作あり**（interactedLogs）→ 対アクセス転換率を表示
+  - **投げ銭クリック**（donationClicks）→ 対操作あり転換率を表示
+- 各ステップ間の転換率（%）をラベルとして表示
+- Tailwind CSSのみで実装（追加ライブラリ不要）
 
-#### 2. `src/hooks/useComparisonLogger.ts`
-- `ComparisonLogData` に `donationClicked` と `donationAmount` を追加
-- upsert 時にこれらを含める
+### イメージ
 
-#### 3. `src/pages/Index.tsx`
-- `donationClicked` / `donationAmount` state を追加
-- 各投げ銭リンクの `onClick` で state を更新（300/500/1000）
-- `useComparisonLogger` に渡す
-
-#### 4. `src/components/admin/ComparisonAnalytics.tsx`
-- サマリーカードに投げ銭クリック数・金額別内訳を表示
-- ログテーブルに投げ銭列を追加
+```text
+ファネル分析
+┌──────────────────────────────────────┐ 150件  100%
+│  ページアクセス                        │
+└──────────────────────────────────────┘
+         ↓  40.0%
+┌────────────────────────┐              60件
+│  操作あり                │
+└────────────────────────┘
+         ↓  8.3%
+┌──────┐                                5件
+│ 投げ銭 │
+└──────┘
+```
 
 ### 変更ファイル
 | ファイル | 内容 |
 |---|---|
-| DBマイグレーション | `donation_clicked`, `donation_amount` カラム追加 |
-| `src/hooks/useComparisonLogger.ts` | 投げ銭データ送信対応 |
-| `src/pages/Index.tsx` | クリック検知 + state管理 |
-| `src/components/admin/ComparisonAnalytics.tsx` | 投げ銭分析表示 |
+| `src/components/admin/ComparisonAnalytics.tsx` | ファネル表示セクション追加 |
 
