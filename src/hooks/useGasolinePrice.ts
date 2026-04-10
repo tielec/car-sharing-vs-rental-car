@@ -69,13 +69,30 @@ export function useGasolinePrice(): GasolinePriceResult {
         }
       } catch {}
 
-      // 2. Use cached API price if valid
+      // 2. Check if auto-fetch is enabled (skip client API call if so)
+      let autoFetchEnabled = false;
+      try {
+        const { data: setting } = await supabase
+          .from("app_settings")
+          .select("value")
+          .eq("key", "auto_fetch_gasoline_price")
+          .maybeSingle();
+        autoFetchEnabled = setting?.value === "true";
+      } catch {}
+
+      if (autoFetchEnabled) {
+        // Scheduled job manages prices; use cache or default
+        if (!cancelled) setIsLoading(false);
+        return;
+      }
+
+      // 3. Use cached API price if valid
       if (isCacheValid()) {
         if (!cancelled) setIsLoading(false);
         return;
       }
 
-      // 3. Fetch from API via edge function
+      // 4. Fetch from API via edge function
       try {
         const { data, error } = await supabase.functions.invoke("gasoline-price", { method: "GET" });
         if (cancelled) return;
