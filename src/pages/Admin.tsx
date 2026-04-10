@@ -94,6 +94,42 @@ export default function Admin() {
     fetchOverrides();
   };
 
+  const handleFetchAndApply = async () => {
+    if (!user) return;
+    setFetchingApi(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("gasoline-price", { method: "GET" });
+      if (error || !data) throw new Error("API取得に失敗しました");
+      const avg = Math.round(Number(data.average_price));
+      if (avg <= 0) throw new Error("有効な価格が取得できませんでした");
+
+      // Deactivate existing
+      if (activeOverride) {
+        await supabase
+          .from("gasoline_price_overrides")
+          .update({ is_active: false })
+          .eq("is_active", true);
+      }
+
+      const fetchDate = data.fetch_date || new Date().toISOString().slice(0, 10);
+      const { error: insertError } = await supabase.from("gasoline_price_overrides").insert({
+        price: avg,
+        note: `API自動取得（${fetchDate}）`,
+        set_by: user.id,
+        is_active: true,
+      });
+
+      if (insertError) throw insertError;
+      toast({ title: `API価格 ${avg}円/L を上書きに反映しました` });
+      setNewPrice("");
+      setNewNote("");
+      fetchOverrides();
+    } catch (err: any) {
+      toast({ title: "エラー", description: err.message, variant: "destructive" });
+    }
+    setFetchingApi(false);
+  };
+
   const handleDeleteOverride = async (id: string) => {
     await supabase.from("gasoline_price_overrides").delete().eq("id", id);
     toast({ title: "削除しました" });
