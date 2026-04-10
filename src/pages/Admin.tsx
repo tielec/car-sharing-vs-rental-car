@@ -37,6 +37,7 @@ export default function Admin() {
   const [newPrice, setNewPrice] = useState("");
   const [newNote, setNewNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [fetchingApi, setFetchingApi] = useState(false);
 
   const fetchOverrides = async () => {
     const { data } = await supabase
