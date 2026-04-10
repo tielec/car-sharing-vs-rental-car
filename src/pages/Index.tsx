@@ -29,6 +29,7 @@ const Index = () => {
   const [hasWash, setHasWash] = useState(settings.defaults.hasWash);
   const [hasCarShareInsurance, setHasCarShareInsurance] = useState(false);
   const [tollFee, setTollFee] = useState(settings.defaults.tollFee);
+  const [hasInteracted, setHasInteracted] = useState(false);
   
   // Rental car specific settings
   const [isMember, setIsMember] = useState(settings.defaults.isMember);
@@ -51,6 +52,7 @@ const Index = () => {
   const handleVehicleChange = (type: VehicleType) => {
     setVehicleType(type);
     setFuelEfficiency(getRentalCarVehicle(type).defaultFuelEfficiency);
+    setHasInteracted(true);
   };
 
   const result = useMemo(() => {
@@ -67,6 +69,7 @@ const Index = () => {
     vehicleType, totalHours, distance, tollFee,
     hasRefuel, hasWash, hasCarShareInsurance,
     isMember, insuranceType, cheaperService,
+    hasInteracted,
   });
 
   const distanceChartData = useMemo(() => {
@@ -205,14 +208,14 @@ const Index = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <DurationInput
                     totalHours={totalHours}
-                    onChange={setTotalHours}
+                    onChange={(v) => { setTotalHours(v); setHasInteracted(true); }}
                     maxDays={10}
                   />
                   <div className="space-y-1.5">
                     <InputField
                       label="走行距離"
                       value={distance}
-                      onChange={setDistance}
+                      onChange={(v) => { setDistance(v); setHasInteracted(true); }}
                       min={settings.limits.distance.min}
                       max={settings.limits.distance.max}
                       unit="km"
@@ -225,7 +228,7 @@ const Index = () => {
                   <InputField
                     label="高速料金"
                     value={tollFee}
-                    onChange={setTollFee}
+                    onChange={(v) => { setTollFee(v); setHasInteracted(true); }}
                     min={settings.limits.tollFee.min}
                     max={settings.limits.tollFee.max}
                     unit="円"
@@ -246,7 +249,7 @@ const Index = () => {
                       <Checkbox
                         id="refuel"
                         checked={hasRefuel}
-                        onCheckedChange={(checked) => setHasRefuel(checked === true)}
+                        onCheckedChange={(checked) => { setHasRefuel(checked === true); setHasInteracted(true); }}
                         className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                       />
                       <label 
@@ -261,7 +264,7 @@ const Index = () => {
                       <Checkbox
                         id="wash"
                         checked={hasWash}
-                        onCheckedChange={(checked) => setHasWash(checked === true)}
+                        onCheckedChange={(checked) => { setHasWash(checked === true); setHasInteracted(true); }}
                         className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                       />
                       <label 
@@ -276,7 +279,7 @@ const Index = () => {
                       <Checkbox
                         id="carShareInsurance"
                         checked={hasCarShareInsurance}
-                        onCheckedChange={(checked) => setHasCarShareInsurance(checked === true)}
+                        onCheckedChange={(checked) => { setHasCarShareInsurance(checked === true); setHasInteracted(true); }}
                         className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                       />
                       <label 
@@ -304,7 +307,7 @@ const Index = () => {
                       </div>
                       <RadioGroup 
                         value={isMember ? "member" : "regular"} 
-                        onValueChange={(v) => setIsMember(v === "member")}
+                        onValueChange={(v) => { setIsMember(v === "member"); setHasInteracted(true); }}
                         className="flex gap-4"
                       >
                         <div className="flex items-center space-x-2">
@@ -326,7 +329,7 @@ const Index = () => {
                       </div>
                       <RadioGroup 
                         value={insuranceType} 
-                        onValueChange={(v) => setInsuranceType(v as InsuranceType)}
+                        onValueChange={(v) => { setInsuranceType(v as InsuranceType); setHasInteracted(true); }}
                         className="flex flex-wrap gap-3"
                       >
                         <div className="flex items-center space-x-2">

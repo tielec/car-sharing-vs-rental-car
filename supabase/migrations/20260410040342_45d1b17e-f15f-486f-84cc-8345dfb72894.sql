@@ -1,0 +1,1 @@
+ALTER TABLE public.comparison_logs ADD COLUMN has_interacted boolean NOT NULL DEFAULT false;
