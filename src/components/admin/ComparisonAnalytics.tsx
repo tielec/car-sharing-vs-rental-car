@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, Filter } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -9,9 +9,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 
 interface LogStats {
   totalLogs: number;
+  interactedLogs: number;
   vehicleCounts: Record<string, number>;
   cheaperCounts: Record<string, number>;
   avgHours: number;
@@ -22,6 +24,7 @@ interface LogStats {
     total_hours: number | null;
     distance: number | null;
     cheaper_service: string | null;
+    has_interacted: boolean | null;
     created_at: string;
     updated_at: string;
   }>;
@@ -30,6 +33,7 @@ interface LogStats {
 export function ComparisonAnalytics() {
   const [stats, setStats] = useState<LogStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [filterInteracted, setFilterInteracted] = useState(false);
 
   useEffect(() => {
     fetchStats();
@@ -52,8 +56,10 @@ export function ComparisonAnalytics() {
     const cheaperCounts: Record<string, number> = {};
     let totalHours = 0;
     let totalDistance = 0;
+    let interactedLogs = 0;
 
     data.forEach((log) => {
+      if (log.has_interacted) interactedLogs++;
       if (log.vehicle_type) {
         vehicleCounts[log.vehicle_type] = (vehicleCounts[log.vehicle_type] || 0) + 1;
       }
@@ -66,6 +72,7 @@ export function ComparisonAnalytics() {
 
     setStats({
       totalLogs: data.length,
+      interactedLogs,
       vehicleCounts,
       cheaperCounts,
       avgHours: data.length > 0 ? Math.round(totalHours / data.length) : 0,
@@ -103,6 +110,10 @@ export function ComparisonAnalytics() {
     van: "ミニバン",
   };
 
+  const filteredLogs = filterInteracted
+    ? stats.recentLogs.filter((log) => log.has_interacted)
+    : stats.recentLogs;
+
   return (
     <section className="bg-card rounded-xl p-5 border border-border space-y-4">
       <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
@@ -111,10 +122,14 @@ export function ComparisonAnalytics() {
       </h2>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         <div className="p-3 rounded-lg bg-muted/30 border border-border text-center">
           <p className="text-2xl font-bold text-foreground">{stats.totalLogs}</p>
-          <p className="text-xs text-muted-foreground">総比較数</p>
+          <p className="text-xs text-muted-foreground">総アクセス数</p>
+        </div>
+        <div className="p-3 rounded-lg bg-muted/30 border border-border text-center">
+          <p className="text-2xl font-bold text-primary">{stats.interactedLogs}</p>
+          <p className="text-xs text-muted-foreground">操作あり</p>
         </div>
         <div className="p-3 rounded-lg bg-muted/30 border border-border text-center">
           <p className="text-2xl font-bold text-foreground">{stats.avgHours}h</p>
@@ -151,7 +166,18 @@ export function ComparisonAnalytics() {
 
       {/* Recent Logs */}
       <div className="space-y-2">
-        <h3 className="text-sm font-medium text-foreground">直近のログ（最新20件）</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-medium text-foreground">直近のログ（最新20件）</h3>
+          <Button
+            variant={filterInteracted ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFilterInteracted(!filterInteracted)}
+            className="text-xs gap-1"
+          >
+            <Filter className="w-3 h-3" />
+            操作ありのみ
+          </Button>
+        </div>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
@@ -159,16 +185,24 @@ export function ComparisonAnalytics() {
                 <TableHead>車種</TableHead>
                 <TableHead>時間</TableHead>
                 <TableHead>距離</TableHead>
+                <TableHead>操作</TableHead>
                 <TableHead>結果</TableHead>
                 <TableHead>日時</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {stats.recentLogs.map((log) => (
+              {filteredLogs.map((log) => (
                 <TableRow key={log.session_id}>
                   <TableCell>{vehicleLabels[log.vehicle_type || ""] || log.vehicle_type || "-"}</TableCell>
                   <TableCell>{log.total_hours != null ? `${log.total_hours}h` : "-"}</TableCell>
                   <TableCell>{log.distance != null ? `${log.distance}km` : "-"}</TableCell>
+                  <TableCell>
+                    {log.has_interacted ? (
+                      <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">操作あり</span>
+                    ) : (
+                      <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded">閲覧のみ</span>
+                    )}
+                  </TableCell>
                   <TableCell>
                     {log.cheaper_service === "carShare" ? (
                       <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">シェア</span>
