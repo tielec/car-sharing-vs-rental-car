@@ -12,6 +12,7 @@ interface GasolinePriceResult {
   isLoading: boolean;
   updatedAt: string | null;
   fetchDate: string | null;
+  isOverridden: boolean;
 }
 
 function getCachedPrice(): { price: number; updatedAt: string; fetchDate: string; timestamp: number } | null {
@@ -40,22 +41,44 @@ function isCacheValid(): boolean {
 export function useGasolinePrice(): GasolinePriceResult {
   const cached = getCachedPrice();
   const [price, setPrice] = useState(cached?.price ?? settings.defaults.fuelPrice);
-  const [isLoading, setIsLoading] = useState(!isCacheValid());
+  const [isLoading, setIsLoading] = useState(true);
   const [updatedAt, setUpdatedAt] = useState(cached?.updatedAt ?? null);
   const [fetchDate, setFetchDate] = useState(cached?.fetchDate ?? null);
+  const [isOverridden, setIsOverridden] = useState(false);
 
   useEffect(() => {
-    if (isCacheValid()) {
-      setIsLoading(false);
-      return;
-    }
+    let cancelled = false;
 
-    const controller = new AbortController();
+    async function load() {
+      // 1. Check for active manual override
+      try {
+        const { data: override } = await supabase
+          .from("gasoline_price_overrides")
+          .select("price, created_at")
+          .eq("is_active", true)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
 
-    supabase.functions
-      .invoke("gasoline-price", { method: "GET" })
-      .then(({ data, error }) => {
-        if (controller.signal.aborted) return;
+        if (!cancelled && override) {
+          setPrice(Math.round(Number(override.price)));
+          setUpdatedAt(override.created_at);
+          setIsOverridden(true);
+          setIsLoading(false);
+          return;
+        }
+      } catch {}
+
+      // 2. Use cached API price if valid
+      if (isCacheValid()) {
+        if (!cancelled) setIsLoading(false);
+        return;
+      }
+
+      // 3. Fetch from API via edge function
+      try {
+        const { data, error } = await supabase.functions.invoke("gasoline-price", { method: "GET" });
+        if (cancelled) return;
         if (error || !data) throw new Error("fetch failed");
         const avg = Math.round(Number(data.average_price));
         if (avg > 0) {
@@ -67,16 +90,14 @@ export function useGasolinePrice(): GasolinePriceResult {
           setUpdatedAt(now);
           setFetchDate(data.fetch_date || null);
         }
-      })
-      .catch(() => {
-        // fallback: use cache or YAML default (already set in initial state)
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setIsLoading(false);
-      });
+      } catch {}
 
-    return () => controller.abort();
+      if (!cancelled) setIsLoading(false);
+    }
+
+    load();
+    return () => { cancelled = true; };
   }, []);
 
-  return { price, isLoading, updatedAt, fetchDate };
+  return { price, isLoading, updatedAt, fetchDate, isOverridden };
 }
