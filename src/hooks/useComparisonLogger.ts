@@ -31,25 +31,22 @@ export function useComparisonLogger(data: ComparisonLogData) {
 
     timerRef.current = setTimeout(async () => {
       try {
-        await supabase.from("comparison_logs").upsert(
-          {
-            session_id: sessionIdRef.current,
-            vehicle_type: data.vehicleType,
-            total_hours: data.totalHours,
-            distance: data.distance,
-            toll_fee: data.tollFee,
-            has_refuel: data.hasRefuel,
-            has_wash: data.hasWash,
-            has_car_share_insurance: data.hasCarShareInsurance,
-            is_member: data.isMember,
-            insurance_type: data.insuranceType,
-            cheaper_service: data.cheaperService,
-            has_interacted: data.hasInteracted,
-            donation_clicked: data.donationClicked,
-            donation_amount: data.donationAmount,
-          },
-          { onConflict: "session_id" }
-        );
+        await supabase.rpc("upsert_comparison_log", {
+          p_session_id: sessionIdRef.current,
+          p_vehicle_type: data.vehicleType,
+          p_total_hours: data.totalHours,
+          p_distance: data.distance,
+          p_toll_fee: data.tollFee,
+          p_has_refuel: data.hasRefuel,
+          p_has_wash: data.hasWash,
+          p_has_car_share_insurance: data.hasCarShareInsurance,
+          p_is_member: data.isMember,
+          p_insurance_type: data.insuranceType,
+          p_cheaper_service: data.cheaperService,
+          p_has_interacted: data.hasInteracted,
+          p_donation_clicked: data.donationClicked,
+          p_donation_amount: data.donationAmount,
+        });
         hasLoggedRef.current = true;
       } catch {
         // Silent fail - analytics should not break the app

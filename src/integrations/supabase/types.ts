@@ -170,6 +170,25 @@ export type Database = {
         }
         Returns: boolean
       }
+      upsert_comparison_log: {
+        Args: {
+          p_cheaper_service?: string
+          p_distance?: number
+          p_donation_amount?: number
+          p_donation_clicked?: boolean
+          p_has_car_share_insurance?: boolean
+          p_has_interacted?: boolean
+          p_has_refuel?: boolean
+          p_has_wash?: boolean
+          p_insurance_type?: string
+          p_is_member?: boolean
+          p_session_id: string
+          p_toll_fee?: number
+          p_total_hours?: number
+          p_vehicle_type?: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
