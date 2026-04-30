@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { BarChart3, Filter } from "lucide-react";
+import { BarChart3, Filter, Monitor, Smartphone, Tablet, HelpCircle } from "lucide-react";
 import {
   Table,
   TableBody,
