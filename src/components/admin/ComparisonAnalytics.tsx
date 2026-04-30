@@ -87,13 +87,19 @@ export function ComparisonAnalytics() {
 
     const vehicleCounts: Record<string, number> = {};
     const cheaperCounts: Record<string, number> = {};
+    const sourceCounts: Record<string, number> = {};
+    const campaignCounts: Record<string, number> = {};
+    const deviceCounts: Record<string, number> = {};
+    const browserCounts: Record<string, number> = {};
+    const languageCounts: Record<string, number> = {};
+    const timezoneCounts: Record<string, number> = {};
     let totalHoursInteracted = 0;
     let totalDistanceInteracted = 0;
     let interactedLogs = 0;
     let donationClicks = 0;
     const donationAmountCounts: Record<number, number> = {};
 
-    data.forEach((log) => {
+    data.forEach((log: any) => {
       if (log.has_interacted) {
         interactedLogs++;
         totalHoursInteracted += log.total_hours || 0;
@@ -111,6 +117,25 @@ export function ComparisonAnalytics() {
       if (log.vehicle_type) {
         vehicleCounts[log.vehicle_type] = (vehicleCounts[log.vehicle_type] || 0) + 1;
       }
+      // Access source breakdown
+      const source = classifySource(log.referrer_domain, log.utm_source);
+      sourceCounts[source] = (sourceCounts[source] || 0) + 1;
+      if (log.utm_campaign) {
+        const key = `${log.utm_source || "?"} / ${log.utm_campaign}`;
+        campaignCounts[key] = (campaignCounts[key] || 0) + 1;
+      }
+      if (log.device_type) {
+        deviceCounts[log.device_type] = (deviceCounts[log.device_type] || 0) + 1;
+      }
+      if (log.browser) {
+        browserCounts[log.browser] = (browserCounts[log.browser] || 0) + 1;
+      }
+      if (log.language) {
+        languageCounts[log.language] = (languageCounts[log.language] || 0) + 1;
+      }
+      if (log.timezone) {
+        timezoneCounts[log.timezone] = (timezoneCounts[log.timezone] || 0) + 1;
+      }
     });
 
     setStats({
@@ -122,7 +147,13 @@ export function ComparisonAnalytics() {
       avgDistance: interactedLogs > 0 ? Math.round(totalDistanceInteracted / interactedLogs) : 0,
       donationClicks,
       donationAmountCounts,
-      recentLogs: data.slice(0, 20),
+      sourceCounts,
+      campaignCounts,
+      deviceCounts,
+      browserCounts,
+      languageCounts,
+      timezoneCounts,
+      recentLogs: data.slice(0, 20) as any,
     });
     setLoading(false);
   };
