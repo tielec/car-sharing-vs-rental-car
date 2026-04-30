@@ -427,59 +427,75 @@ export function ComparisonAnalytics() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>車種</TableHead>
-                <TableHead>時間</TableHead>
-                <TableHead>距離</TableHead>
-                <TableHead>流入元</TableHead>
-                <TableHead>デバイス</TableHead>
-                <TableHead>操作</TableHead>
-                <TableHead>投げ銭</TableHead>
-                <TableHead>結果</TableHead>
-                <TableHead>日時</TableHead>
+                <TableHead className="whitespace-nowrap">利用条件</TableHead>
+                <TableHead className="whitespace-nowrap">流入元</TableHead>
+                <TableHead className="whitespace-nowrap text-center">デバイス</TableHead>
+                <TableHead className="whitespace-nowrap">ステータス</TableHead>
+                <TableHead className="whitespace-nowrap">投げ銭</TableHead>
+                <TableHead className="whitespace-nowrap">日時</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredLogs.map((log) => (
-                <TableRow key={log.session_id}>
-                  <TableCell>{vehicleLabels[log.vehicle_type || ""] || log.vehicle_type || "-"}</TableCell>
-                  <TableCell>{log.total_hours != null ? `${log.total_hours}h` : "-"}</TableCell>
-                  <TableCell>{log.distance != null ? `${log.distance}km` : "-"}</TableCell>
-                  <TableCell className="text-xs text-muted-foreground max-w-[140px] truncate">
-                    {classifySource(log.referrer_domain, log.utm_source)}
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {log.device_type || "-"}
-                  </TableCell>
-                  <TableCell>
-                    {log.has_interacted ? (
-                      <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">操作あり</span>
-                    ) : (
-                      <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded">閲覧のみ</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {log.donation_clicked ? (
-                      <span className="text-xs bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded">
-                        {log.donation_amount?.toLocaleString()}円
-                      </span>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">-</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {log.cheaper_service === "carShare" ? (
-                      <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">シェア</span>
-                    ) : log.cheaper_service === "rentalCar" ? (
-                      <span className="text-xs bg-accent/50 text-accent-foreground px-2 py-0.5 rounded">レンタカー</span>
-                    ) : (
-                      "-"
-                    )}
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {new Date(log.updated_at).toLocaleString("ja-JP")}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {filteredLogs.map((log) => {
+                const dt = new Date(log.updated_at);
+                const shortDate = `${dt.getMonth() + 1}/${dt.getDate()} ${String(dt.getHours()).padStart(2, "0")}:${String(dt.getMinutes()).padStart(2, "0")}`;
+                const fullDate = dt.toLocaleString("ja-JP");
+                const device = (log.device_type || "").toLowerCase();
+                const DeviceIcon = device === "mobile" ? Smartphone : device === "tablet" ? Tablet : device === "desktop" ? Monitor : HelpCircle;
+                const sourceLabel = classifySource(log.referrer_domain, log.utm_source);
+
+                return (
+                  <TableRow key={log.session_id}>
+                    {/* 利用条件: 車種 / 時間・距離 */}
+                    <TableCell className="whitespace-nowrap py-2">
+                      <div className="text-sm font-medium text-foreground">
+                        {vehicleLabels[log.vehicle_type || ""] || log.vehicle_type || "-"}
+                      </div>
+                      <div className="text-xs text-muted-foreground tabular-nums">
+                        {log.total_hours != null ? `${log.total_hours}h` : "-h"}
+                        {" / "}
+                        {log.distance != null ? `${log.distance}km` : "-km"}
+                      </div>
+                    </TableCell>
+                    {/* 流入元 */}
+                    <TableCell className="text-xs text-muted-foreground max-w-[160px] truncate whitespace-nowrap" title={sourceLabel}>
+                      {sourceLabel}
+                    </TableCell>
+                    {/* デバイス: アイコン */}
+                    <TableCell className="text-center" title={log.device_type || "unknown"}>
+                      <DeviceIcon className="w-4 h-4 inline-block text-muted-foreground" />
+                    </TableCell>
+                    {/* ステータス: 操作 + 結果 */}
+                    <TableCell className="whitespace-nowrap">
+                      {log.has_interacted ? (
+                        log.cheaper_service === "carShare" ? (
+                          <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded whitespace-nowrap">シェア勝ち</span>
+                        ) : log.cheaper_service === "rentalCar" ? (
+                          <span className="text-xs bg-accent/50 text-accent-foreground px-2 py-0.5 rounded whitespace-nowrap">レンタカー勝ち</span>
+                        ) : (
+                          <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded whitespace-nowrap">操作あり</span>
+                        )
+                      ) : (
+                        <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded whitespace-nowrap">閲覧のみ</span>
+                      )}
+                    </TableCell>
+                    {/* 投げ銭 */}
+                    <TableCell className="whitespace-nowrap">
+                      {log.donation_clicked ? (
+                        <span className="text-xs bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded whitespace-nowrap tabular-nums">
+                          {log.donation_amount?.toLocaleString()}円
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                    {/* 日時 */}
+                    <TableCell className="text-xs text-muted-foreground whitespace-nowrap tabular-nums" title={fullDate}>
+                      {shortDate}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
