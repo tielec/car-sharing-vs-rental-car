@@ -20,6 +20,12 @@ interface LogStats {
   avgDistance: number;
   donationClicks: number;
   donationAmountCounts: Record<number, number>;
+  sourceCounts: Record<string, number>;
+  campaignCounts: Record<string, number>;
+  deviceCounts: Record<string, number>;
+  browserCounts: Record<string, number>;
+  languageCounts: Record<string, number>;
+  timezoneCounts: Record<string, number>;
   recentLogs: Array<{
     session_id: string;
     vehicle_type: string | null;
@@ -29,9 +35,32 @@ interface LogStats {
     has_interacted: boolean | null;
     donation_clicked: boolean | null;
     donation_amount: number | null;
+    referrer_domain: string | null;
+    utm_source: string | null;
+    device_type: string | null;
     created_at: string;
     updated_at: string;
   }>;
+}
+
+function classifySource(domain: string | null, utmSource: string | null): string {
+  if (utmSource) return `utm:${utmSource}`;
+  if (!domain) return "Direct/直接アクセス";
+  const d = domain.toLowerCase();
+  if (/google\./.test(d)) return "Google検索";
+  if (/bing\./.test(d)) return "Bing検索";
+  if (/yahoo\./.test(d)) return "Yahoo検索";
+  if (/duckduckgo\./.test(d)) return "DuckDuckGo";
+  if (/t\.co|twitter\.com|x\.com/.test(d)) return "X (Twitter)";
+  if (/facebook\.com|fb\.com/.test(d)) return "Facebook";
+  if (/instagram\.com/.test(d)) return "Instagram";
+  if (/linkedin\.com/.test(d)) return "LinkedIn";
+  if (/youtube\.com|youtu\.be/.test(d)) return "YouTube";
+  if (/reddit\.com/.test(d)) return "Reddit";
+  if (/hatena\.ne\.jp|b\.hatena/.test(d)) return "はてな";
+  if (/note\.com/.test(d)) return "note";
+  if (/tielec\.blog|tielec\./.test(d)) return "自社サイト";
+  return d;
 }
 
 export function ComparisonAnalytics() {
