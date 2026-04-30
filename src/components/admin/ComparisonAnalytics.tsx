@@ -430,6 +430,8 @@ export function ComparisonAnalytics() {
                 <TableHead>車種</TableHead>
                 <TableHead>時間</TableHead>
                 <TableHead>距離</TableHead>
+                <TableHead>流入元</TableHead>
+                <TableHead>デバイス</TableHead>
                 <TableHead>操作</TableHead>
                 <TableHead>投げ銭</TableHead>
                 <TableHead>結果</TableHead>
@@ -442,6 +444,12 @@ export function ComparisonAnalytics() {
                   <TableCell>{vehicleLabels[log.vehicle_type || ""] || log.vehicle_type || "-"}</TableCell>
                   <TableCell>{log.total_hours != null ? `${log.total_hours}h` : "-"}</TableCell>
                   <TableCell>{log.distance != null ? `${log.distance}km` : "-"}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground max-w-[140px] truncate">
+                    {classifySource(log.referrer_domain, log.utm_source)}
+                  </TableCell>
+                  <TableCell className="text-xs text-muted-foreground">
+                    {log.device_type || "-"}
+                  </TableCell>
                   <TableCell>
                     {log.has_interacted ? (
                       <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">操作あり</span>
