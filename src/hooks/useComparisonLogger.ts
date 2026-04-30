@@ -105,17 +105,30 @@ function isExcludedSource(): boolean {
   }
 }
 
+interface LoggerState {
+  sessionId: string;
+  timer?: ReturnType<typeof setTimeout>;
+  hasLogged: boolean;
+  accessInfo: AccessInfo;
+  excluded: boolean;
+}
+
 export function useComparisonLogger(data: ComparisonLogData) {
   const { isAdmin } = useAuth();
-  const sessionIdRef = useRef(crypto.randomUUID());
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
-  const hasLoggedRef = useRef(false);
-  const accessInfoRef = useRef<AccessInfo>(collectAccessInfo());
-  const excludedRef = useRef<boolean>(isExcludedSource());
+  const stateRef = useRef<LoggerState | null>(null);
+  if (stateRef.current === null) {
+    stateRef.current = {
+      sessionId: crypto.randomUUID(),
+      hasLogged: false,
+      accessInfo: collectAccessInfo(),
+      excluded: isExcludedSource(),
+    };
+  }
+  const state = stateRef.current;
 
   useEffect(() => {
     if (isAdmin) return;
-    if (excludedRef.current) return;
+    if (state.excluded) return;
     if (timerRef.current) clearTimeout(timerRef.current);
 
     timerRef.current = setTimeout(async () => {
