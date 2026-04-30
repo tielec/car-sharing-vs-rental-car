@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
       .insert({
         price: avg,
         note: `定期自動取得（${fetchDate}）`,
-        set_by: "00000000-0000-0000-0000-000000000000",
+        set_by: null,
         is_active: true,
       });
 
