@@ -129,13 +129,13 @@ export function useComparisonLogger(data: ComparisonLogData) {
   useEffect(() => {
     if (isAdmin) return;
     if (state.excluded) return;
-    if (timerRef.current) clearTimeout(timerRef.current);
+    if (state.timer) clearTimeout(state.timer);
 
-    timerRef.current = setTimeout(async () => {
+    state.timer = setTimeout(async () => {
       try {
-        const access = accessInfoRef.current;
+        const access = state.accessInfo;
         await supabase.rpc("upsert_comparison_log", {
-          p_session_id: sessionIdRef.current,
+          p_session_id: state.sessionId,
           p_vehicle_type: data.vehicleType,
           p_total_hours: data.totalHours,
           p_distance: data.distance,
@@ -161,14 +161,14 @@ export function useComparisonLogger(data: ComparisonLogData) {
           p_language: access.language,
           p_timezone: access.timezone,
         });
-        hasLoggedRef.current = true;
+        state.hasLogged = true;
       } catch {
         // Silent fail - analytics should not break the app
       }
     }, 3000);
 
     return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
+      if (state.timer) clearTimeout(state.timer);
     };
   }, [
     data.vehicleType,
