@@ -34,8 +34,10 @@ export type Database = {
       }
       comparison_logs: {
         Row: {
+          browser: string | null
           cheaper_service: string | null
           created_at: string
+          device_type: string | null
           distance: number | null
           donation_amount: number | null
           donation_clicked: boolean
@@ -46,15 +48,26 @@ export type Database = {
           id: string
           insurance_type: string | null
           is_member: boolean | null
+          landing_path: string | null
+          language: string | null
+          referrer: string | null
+          referrer_domain: string | null
+          screen_width: number | null
           session_id: string
+          timezone: string | null
           toll_fee: number | null
           total_hours: number | null
           updated_at: string
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
           vehicle_type: string | null
         }
         Insert: {
+          browser?: string | null
           cheaper_service?: string | null
           created_at?: string
+          device_type?: string | null
           distance?: number | null
           donation_amount?: number | null
           donation_clicked?: boolean
@@ -65,15 +78,26 @@ export type Database = {
           id?: string
           insurance_type?: string | null
           is_member?: boolean | null
+          landing_path?: string | null
+          language?: string | null
+          referrer?: string | null
+          referrer_domain?: string | null
+          screen_width?: number | null
           session_id: string
+          timezone?: string | null
           toll_fee?: number | null
           total_hours?: number | null
           updated_at?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
           vehicle_type?: string | null
         }
         Update: {
+          browser?: string | null
           cheaper_service?: string | null
           created_at?: string
+          device_type?: string | null
           distance?: number | null
           donation_amount?: number | null
           donation_clicked?: boolean
@@ -84,10 +108,19 @@ export type Database = {
           id?: string
           insurance_type?: string | null
           is_member?: boolean | null
+          landing_path?: string | null
+          language?: string | null
+          referrer?: string | null
+          referrer_domain?: string | null
+          screen_width?: number | null
           session_id?: string
+          timezone?: string | null
           toll_fee?: number | null
           total_hours?: number | null
           updated_at?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
           vehicle_type?: string | null
         }
         Relationships: []
@@ -170,25 +203,56 @@ export type Database = {
         }
         Returns: boolean
       }
-      upsert_comparison_log: {
-        Args: {
-          p_cheaper_service?: string
-          p_distance?: number
-          p_donation_amount?: number
-          p_donation_clicked?: boolean
-          p_has_car_share_insurance?: boolean
-          p_has_interacted?: boolean
-          p_has_refuel?: boolean
-          p_has_wash?: boolean
-          p_insurance_type?: string
-          p_is_member?: boolean
-          p_session_id: string
-          p_toll_fee?: number
-          p_total_hours?: number
-          p_vehicle_type?: string
-        }
-        Returns: undefined
-      }
+      upsert_comparison_log:
+        | {
+            Args: {
+              p_cheaper_service?: string
+              p_distance?: number
+              p_donation_amount?: number
+              p_donation_clicked?: boolean
+              p_has_car_share_insurance?: boolean
+              p_has_interacted?: boolean
+              p_has_refuel?: boolean
+              p_has_wash?: boolean
+              p_insurance_type?: string
+              p_is_member?: boolean
+              p_session_id: string
+              p_toll_fee?: number
+              p_total_hours?: number
+              p_vehicle_type?: string
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              p_browser?: string
+              p_cheaper_service?: string
+              p_device_type?: string
+              p_distance?: number
+              p_donation_amount?: number
+              p_donation_clicked?: boolean
+              p_has_car_share_insurance?: boolean
+              p_has_interacted?: boolean
+              p_has_refuel?: boolean
+              p_has_wash?: boolean
+              p_insurance_type?: string
+              p_is_member?: boolean
+              p_landing_path?: string
+              p_language?: string
+              p_referrer?: string
+              p_referrer_domain?: string
+              p_screen_width?: number
+              p_session_id: string
+              p_timezone?: string
+              p_toll_fee?: number
+              p_total_hours?: number
+              p_utm_campaign?: string
+              p_utm_medium?: string
+              p_utm_source?: string
+              p_vehicle_type?: string
+            }
+            Returns: undefined
+          }
     }
     Enums: {
       app_role: "admin" | "user"

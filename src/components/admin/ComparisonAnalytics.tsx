@@ -20,6 +20,12 @@ interface LogStats {
   avgDistance: number;
   donationClicks: number;
   donationAmountCounts: Record<number, number>;
+  sourceCounts: Record<string, number>;
+  campaignCounts: Record<string, number>;
+  deviceCounts: Record<string, number>;
+  browserCounts: Record<string, number>;
+  languageCounts: Record<string, number>;
+  timezoneCounts: Record<string, number>;
   recentLogs: Array<{
     session_id: string;
     vehicle_type: string | null;
@@ -29,9 +35,32 @@ interface LogStats {
     has_interacted: boolean | null;
     donation_clicked: boolean | null;
     donation_amount: number | null;
+    referrer_domain: string | null;
+    utm_source: string | null;
+    device_type: string | null;
     created_at: string;
     updated_at: string;
   }>;
+}
+
+function classifySource(domain: string | null, utmSource: string | null): string {
+  if (utmSource) return `utm:${utmSource}`;
+  if (!domain) return "Direct/直接アクセス";
+  const d = domain.toLowerCase();
+  if (/google\./.test(d)) return "Google検索";
+  if (/bing\./.test(d)) return "Bing検索";
+  if (/yahoo\./.test(d)) return "Yahoo検索";
+  if (/duckduckgo\./.test(d)) return "DuckDuckGo";
+  if (/t\.co|twitter\.com|x\.com/.test(d)) return "X (Twitter)";
+  if (/facebook\.com|fb\.com/.test(d)) return "Facebook";
+  if (/instagram\.com/.test(d)) return "Instagram";
+  if (/linkedin\.com/.test(d)) return "LinkedIn";
+  if (/youtube\.com|youtu\.be/.test(d)) return "YouTube";
+  if (/reddit\.com/.test(d)) return "Reddit";
+  if (/hatena\.ne\.jp|b\.hatena/.test(d)) return "はてな";
+  if (/note\.com/.test(d)) return "note";
+  if (/tielec\.blog|tielec\./.test(d)) return "自社サイト";
+  return d;
 }
 
 export function ComparisonAnalytics() {
@@ -58,13 +87,19 @@ export function ComparisonAnalytics() {
 
     const vehicleCounts: Record<string, number> = {};
     const cheaperCounts: Record<string, number> = {};
+    const sourceCounts: Record<string, number> = {};
+    const campaignCounts: Record<string, number> = {};
+    const deviceCounts: Record<string, number> = {};
+    const browserCounts: Record<string, number> = {};
+    const languageCounts: Record<string, number> = {};
+    const timezoneCounts: Record<string, number> = {};
     let totalHoursInteracted = 0;
     let totalDistanceInteracted = 0;
     let interactedLogs = 0;
     let donationClicks = 0;
     const donationAmountCounts: Record<number, number> = {};
 
-    data.forEach((log) => {
+    data.forEach((log: any) => {
       if (log.has_interacted) {
         interactedLogs++;
         totalHoursInteracted += log.total_hours || 0;
@@ -82,6 +117,25 @@ export function ComparisonAnalytics() {
       if (log.vehicle_type) {
         vehicleCounts[log.vehicle_type] = (vehicleCounts[log.vehicle_type] || 0) + 1;
       }
+      // Access source breakdown
+      const source = classifySource(log.referrer_domain, log.utm_source);
+      sourceCounts[source] = (sourceCounts[source] || 0) + 1;
+      if (log.utm_campaign) {
+        const key = `${log.utm_source || "?"} / ${log.utm_campaign}`;
+        campaignCounts[key] = (campaignCounts[key] || 0) + 1;
+      }
+      if (log.device_type) {
+        deviceCounts[log.device_type] = (deviceCounts[log.device_type] || 0) + 1;
+      }
+      if (log.browser) {
+        browserCounts[log.browser] = (browserCounts[log.browser] || 0) + 1;
+      }
+      if (log.language) {
+        languageCounts[log.language] = (languageCounts[log.language] || 0) + 1;
+      }
+      if (log.timezone) {
+        timezoneCounts[log.timezone] = (timezoneCounts[log.timezone] || 0) + 1;
+      }
     });
 
     setStats({
@@ -93,7 +147,13 @@ export function ComparisonAnalytics() {
       avgDistance: interactedLogs > 0 ? Math.round(totalDistanceInteracted / interactedLogs) : 0,
       donationClicks,
       donationAmountCounts,
-      recentLogs: data.slice(0, 20),
+      sourceCounts,
+      campaignCounts,
+      deviceCounts,
+      browserCounts,
+      languageCounts,
+      timezoneCounts,
+      recentLogs: data.slice(0, 20) as any,
     });
     setLoading(false);
   };
@@ -241,6 +301,114 @@ export function ComparisonAnalytics() {
         </div>
       </div>
 
+      {/* Access Source Analysis */}
+      <div className="space-y-3 pt-2 border-t border-border">
+        <h3 className="text-sm font-bold text-foreground">📡 アクセス元分析</h3>
+
+        <div className="space-y-2">
+          <h4 className="text-xs font-medium text-muted-foreground">流入元 TOP10</h4>
+          <div className="space-y-1">
+            {Object.entries(stats.sourceCounts)
+              .sort(([, a], [, b]) => b - a)
+              .slice(0, 10)
+              .map(([source, count]) => {
+                const pct = stats.totalLogs > 0 ? (count / stats.totalLogs) * 100 : 0;
+                return (
+                  <div key={source} className="flex items-center gap-2">
+                    <div className="flex-1 relative h-7 bg-muted/30 rounded overflow-hidden">
+                      <div
+                        className="h-full bg-primary/30 flex items-center px-2"
+                        style={{ width: `${Math.max(pct, 5)}%` }}
+                      >
+                        <span className="text-xs font-medium text-foreground whitespace-nowrap">
+                          {source}
+                        </span>
+                      </div>
+                    </div>
+                    <span className="text-xs font-bold text-foreground w-24 text-right">
+                      {count}件 ({pct.toFixed(1)}%)
+                    </span>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+
+        {Object.keys(stats.campaignCounts).length > 0 && (
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-muted-foreground">キャンペーン (utm)</h4>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(stats.campaignCounts)
+                .sort(([, a], [, b]) => b - a)
+                .map(([key, count]) => (
+                  <span
+                    key={key}
+                    className="px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 text-xs"
+                  >
+                    {key}: {count}件
+                  </span>
+                ))}
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-muted-foreground">デバイス内訳</h4>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(stats.deviceCounts)
+                .sort(([, a], [, b]) => b - a)
+                .map(([k, v]) => (
+                  <span key={k} className="px-3 py-1 rounded-full bg-muted/50 border border-border text-sm">
+                    {k}: {v}件
+                  </span>
+                ))}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-muted-foreground">ブラウザ内訳</h4>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(stats.browserCounts)
+                .sort(([, a], [, b]) => b - a)
+                .map(([k, v]) => (
+                  <span key={k} className="px-3 py-1 rounded-full bg-muted/50 border border-border text-sm">
+                    {k}: {v}件
+                  </span>
+                ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-muted-foreground">言語 TOP5</h4>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(stats.languageCounts)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 5)
+                .map(([k, v]) => (
+                  <span key={k} className="px-3 py-1 rounded-full bg-muted/50 border border-border text-xs">
+                    {k}: {v}件
+                  </span>
+                ))}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-muted-foreground">タイムゾーン TOP5</h4>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(stats.timezoneCounts)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 5)
+                .map(([k, v]) => (
+                  <span key={k} className="px-3 py-1 rounded-full bg-muted/50 border border-border text-xs">
+                    {k}: {v}件
+                  </span>
+                ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Recent Logs */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
@@ -262,6 +430,8 @@ export function ComparisonAnalytics() {
                 <TableHead>車種</TableHead>
                 <TableHead>時間</TableHead>
                 <TableHead>距離</TableHead>
+                <TableHead>流入元</TableHead>
+                <TableHead>デバイス</TableHead>
                 <TableHead>操作</TableHead>
                 <TableHead>投げ銭</TableHead>
                 <TableHead>結果</TableHead>
@@ -274,6 +444,12 @@ export function ComparisonAnalytics() {
                   <TableCell>{vehicleLabels[log.vehicle_type || ""] || log.vehicle_type || "-"}</TableCell>
                   <TableCell>{log.total_hours != null ? `${log.total_hours}h` : "-"}</TableCell>
                   <TableCell>{log.distance != null ? `${log.distance}km` : "-"}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground max-w-[140px] truncate">
+                    {classifySource(log.referrer_domain, log.utm_source)}
+                  </TableCell>
+                  <TableCell className="text-xs text-muted-foreground">
+                    {log.device_type || "-"}
+                  </TableCell>
                   <TableCell>
                     {log.has_interacted ? (
                       <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded">操作あり</span>

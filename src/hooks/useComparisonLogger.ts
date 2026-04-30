@@ -19,11 +19,80 @@ interface ComparisonLogData {
   donationAmount: number | null;
 }
 
+interface AccessInfo {
+  referrer: string | null;
+  referrer_domain: string | null;
+  utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
+  landing_path: string | null;
+  device_type: string | null;
+  browser: string | null;
+  screen_width: number | null;
+  language: string | null;
+  timezone: string | null;
+}
+
+function detectDeviceType(): string {
+  const ua = navigator.userAgent;
+  if (/iPad|Tablet|PlayBook|Silk/i.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua))) {
+    return "tablet";
+  }
+  if (/Mobi|Android|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)) {
+    return "mobile";
+  }
+  return "desktop";
+}
+
+function detectBrowser(): string {
+  const ua = navigator.userAgent;
+  if (/Edg\//.test(ua)) return "Edge";
+  if (/OPR\/|Opera/.test(ua)) return "Opera";
+  if (/Chrome\//.test(ua) && !/Edg\//.test(ua)) return "Chrome";
+  if (/Firefox\//.test(ua)) return "Firefox";
+  if (/Safari\//.test(ua) && !/Chrome\//.test(ua)) return "Safari";
+  return "Other";
+}
+
+function collectAccessInfo(): AccessInfo {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const referrer = document.referrer || null;
+    let referrer_domain: string | null = null;
+    if (referrer) {
+      try {
+        referrer_domain = new URL(referrer).hostname;
+      } catch {}
+    }
+    return {
+      referrer,
+      referrer_domain,
+      utm_source: params.get("utm_source"),
+      utm_medium: params.get("utm_medium"),
+      utm_campaign: params.get("utm_campaign"),
+      landing_path: window.location.pathname || null,
+      device_type: detectDeviceType(),
+      browser: detectBrowser(),
+      screen_width: window.innerWidth || null,
+      language: navigator.language || null,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || null,
+    };
+  } catch {
+    return {
+      referrer: null, referrer_domain: null,
+      utm_source: null, utm_medium: null, utm_campaign: null,
+      landing_path: null, device_type: null, browser: null,
+      screen_width: null, language: null, timezone: null,
+    };
+  }
+}
+
 export function useComparisonLogger(data: ComparisonLogData) {
   const { isAdmin } = useAuth();
   const sessionIdRef = useRef(crypto.randomUUID());
   const timerRef = useRef<ReturnType<typeof setTimeout>>();
   const hasLoggedRef = useRef(false);
+  const accessInfoRef = useRef<AccessInfo>(collectAccessInfo());
 
   useEffect(() => {
     if (isAdmin) return;
@@ -31,6 +100,7 @@ export function useComparisonLogger(data: ComparisonLogData) {
 
     timerRef.current = setTimeout(async () => {
       try {
+        const access = accessInfoRef.current;
         await supabase.rpc("upsert_comparison_log", {
           p_session_id: sessionIdRef.current,
           p_vehicle_type: data.vehicleType,
@@ -46,6 +116,17 @@ export function useComparisonLogger(data: ComparisonLogData) {
           p_has_interacted: data.hasInteracted,
           p_donation_clicked: data.donationClicked,
           p_donation_amount: data.donationAmount,
+          p_referrer: access.referrer,
+          p_referrer_domain: access.referrer_domain,
+          p_utm_source: access.utm_source,
+          p_utm_medium: access.utm_medium,
+          p_utm_campaign: access.utm_campaign,
+          p_landing_path: access.landing_path,
+          p_device_type: access.device_type,
+          p_browser: access.browser,
+          p_screen_width: access.screen_width,
+          p_language: access.language,
+          p_timezone: access.timezone,
         });
         hasLoggedRef.current = true;
       } catch {
