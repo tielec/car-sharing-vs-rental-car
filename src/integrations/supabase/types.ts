@@ -99,7 +99,7 @@ export type Database = {
           is_active: boolean
           note: string | null
           price: number
-          set_by: string
+          set_by: string | null
         }
         Insert: {
           created_at?: string
@@ -107,7 +107,7 @@ export type Database = {
           is_active?: boolean
           note?: string | null
           price: number
-          set_by: string
+          set_by?: string | null
         }
         Update: {
           created_at?: string
@@ -115,7 +115,7 @@ export type Database = {
           is_active?: boolean
           note?: string | null
           price?: number
-          set_by?: string
+          set_by?: string | null
         }
         Relationships: []
       }
