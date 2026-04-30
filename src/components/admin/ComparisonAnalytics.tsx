@@ -301,6 +301,114 @@ export function ComparisonAnalytics() {
         </div>
       </div>
 
+      {/* Access Source Analysis */}
+      <div className="space-y-3 pt-2 border-t border-border">
+        <h3 className="text-sm font-bold text-foreground">📡 アクセス元分析</h3>
+
+        <div className="space-y-2">
+          <h4 className="text-xs font-medium text-muted-foreground">流入元 TOP10</h4>
+          <div className="space-y-1">
+            {Object.entries(stats.sourceCounts)
+              .sort(([, a], [, b]) => b - a)
+              .slice(0, 10)
+              .map(([source, count]) => {
+                const pct = stats.totalLogs > 0 ? (count / stats.totalLogs) * 100 : 0;
+                return (
+                  <div key={source} className="flex items-center gap-2">
+                    <div className="flex-1 relative h-7 bg-muted/30 rounded overflow-hidden">
+                      <div
+                        className="h-full bg-primary/30 flex items-center px-2"
+                        style={{ width: `${Math.max(pct, 5)}%` }}
+                      >
+                        <span className="text-xs font-medium text-foreground whitespace-nowrap">
+                          {source}
+                        </span>
+                      </div>
+                    </div>
+                    <span className="text-xs font-bold text-foreground w-24 text-right">
+                      {count}件 ({pct.toFixed(1)}%)
+                    </span>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+
+        {Object.keys(stats.campaignCounts).length > 0 && (
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-muted-foreground">キャンペーン (utm)</h4>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(stats.campaignCounts)
+                .sort(([, a], [, b]) => b - a)
+                .map(([key, count]) => (
+                  <span
+                    key={key}
+                    className="px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 text-xs"
+                  >
+                    {key}: {count}件
+                  </span>
+                ))}
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-muted-foreground">デバイス内訳</h4>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(stats.deviceCounts)
+                .sort(([, a], [, b]) => b - a)
+                .map(([k, v]) => (
+                  <span key={k} className="px-3 py-1 rounded-full bg-muted/50 border border-border text-sm">
+                    {k}: {v}件
+                  </span>
+                ))}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-muted-foreground">ブラウザ内訳</h4>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(stats.browserCounts)
+                .sort(([, a], [, b]) => b - a)
+                .map(([k, v]) => (
+                  <span key={k} className="px-3 py-1 rounded-full bg-muted/50 border border-border text-sm">
+                    {k}: {v}件
+                  </span>
+                ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-muted-foreground">言語 TOP5</h4>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(stats.languageCounts)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 5)
+                .map(([k, v]) => (
+                  <span key={k} className="px-3 py-1 rounded-full bg-muted/50 border border-border text-xs">
+                    {k}: {v}件
+                  </span>
+                ))}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-muted-foreground">タイムゾーン TOP5</h4>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(stats.timezoneCounts)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 5)
+                .map(([k, v]) => (
+                  <span key={k} className="px-3 py-1 rounded-full bg-muted/50 border border-border text-xs">
+                    {k}: {v}件
+                  </span>
+                ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Recent Logs */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
