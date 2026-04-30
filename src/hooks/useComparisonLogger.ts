@@ -87,15 +87,35 @@ function collectAccessInfo(): AccessInfo {
   }
 }
 
+function isExcludedSource(): boolean {
+  try {
+    const host = window.location.hostname.toLowerCase();
+    const refDomain = (() => {
+      try {
+        return document.referrer ? new URL(document.referrer).hostname.toLowerCase() : "";
+      } catch {
+        return "";
+      }
+    })();
+    // Lovableプレビュー/エディタからのアクセスは計測対象外
+    const isLovable = (d: string) => /(^|\.)lovable\.(app|dev)$/.test(d) || /lovableproject\.com$/.test(d);
+    return isLovable(host) || (!!refDomain && isLovable(refDomain));
+  } catch {
+    return false;
+  }
+}
+
 export function useComparisonLogger(data: ComparisonLogData) {
   const { isAdmin } = useAuth();
   const sessionIdRef = useRef(crypto.randomUUID());
   const timerRef = useRef<ReturnType<typeof setTimeout>>();
   const hasLoggedRef = useRef(false);
   const accessInfoRef = useRef<AccessInfo>(collectAccessInfo());
+  const excludedRef = useRef<boolean>(isExcludedSource());
 
   useEffect(() => {
     if (isAdmin) return;
+    if (excludedRef.current) return;
     if (timerRef.current) clearTimeout(timerRef.current);
 
     timerRef.current = setTimeout(async () => {
