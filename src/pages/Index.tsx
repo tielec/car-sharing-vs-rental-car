@@ -353,7 +353,7 @@ const Index = () => {
 
 
                 {/* Fuel Settings */}
-                <Collapsible>
+                <Collapsible defaultOpen>
                   <CollapsibleTrigger className="flex items-center gap-2 text-base text-muted-foreground hover:text-foreground transition-colors">
                     <SettingsIcon className="w-5 h-5" />
                     燃料設定を変更
