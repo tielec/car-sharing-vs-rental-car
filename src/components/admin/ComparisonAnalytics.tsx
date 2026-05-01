@@ -180,10 +180,8 @@ export function ComparisonAnalytics() {
 
   const vehicleLabels: Record<string, string> = {
     compact: "コンパクト",
-    sedan: "セダン",
-    suv: "SUV",
-    wagon: "ワゴン",
-    van: "ミニバン",
+    compactMinivan: "コンパクトミニバン",
+    minivan: "ミニバン",
   };
 
   const filteredLogs = filterInteracted
