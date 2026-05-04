@@ -155,6 +155,98 @@ export function ComparisonAnalytics() {
       }
     });
 
+    // === Time-based aggregation (JST) ===
+    const jstParts = (iso: string) => {
+      const d = new Date(iso);
+      // Get JST components via Intl
+      const fmt = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Tokyo",
+        year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", second: "2-digit",
+        weekday: "short", hour12: false,
+      });
+      const parts = fmt.formatToParts(d).reduce<Record<string, string>>((acc, p) => {
+        acc[p.type] = p.value; return acc;
+      }, {});
+      return {
+        date: `${parts.year}-${parts.month}-${parts.day}`,
+        hour: parseInt(parts.hour, 10),
+        weekday: parts.weekday, // Mon, Tue, ...
+        jsDate: new Date(`${parts.year}-${parts.month}-${parts.day}T00:00:00+09:00`),
+      };
+    };
+
+    const dailyMap: Record<string, { total: number; interacted: number }> = {};
+    const weeklyMap: Record<string, { total: number; interacted: number }> = {};
+    const weekdayMap: Record<string, { total: number; interacted: number }> = {};
+    const hourlyMap: Record<number, { total: number; interacted: number }> = {};
+
+    // Get ISO week (year-Www) of a JST date
+    const getISOWeek = (d: Date) => {
+      const tmp = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      const dayNum = tmp.getUTCDay() || 7;
+      tmp.setUTCDate(tmp.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 1));
+      const week = Math.ceil((((tmp.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+      return `${tmp.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
+    };
+
+    data.forEach((log: any) => {
+      if (!log.created_at) return;
+      const p = jstParts(log.created_at);
+      const interacted = log.has_interacted ? 1 : 0;
+
+      dailyMap[p.date] = dailyMap[p.date] || { total: 0, interacted: 0 };
+      dailyMap[p.date].total++;
+      dailyMap[p.date].interacted += interacted;
+
+      const wk = getISOWeek(p.jsDate);
+      weeklyMap[wk] = weeklyMap[wk] || { total: 0, interacted: 0 };
+      weeklyMap[wk].total++;
+      weeklyMap[wk].interacted += interacted;
+
+      weekdayMap[p.weekday] = weekdayMap[p.weekday] || { total: 0, interacted: 0 };
+      weekdayMap[p.weekday].total++;
+      weekdayMap[p.weekday].interacted += interacted;
+
+      hourlyMap[p.hour] = hourlyMap[p.hour] || { total: 0, interacted: 0 };
+      hourlyMap[p.hour].total++;
+      hourlyMap[p.hour].interacted += interacted;
+    });
+
+    // Build daily series: last 30 days (fill gaps with 0)
+    const dailySeries: Array<{ date: string; total: number; interacted: number }> = [];
+    const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      const v = dailyMap[key] || { total: 0, interacted: 0 };
+      dailySeries.push({ date: `${d.getMonth() + 1}/${d.getDate()}`, total: v.total, interacted: v.interacted });
+    }
+
+    // Weekly series: last 12 weeks present, sorted ascending
+    const weeklySeries = Object.entries(weeklyMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-12)
+      .map(([week, v]) => ({ week, ...v }));
+
+    // Weekday: fixed order Mon-Sun
+    const weekdayOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const weekdayLabels: Record<string, string> = { Mon: "月", Tue: "火", Wed: "水", Thu: "木", Fri: "金", Sat: "土", Sun: "日" };
+    const weekdaySeries = weekdayOrder.map((d) => ({
+      day: weekdayLabels[d],
+      total: weekdayMap[d]?.total || 0,
+      interacted: weekdayMap[d]?.interacted || 0,
+    }));
+
+    // Hourly: 0-23
+    const hourlySeries = Array.from({ length: 24 }, (_, h) => ({
+      hour: `${h}時`,
+      total: hourlyMap[h]?.total || 0,
+      interacted: hourlyMap[h]?.interacted || 0,
+    }));
+
     setStats({
       totalLogs: data.length,
       interactedLogs,
