@@ -11,6 +11,7 @@ interface InputFieldProps {
   unit: string;
   icon: LucideIcon;
   optional?: boolean;
+  step?: number;
 }
 
 export function InputField({
@@ -22,6 +23,7 @@ export function InputField({
   unit,
   icon: Icon,
   optional,
+  step = 1,
 }: InputFieldProps) {
   return (
     <div className="space-y-2">
@@ -41,6 +43,7 @@ export function InputField({
           }}
           min={min}
           max={max}
+          step={step}
           className={cn(
             "pr-14 h-14 text-xl font-medium",
             "focus-visible:ring-primary focus-visible:ring-offset-0"
