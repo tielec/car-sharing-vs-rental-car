@@ -344,6 +344,7 @@ export function ComparisonAnalytics() {
             </div>
           );
         })()}
+      </div>
 
       {/* Time-based Charts */}
       <div className="space-y-3 pt-2 border-t border-border">
