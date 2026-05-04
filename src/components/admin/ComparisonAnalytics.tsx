@@ -262,6 +262,10 @@ export function ComparisonAnalytics() {
       browserCounts,
       languageCounts,
       timezoneCounts,
+      dailySeries,
+      weeklySeries,
+      weekdaySeries,
+      hourlySeries,
       recentLogs: data.slice(0, 20) as any,
     });
     setLoading(false);
