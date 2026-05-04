@@ -13,9 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ResponsiveContainer,
-  LineChart,
+  ComposedChart,
   Line,
-  BarChart,
   Bar,
   XAxis,
   YAxis,
@@ -39,10 +38,10 @@ interface LogStats {
   browserCounts: Record<string, number>;
   languageCounts: Record<string, number>;
   timezoneCounts: Record<string, number>;
-  dailySeries: Array<{ date: string; total: number; interacted: number }>;
-  weeklySeries: Array<{ week: string; total: number; interacted: number }>;
-  weekdaySeries: Array<{ day: string; total: number; interacted: number }>;
-  hourlySeries: Array<{ hour: string; total: number; interacted: number }>;
+  dailySeries: Array<{ date: string; total: number; interacted: number; cvr: number }>;
+  weeklySeries: Array<{ week: string; total: number; interacted: number; cvr: number }>;
+  weekdaySeries: Array<{ day: string; total: number; interacted: number; cvr: number }>;
+  hourlySeries: Array<{ hour: string; total: number; interacted: number; cvr: number }>;
   recentLogs: Array<{
     session_id: string;
     vehicle_type: string | null;
@@ -215,37 +214,39 @@ export function ComparisonAnalytics() {
     });
 
     // Build daily series: last 30 days (fill gaps with 0)
-    const dailySeries: Array<{ date: string; total: number; interacted: number }> = [];
+    const cvr = (t: number, i: number) => (t > 0 ? Math.round((i / t) * 1000) / 10 : 0);
+
+    const dailySeries: Array<{ date: string; total: number; interacted: number; cvr: number }> = [];
     const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
     for (let i = 29; i >= 0; i--) {
       const d = new Date(today);
       d.setDate(today.getDate() - i);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
       const v = dailyMap[key] || { total: 0, interacted: 0 };
-      dailySeries.push({ date: `${d.getMonth() + 1}/${d.getDate()}`, total: v.total, interacted: v.interacted });
+      dailySeries.push({ date: `${d.getMonth() + 1}/${d.getDate()}`, total: v.total, interacted: v.interacted, cvr: cvr(v.total, v.interacted) });
     }
 
     // Weekly series: last 12 weeks present, sorted ascending
     const weeklySeries = Object.entries(weeklyMap)
       .sort(([a], [b]) => a.localeCompare(b))
       .slice(-12)
-      .map(([week, v]) => ({ week, ...v }));
+      .map(([week, v]) => ({ week, total: v.total, interacted: v.interacted, cvr: cvr(v.total, v.interacted) }));
 
     // Weekday: fixed order Mon-Sun
     const weekdayOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     const weekdayLabels: Record<string, string> = { Mon: "月", Tue: "火", Wed: "水", Thu: "木", Fri: "金", Sat: "土", Sun: "日" };
-    const weekdaySeries = weekdayOrder.map((d) => ({
-      day: weekdayLabels[d],
-      total: weekdayMap[d]?.total || 0,
-      interacted: weekdayMap[d]?.interacted || 0,
-    }));
+    const weekdaySeries = weekdayOrder.map((d) => {
+      const t = weekdayMap[d]?.total || 0;
+      const i = weekdayMap[d]?.interacted || 0;
+      return { day: weekdayLabels[d], total: t, interacted: i, cvr: cvr(t, i) };
+    });
 
     // Hourly: 0-23
-    const hourlySeries = Array.from({ length: 24 }, (_, h) => ({
-      hour: `${h}時`,
-      total: hourlyMap[h]?.total || 0,
-      interacted: hourlyMap[h]?.interacted || 0,
-    }));
+    const hourlySeries = Array.from({ length: 24 }, (_, h) => {
+      const t = hourlyMap[h]?.total || 0;
+      const i = hourlyMap[h]?.interacted || 0;
+      return { hour: `${h}時`, total: t, interacted: i, cvr: cvr(t, i) };
+    });
 
     setStats({
       totalLogs: data.length,
@@ -361,62 +362,70 @@ export function ComparisonAnalytics() {
           </TabsList>
 
           <TabsContent value="daily" className="mt-3">
-            <p className="text-xs text-muted-foreground mb-2">直近30日間の日別アクセス推移（JST）</p>
+            <p className="text-xs text-muted-foreground mb-2">直近30日間の日別アクセス推移とCVR（JST）</p>
             <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={stats.dailySeries} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+              <ComposedChart data={stats.dailySeries} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
-                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} />
+                <YAxis yAxisId="left" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
+                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} unit="%" domain={[0, 100]} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} formatter={(v: any, n: any) => n === "CVR" ? [`${v}%`, n] : [v, n]} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
-                <Bar dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
-              </BarChart>
+                <Bar yAxisId="left" dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
+                <Bar yAxisId="left" dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
+                <Line yAxisId="right" type="monotone" dataKey="cvr" name="CVR" stroke="hsl(var(--accent-foreground))" strokeWidth={2} dot={{ r: 2 }} />
+              </ComposedChart>
             </ResponsiveContainer>
           </TabsContent>
 
           <TabsContent value="weekly" className="mt-3">
-            <p className="text-xs text-muted-foreground mb-2">直近12週間の週別アクセス（ISO週番号、JST）</p>
+            <p className="text-xs text-muted-foreground mb-2">直近12週間の週別アクセスとCVR（ISO週番号、JST）</p>
             <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={stats.weeklySeries} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+              <ComposedChart data={stats.weeklySeries} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="week" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
-                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} />
+                <YAxis yAxisId="left" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
+                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} unit="%" domain={[0, 100]} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} formatter={(v: any, n: any) => n === "CVR" ? [`${v}%`, n] : [v, n]} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
-                <Bar dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
-              </BarChart>
+                <Bar yAxisId="left" dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
+                <Bar yAxisId="left" dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
+                <Line yAxisId="right" type="monotone" dataKey="cvr" name="CVR" stroke="hsl(var(--accent-foreground))" strokeWidth={2} dot={{ r: 2 }} />
+              </ComposedChart>
             </ResponsiveContainer>
           </TabsContent>
 
           <TabsContent value="weekday" className="mt-3">
-            <p className="text-xs text-muted-foreground mb-2">曜日別の合計アクセス数（JST、全期間）</p>
+            <p className="text-xs text-muted-foreground mb-2">曜日別の合計アクセスとCVR（JST、全期間）</p>
             <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={stats.weekdaySeries} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+              <ComposedChart data={stats.weekdaySeries} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="day" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
-                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} />
+                <YAxis yAxisId="left" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
+                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} unit="%" domain={[0, 100]} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} formatter={(v: any, n: any) => n === "CVR" ? [`${v}%`, n] : [v, n]} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
-                <Bar dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
-              </BarChart>
+                <Bar yAxisId="left" dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
+                <Bar yAxisId="left" dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
+                <Line yAxisId="right" type="monotone" dataKey="cvr" name="CVR" stroke="hsl(var(--accent-foreground))" strokeWidth={2} dot={{ r: 3 }} />
+              </ComposedChart>
             </ResponsiveContainer>
           </TabsContent>
 
           <TabsContent value="hourly" className="mt-3">
-            <p className="text-xs text-muted-foreground mb-2">時間帯別アクセス数（JST、全期間）</p>
+            <p className="text-xs text-muted-foreground mb-2">時間帯別アクセスとCVR（JST、全期間）</p>
             <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={stats.hourlySeries} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+              <ComposedChart data={stats.hourlySeries} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="hour" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} interval={1} />
-                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} />
+                <YAxis yAxisId="left" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
+                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} unit="%" domain={[0, 100]} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} formatter={(v: any, n: any) => n === "CVR" ? [`${v}%`, n] : [v, n]} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
-                <Bar dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
-              </BarChart>
+                <Bar yAxisId="left" dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
+                <Bar yAxisId="left" dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
+                <Line yAxisId="right" type="monotone" dataKey="cvr" name="CVR" stroke="hsl(var(--accent-foreground))" strokeWidth={2} dot={{ r: 2 }} />
+              </ComposedChart>
             </ResponsiveContainer>
           </TabsContent>
         </Tabs>
