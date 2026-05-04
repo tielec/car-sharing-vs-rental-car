@@ -520,7 +520,7 @@ const Index = () => {
                     href="https://buy.stripe.com/28E7sMbdP9AL5Ok6Tw8og00"
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => { setDonationClicked(true); setDonationAmount(300); }}
+                    onClick={() => { setDonationClicked(true); setDonationAmount(300); unlock(); }}
                     className="flex items-center justify-center border-2 border-amber-500 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/50 px-3 py-2.5 rounded-lg font-medium transition-colors"
                   >
                     300円
@@ -529,7 +529,7 @@ const Index = () => {
                     href="https://buy.stripe.com/28E3cw0zb28jfoU3Hk8og01"
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => { setDonationClicked(true); setDonationAmount(500); }}
+                    onClick={() => { setDonationClicked(true); setDonationAmount(500); unlock(); }}
                     className="flex items-center justify-center bg-amber-500 hover:bg-amber-600 text-white px-3 py-2.5 rounded-lg font-medium transition-colors shadow-md"
                   >
                     500円
@@ -538,7 +538,7 @@ const Index = () => {
                     href="https://buy.stripe.com/4gM8wQeq1bIT2C86Tw8og02"
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => { setDonationClicked(true); setDonationAmount(1000); }}
+                    onClick={() => { setDonationClicked(true); setDonationAmount(1000); unlock(); }}
                     className="flex items-center justify-center border-2 border-amber-500 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/50 px-3 py-2.5 rounded-lg font-medium transition-colors"
                   >
                     1000円
