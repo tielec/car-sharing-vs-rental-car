@@ -28,21 +28,34 @@ import { useComparisonHistory, useAutoHistorySave, type HistoryEntry } from "@/h
 import { useUrlSync, readUrlState } from "@/hooks/useUrlSync";
 
 const Index = () => {
-  // Use defaults from YAML config
-  const [vehicleType, setVehicleType] = useState<VehicleType>(settings.defaults.vehicleType);
-  const [totalHours, setTotalHours] = useState(settings.defaults.days * 24 + settings.defaults.hours);
-  const [distance, setDistance] = useState(settings.defaults.distance);
-  const [hasRefuel, setHasRefuel] = useState(settings.defaults.hasRefuel);
-  const [hasWash, setHasWash] = useState(settings.defaults.hasWash);
-  const [hasCarShareInsurance, setHasCarShareInsurance] = useState(false);
-  const [tollFee, setTollFee] = useState(settings.defaults.tollFee);
+  // Read URL params once for initial state
+  const initialUrl = useMemo(() => readUrlState(), []);
+
+  // Use defaults from YAML config (overridden by URL params if present)
+  const [vehicleType, setVehicleType] = useState<VehicleType>(initialUrl.vehicleType ?? settings.defaults.vehicleType);
+  const [totalHours, setTotalHours] = useState(initialUrl.totalHours ?? settings.defaults.days * 24 + settings.defaults.hours);
+  const [distance, setDistance] = useState(initialUrl.distance ?? settings.defaults.distance);
+  const [hasRefuel, setHasRefuel] = useState(initialUrl.hasRefuel ?? settings.defaults.hasRefuel);
+  const [hasWash, setHasWash] = useState(initialUrl.hasWash ?? settings.defaults.hasWash);
+  const [hasCarShareInsurance, setHasCarShareInsurance] = useState(initialUrl.hasCarShareInsurance ?? false);
+  const [tollFee, setTollFee] = useState(initialUrl.tollFee ?? settings.defaults.tollFee);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [donationClicked, setDonationClicked] = useState(false);
   const [donationAmount, setDonationAmount] = useState<number | null>(null);
-  
+
   // Rental car specific settings
-  const [isMember, setIsMember] = useState(settings.defaults.isMember);
-  const [insuranceType, setInsuranceType] = useState<InsuranceType>(settings.defaults.insuranceType);
+  const [isMember, setIsMember] = useState(initialUrl.isMember ?? settings.defaults.isMember);
+  const [insuranceType, setInsuranceType] = useState<InsuranceType>(initialUrl.insuranceType ?? settings.defaults.insuranceType);
+
+  // CTA gate (donation unlock)
+  const { unlocked, unlock } = useDonationUnlock();
+  const donationRef = useRef<HTMLElement | null>(null);
+  const scrollToDonation = () => {
+    donationRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  // Comparison history (localStorage)
+  const history = useComparisonHistory();
   
   // User-configurable fuel settings
   const rentalVehicle = getRentalCarVehicle(vehicleType);
