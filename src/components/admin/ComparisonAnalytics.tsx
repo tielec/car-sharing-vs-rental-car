@@ -373,7 +373,7 @@ export function ComparisonAnalytics() {
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Bar yAxisId="left" dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
                 <Bar yAxisId="left" dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
-                <Line yAxisId="right" type="monotone" dataKey="cvr" name="CVR" stroke="hsl(var(--accent-foreground))" strokeWidth={2} dot={{ r: 2 }} />
+                <Line yAxisId="right" type="linear" dataKey="cvr" name="CVR" stroke="hsl(var(--accent-foreground))" strokeWidth={2} dot={{ r: 2 }} />
               </ComposedChart>
             </ResponsiveContainer>
           </TabsContent>
@@ -390,7 +390,7 @@ export function ComparisonAnalytics() {
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Bar yAxisId="left" dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
                 <Bar yAxisId="left" dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
-                <Line yAxisId="right" type="monotone" dataKey="cvr" name="CVR" stroke="hsl(var(--accent-foreground))" strokeWidth={2} dot={{ r: 2 }} />
+                <Line yAxisId="right" type="linear" dataKey="cvr" name="CVR" stroke="hsl(var(--accent-foreground))" strokeWidth={2} dot={{ r: 2 }} />
               </ComposedChart>
             </ResponsiveContainer>
           </TabsContent>
@@ -407,7 +407,7 @@ export function ComparisonAnalytics() {
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Bar yAxisId="left" dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
                 <Bar yAxisId="left" dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
-                <Line yAxisId="right" type="monotone" dataKey="cvr" name="CVR" stroke="hsl(var(--accent-foreground))" strokeWidth={2} dot={{ r: 3 }} />
+                <Line yAxisId="right" type="linear" dataKey="cvr" name="CVR" stroke="hsl(var(--accent-foreground))" strokeWidth={2} dot={{ r: 3 }} />
               </ComposedChart>
             </ResponsiveContainer>
           </TabsContent>
@@ -424,7 +424,7 @@ export function ComparisonAnalytics() {
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Bar yAxisId="left" dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
                 <Bar yAxisId="left" dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
-                <Line yAxisId="right" type="monotone" dataKey="cvr" name="CVR" stroke="hsl(var(--accent-foreground))" strokeWidth={2} dot={{ r: 2 }} />
+                <Line yAxisId="right" type="linear" dataKey="cvr" name="CVR" stroke="hsl(var(--accent-foreground))" strokeWidth={2} dot={{ r: 2 }} />
               </ComposedChart>
             </ResponsiveContainer>
           </TabsContent>
