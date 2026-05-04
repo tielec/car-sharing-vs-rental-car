@@ -94,6 +94,50 @@ const Index = () => {
     hasInteracted, donationClicked, donationAmount,
   });
 
+  // URL ↔ state sync (B-2)
+  useUrlSync({
+    vehicleType, totalHours, distance, tollFee,
+    hasRefuel, hasWash, hasCarShareInsurance, isMember, insuranceType,
+  });
+
+  // Auto-save to history after debounce (B-1)
+  useAutoHistorySave(
+    hasInteracted,
+    {
+      vehicleType, totalHours, distance, tollFee,
+      hasRefuel, hasWash, hasCarShareInsurance, isMember, insuranceType,
+      cheaper: result.cheaper,
+      difference: result.difference,
+    },
+    history.add
+  );
+
+  // Apply preset (C-1)
+  const applyPreset = (p: PresetValues) => {
+    setVehicleType(p.vehicleType);
+    setFuelEfficiency(getRentalCarVehicle(p.vehicleType).defaultFuelEfficiency);
+    setTotalHours(p.totalHours);
+    setDistance(p.distance);
+    setTollFee(p.tollFee);
+    setHasInteracted(true);
+  };
+
+  // Restore from history (B-1)
+  const restoreHistory = (e: HistoryEntry) => {
+    setVehicleType(e.vehicleType);
+    setFuelEfficiency(getRentalCarVehicle(e.vehicleType).defaultFuelEfficiency);
+    setTotalHours(e.totalHours);
+    setDistance(e.distance);
+    setTollFee(e.tollFee);
+    setHasRefuel(e.hasRefuel);
+    setHasWash(e.hasWash);
+    setHasCarShareInsurance(e.hasCarShareInsurance);
+    setIsMember(e.isMember);
+    setInsuranceType(e.insuranceType);
+    setHasInteracted(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const distanceChartData = useMemo(() => {
     return generatePriceProgressionData(
       vehicleType, totalHours, hasRefuel, hasWash, hasCarShareInsurance,
