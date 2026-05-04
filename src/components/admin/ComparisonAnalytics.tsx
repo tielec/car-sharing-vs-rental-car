@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { BarChart3, Filter, Monitor, Smartphone, Tablet, HelpCircle } from "lucide-react";
+import { BarChart3, Filter, Monitor, Smartphone, Tablet, HelpCircle, TrendingUp } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -10,6 +10,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from "recharts";
 
 interface LogStats {
   totalLogs: number;
