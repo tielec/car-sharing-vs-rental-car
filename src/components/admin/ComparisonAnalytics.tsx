@@ -344,9 +344,83 @@ export function ComparisonAnalytics() {
             </div>
           );
         })()}
+
+      {/* Time-based Charts */}
+      <div className="space-y-3 pt-2 border-t border-border">
+        <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+          <TrendingUp className="w-4 h-4" />
+          📊 アクセス推移
+        </h3>
+        <Tabs defaultValue="daily" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="daily">日別</TabsTrigger>
+            <TabsTrigger value="weekly">週別</TabsTrigger>
+            <TabsTrigger value="weekday">曜日別</TabsTrigger>
+            <TabsTrigger value="hourly">時間帯別</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="daily" className="mt-3">
+            <p className="text-xs text-muted-foreground mb-2">直近30日間の日別アクセス推移（JST）</p>
+            <ResponsiveContainer width="100%" height={260}>
+              <LineChart data={stats.dailySeries} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Line type="monotone" dataKey="total" name="総アクセス" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 2 }} />
+                <Line type="monotone" dataKey="interacted" name="操作あり" stroke="hsl(var(--foreground))" strokeWidth={2} dot={{ r: 2 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </TabsContent>
+
+          <TabsContent value="weekly" className="mt-3">
+            <p className="text-xs text-muted-foreground mb-2">直近12週間の週別アクセス（ISO週番号、JST）</p>
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={stats.weeklySeries} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="week" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Bar dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
+                <Bar dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
+              </BarChart>
+            </ResponsiveContainer>
+          </TabsContent>
+
+          <TabsContent value="weekday" className="mt-3">
+            <p className="text-xs text-muted-foreground mb-2">曜日別の合計アクセス数（JST、全期間）</p>
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={stats.weekdaySeries} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="day" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
+                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Bar dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
+                <Bar dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
+              </BarChart>
+            </ResponsiveContainer>
+          </TabsContent>
+
+          <TabsContent value="hourly" className="mt-3">
+            <p className="text-xs text-muted-foreground mb-2">時間帯別アクセス数（JST、全期間）</p>
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={stats.hourlySeries} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="hour" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} interval={1} />
+                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Bar dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
+                <Bar dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
+              </BarChart>
+            </ResponsiveContainer>
+          </TabsContent>
+        </Tabs>
       </div>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <div className="p-3 rounded-lg bg-muted/30 border border-border text-center">
           <p className="text-2xl font-bold text-foreground">{stats.totalLogs}</p>
