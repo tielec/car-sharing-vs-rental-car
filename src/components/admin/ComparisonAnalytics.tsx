@@ -38,10 +38,10 @@ interface LogStats {
   browserCounts: Record<string, number>;
   languageCounts: Record<string, number>;
   timezoneCounts: Record<string, number>;
-  dailySeries: Array<{ date: string; total: number; interacted: number }>;
-  weeklySeries: Array<{ week: string; total: number; interacted: number }>;
-  weekdaySeries: Array<{ day: string; total: number; interacted: number }>;
-  hourlySeries: Array<{ hour: string; total: number; interacted: number }>;
+  dailySeries: Array<{ date: string; total: number; interacted: number; cvr: number }>;
+  weeklySeries: Array<{ week: string; total: number; interacted: number; cvr: number }>;
+  weekdaySeries: Array<{ day: string; total: number; interacted: number; cvr: number }>;
+  hourlySeries: Array<{ hour: string; total: number; interacted: number; cvr: number }>;
   recentLogs: Array<{
     session_id: string;
     vehicle_type: string | null;
