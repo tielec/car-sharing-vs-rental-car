@@ -363,15 +363,15 @@ export function ComparisonAnalytics() {
           <TabsContent value="daily" className="mt-3">
             <p className="text-xs text-muted-foreground mb-2">直近30日間の日別アクセス推移（JST）</p>
             <ResponsiveContainer width="100%" height={260}>
-              <LineChart data={stats.dailySeries} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+              <BarChart data={stats.dailySeries} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
                 <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
                 <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Line type="monotone" dataKey="total" name="総アクセス" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 2 }} />
-                <Line type="monotone" dataKey="interacted" name="操作あり" stroke="hsl(var(--foreground))" strokeWidth={2} dot={{ r: 2 }} />
-              </LineChart>
+                <Bar dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
+                <Bar dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
+              </BarChart>
             </ResponsiveContainer>
           </TabsContent>
 
