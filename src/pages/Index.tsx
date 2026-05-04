@@ -547,6 +547,22 @@ const Index = () => {
               </div>
             </section>
 
+            {/* Next Action CTA (A-2) — gated by donation click */}
+            <NextActionCTA
+              result={result}
+              unlocked={unlocked}
+              onScrollToDonation={scrollToDonation}
+              onSkip={unlock}
+            />
+
+            {/* Comparison History (B-1) */}
+            <HistoryList
+              items={history.items}
+              onRestore={restoreHistory}
+              onRemove={history.remove}
+              onClear={history.clear}
+            />
+
             {/* Info Section */}
             <section className="bg-muted/50 rounded-xl p-5 border border-border text-base text-muted-foreground space-y-2">
               <p className="font-medium text-foreground">料金について</p>
