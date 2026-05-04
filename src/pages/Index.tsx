@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Car, MapPin, Fuel, Banknote, Settings as SettingsIcon, Droplets, Shield, Users } from "lucide-react";
 import { useGasolinePrice } from "@/hooks/useGasolinePrice";
 import heroCover from "@/assets/hero-cover.png";
@@ -19,6 +19,13 @@ import { CarSharePriceTable } from "@/components/CarSharePriceTable";
 import { RentalCarPriceTable } from "@/components/RentalCarPriceTable";
 import { CalculationGuide } from "@/components/CalculationGuide";
 import { useComparisonLogger } from "@/hooks/useComparisonLogger";
+import { PresetButtons, type PresetValues } from "@/components/PresetButtons";
+import { ResultSummaryCard } from "@/components/ResultSummaryCard";
+import { NextActionCTA } from "@/components/NextActionCTA";
+import { HistoryList } from "@/components/HistoryList";
+import { useDonationUnlock } from "@/hooks/useDonationUnlock";
+import { useComparisonHistory, useAutoHistorySave, type HistoryEntry } from "@/hooks/useComparisonHistory";
+import { useUrlSync, readUrlState } from "@/hooks/useUrlSync";
 
 const Index = () => {
   // Use defaults from YAML config
