@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Car, MapPin, Fuel, Banknote, Settings as SettingsIcon, Droplets, Shield, Users } from "lucide-react";
 import { useGasolinePrice } from "@/hooks/useGasolinePrice";
 import heroCover from "@/assets/hero-cover.png";
@@ -19,23 +19,43 @@ import { CarSharePriceTable } from "@/components/CarSharePriceTable";
 import { RentalCarPriceTable } from "@/components/RentalCarPriceTable";
 import { CalculationGuide } from "@/components/CalculationGuide";
 import { useComparisonLogger } from "@/hooks/useComparisonLogger";
+import { PresetButtons, type PresetValues } from "@/components/PresetButtons";
+import { ResultSummaryCard } from "@/components/ResultSummaryCard";
+import { NextActionCTA } from "@/components/NextActionCTA";
+import { HistoryList } from "@/components/HistoryList";
+import { useDonationUnlock } from "@/hooks/useDonationUnlock";
+import { useComparisonHistory, useAutoHistorySave, type HistoryEntry } from "@/hooks/useComparisonHistory";
+import { useUrlSync, readUrlState } from "@/hooks/useUrlSync";
 
 const Index = () => {
-  // Use defaults from YAML config
-  const [vehicleType, setVehicleType] = useState<VehicleType>(settings.defaults.vehicleType);
-  const [totalHours, setTotalHours] = useState(settings.defaults.days * 24 + settings.defaults.hours);
-  const [distance, setDistance] = useState(settings.defaults.distance);
-  const [hasRefuel, setHasRefuel] = useState(settings.defaults.hasRefuel);
-  const [hasWash, setHasWash] = useState(settings.defaults.hasWash);
-  const [hasCarShareInsurance, setHasCarShareInsurance] = useState(false);
-  const [tollFee, setTollFee] = useState(settings.defaults.tollFee);
+  // Read URL params once for initial state
+  const initialUrl = useMemo(() => readUrlState(), []);
+
+  // Use defaults from YAML config (overridden by URL params if present)
+  const [vehicleType, setVehicleType] = useState<VehicleType>(initialUrl.vehicleType ?? settings.defaults.vehicleType);
+  const [totalHours, setTotalHours] = useState(initialUrl.totalHours ?? settings.defaults.days * 24 + settings.defaults.hours);
+  const [distance, setDistance] = useState(initialUrl.distance ?? settings.defaults.distance);
+  const [hasRefuel, setHasRefuel] = useState(initialUrl.hasRefuel ?? settings.defaults.hasRefuel);
+  const [hasWash, setHasWash] = useState(initialUrl.hasWash ?? settings.defaults.hasWash);
+  const [hasCarShareInsurance, setHasCarShareInsurance] = useState(initialUrl.hasCarShareInsurance ?? false);
+  const [tollFee, setTollFee] = useState(initialUrl.tollFee ?? settings.defaults.tollFee);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [donationClicked, setDonationClicked] = useState(false);
   const [donationAmount, setDonationAmount] = useState<number | null>(null);
-  
+
   // Rental car specific settings
-  const [isMember, setIsMember] = useState(settings.defaults.isMember);
-  const [insuranceType, setInsuranceType] = useState<InsuranceType>(settings.defaults.insuranceType);
+  const [isMember, setIsMember] = useState(initialUrl.isMember ?? settings.defaults.isMember);
+  const [insuranceType, setInsuranceType] = useState<InsuranceType>(initialUrl.insuranceType ?? settings.defaults.insuranceType);
+
+  // CTA gate (donation unlock)
+  const { unlocked, unlock } = useDonationUnlock();
+  const donationRef = useRef<HTMLElement | null>(null);
+  const scrollToDonation = () => {
+    donationRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  // Comparison history (localStorage)
+  const history = useComparisonHistory();
   
   // User-configurable fuel settings
   const rentalVehicle = getRentalCarVehicle(vehicleType);
@@ -73,6 +93,50 @@ const Index = () => {
     isMember, insuranceType, cheaperService,
     hasInteracted, donationClicked, donationAmount,
   });
+
+  // URL ↔ state sync (B-2)
+  useUrlSync({
+    vehicleType, totalHours, distance, tollFee,
+    hasRefuel, hasWash, hasCarShareInsurance, isMember, insuranceType,
+  });
+
+  // Auto-save to history after debounce (B-1)
+  useAutoHistorySave(
+    hasInteracted,
+    {
+      vehicleType, totalHours, distance, tollFee,
+      hasRefuel, hasWash, hasCarShareInsurance, isMember, insuranceType,
+      cheaper: result.cheaper,
+      difference: result.difference,
+    },
+    history.add
+  );
+
+  // Apply preset (C-1)
+  const applyPreset = (p: PresetValues) => {
+    setVehicleType(p.vehicleType);
+    setFuelEfficiency(getRentalCarVehicle(p.vehicleType).defaultFuelEfficiency);
+    setTotalHours(p.totalHours);
+    setDistance(p.distance);
+    setTollFee(p.tollFee);
+    setHasInteracted(true);
+  };
+
+  // Restore from history (B-1)
+  const restoreHistory = (e: HistoryEntry) => {
+    setVehicleType(e.vehicleType);
+    setFuelEfficiency(getRentalCarVehicle(e.vehicleType).defaultFuelEfficiency);
+    setTotalHours(e.totalHours);
+    setDistance(e.distance);
+    setTollFee(e.tollFee);
+    setHasRefuel(e.hasRefuel);
+    setHasWash(e.hasWash);
+    setHasCarShareInsurance(e.hasCarShareInsurance);
+    setIsMember(e.isMember);
+    setInsuranceType(e.insuranceType);
+    setHasInteracted(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const distanceChartData = useMemo(() => {
     return generatePriceProgressionData(
@@ -200,6 +264,9 @@ const Index = () => {
 
           {/* Comparison Tab */}
           <TabsContent value="compare" className="space-y-6">
+            {/* Preset Buttons (C-1) */}
+            <PresetButtons onApply={applyPreset} />
+
             {/* Input Section */}
             <section className="bg-card rounded-xl p-5 card-shadow border border-border animate-fade-in">
               <h2 className="text-lg font-bold text-foreground mb-5">利用条件を入力</h2>
@@ -419,6 +486,15 @@ const Index = () => {
 
               <ComparisonResult result={result} />
 
+              {/* Result Summary Card (A-1) */}
+              <ResultSummaryCard
+                result={result}
+                vehicleType={vehicleType}
+                totalHours={totalHours}
+                distance={distance}
+                tollFee={tollFee}
+              />
+
               <PriceComparisonChart 
                 distanceData={distanceChartData}
                 timeData={timeChartData}
@@ -431,7 +507,7 @@ const Index = () => {
             </section>
 
             {/* Donation Section */}
-            <section className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 rounded-xl p-5 border border-amber-200 dark:border-amber-800 animate-fade-in">
+            <section ref={donationRef} className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 rounded-xl p-5 border border-amber-200 dark:border-amber-800 animate-fade-in">
               <div className="flex flex-col items-center gap-4">
                 <div className="flex items-center gap-3">
                   <span className="text-3xl">☕</span>
@@ -444,7 +520,7 @@ const Index = () => {
                     href="https://buy.stripe.com/28E7sMbdP9AL5Ok6Tw8og00"
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => { setDonationClicked(true); setDonationAmount(300); }}
+                    onClick={() => { setDonationClicked(true); setDonationAmount(300); unlock(); }}
                     className="flex items-center justify-center border-2 border-amber-500 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/50 px-3 py-2.5 rounded-lg font-medium transition-colors"
                   >
                     300円
@@ -453,7 +529,7 @@ const Index = () => {
                     href="https://buy.stripe.com/28E3cw0zb28jfoU3Hk8og01"
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => { setDonationClicked(true); setDonationAmount(500); }}
+                    onClick={() => { setDonationClicked(true); setDonationAmount(500); unlock(); }}
                     className="flex items-center justify-center bg-amber-500 hover:bg-amber-600 text-white px-3 py-2.5 rounded-lg font-medium transition-colors shadow-md"
                   >
                     500円
@@ -462,7 +538,7 @@ const Index = () => {
                     href="https://buy.stripe.com/4gM8wQeq1bIT2C86Tw8og02"
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => { setDonationClicked(true); setDonationAmount(1000); }}
+                    onClick={() => { setDonationClicked(true); setDonationAmount(1000); unlock(); }}
                     className="flex items-center justify-center border-2 border-amber-500 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/50 px-3 py-2.5 rounded-lg font-medium transition-colors"
                   >
                     1000円
@@ -470,6 +546,22 @@ const Index = () => {
                 </div>
               </div>
             </section>
+
+            {/* Next Action CTA (A-2) — gated by donation click */}
+            <NextActionCTA
+              result={result}
+              unlocked={unlocked}
+              onScrollToDonation={scrollToDonation}
+              onSkip={unlock}
+            />
+
+            {/* Comparison History (B-1) */}
+            <HistoryList
+              items={history.items}
+              onRestore={restoreHistory}
+              onRemove={history.remove}
+              onClear={history.clear}
+            />
 
             {/* Info Section */}
             <section className="bg-muted/50 rounded-xl p-5 border border-border text-base text-muted-foreground space-y-2">
