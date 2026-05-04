@@ -486,6 +486,15 @@ const Index = () => {
 
               <ComparisonResult result={result} />
 
+              {/* Result Summary Card (A-1) */}
+              <ResultSummaryCard
+                result={result}
+                vehicleType={vehicleType}
+                totalHours={totalHours}
+                distance={distance}
+                tollFee={tollFee}
+              />
+
               <PriceComparisonChart 
                 distanceData={distanceChartData}
                 timeData={timeChartData}
@@ -498,7 +507,7 @@ const Index = () => {
             </section>
 
             {/* Donation Section */}
-            <section className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 rounded-xl p-5 border border-amber-200 dark:border-amber-800 animate-fade-in">
+            <section ref={donationRef} className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 rounded-xl p-5 border border-amber-200 dark:border-amber-800 animate-fade-in">
               <div className="flex flex-col items-center gap-4">
                 <div className="flex items-center gap-3">
                   <span className="text-3xl">☕</span>
