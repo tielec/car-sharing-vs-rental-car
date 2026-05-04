@@ -214,37 +214,39 @@ export function ComparisonAnalytics() {
     });
 
     // Build daily series: last 30 days (fill gaps with 0)
-    const dailySeries: Array<{ date: string; total: number; interacted: number }> = [];
+    const cvr = (t: number, i: number) => (t > 0 ? Math.round((i / t) * 1000) / 10 : 0);
+
+    const dailySeries: Array<{ date: string; total: number; interacted: number; cvr: number }> = [];
     const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
     for (let i = 29; i >= 0; i--) {
       const d = new Date(today);
       d.setDate(today.getDate() - i);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
       const v = dailyMap[key] || { total: 0, interacted: 0 };
-      dailySeries.push({ date: `${d.getMonth() + 1}/${d.getDate()}`, total: v.total, interacted: v.interacted });
+      dailySeries.push({ date: `${d.getMonth() + 1}/${d.getDate()}`, total: v.total, interacted: v.interacted, cvr: cvr(v.total, v.interacted) });
     }
 
     // Weekly series: last 12 weeks present, sorted ascending
     const weeklySeries = Object.entries(weeklyMap)
       .sort(([a], [b]) => a.localeCompare(b))
       .slice(-12)
-      .map(([week, v]) => ({ week, ...v }));
+      .map(([week, v]) => ({ week, total: v.total, interacted: v.interacted, cvr: cvr(v.total, v.interacted) }));
 
     // Weekday: fixed order Mon-Sun
     const weekdayOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     const weekdayLabels: Record<string, string> = { Mon: "月", Tue: "火", Wed: "水", Thu: "木", Fri: "金", Sat: "土", Sun: "日" };
-    const weekdaySeries = weekdayOrder.map((d) => ({
-      day: weekdayLabels[d],
-      total: weekdayMap[d]?.total || 0,
-      interacted: weekdayMap[d]?.interacted || 0,
-    }));
+    const weekdaySeries = weekdayOrder.map((d) => {
+      const t = weekdayMap[d]?.total || 0;
+      const i = weekdayMap[d]?.interacted || 0;
+      return { day: weekdayLabels[d], total: t, interacted: i, cvr: cvr(t, i) };
+    });
 
     // Hourly: 0-23
-    const hourlySeries = Array.from({ length: 24 }, (_, h) => ({
-      hour: `${h}時`,
-      total: hourlyMap[h]?.total || 0,
-      interacted: hourlyMap[h]?.interacted || 0,
-    }));
+    const hourlySeries = Array.from({ length: 24 }, (_, h) => {
+      const t = hourlyMap[h]?.total || 0;
+      const i = hourlyMap[h]?.interacted || 0;
+      return { hour: `${h}時`, total: t, interacted: i, cvr: cvr(t, i) };
+    });
 
     setStats({
       totalLogs: data.length,
