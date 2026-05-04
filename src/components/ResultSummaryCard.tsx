@@ -101,16 +101,16 @@ export function ResultSummaryCard({ result, vehicleType, totalHours, distance, t
 
         <div className="grid grid-cols-3 gap-2 text-center text-xs text-muted-foreground mb-3">
           <div>
-            <div className="font-medium text-foreground">{cs.name}</div>
             <div>車種</div>
+            <div className="font-medium text-foreground">{cs.name}</div>
           </div>
           <div>
-            <div className="font-medium text-foreground">{formatHours(totalHours)}</div>
             <div>利用時間</div>
+            <div className="font-medium text-foreground">{formatHours(totalHours)}</div>
           </div>
           <div>
-            <div className="font-medium text-foreground">{distance}km</div>
             <div>走行距離</div>
+            <div className="font-medium text-foreground">{distance}km</div>
           </div>
         </div>
 
