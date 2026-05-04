@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { BarChart3, Filter, Monitor, Smartphone, Tablet, HelpCircle } from "lucide-react";
+import { BarChart3, Filter, Monitor, Smartphone, Tablet, HelpCircle, TrendingUp } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -10,6 +10,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from "recharts";
 
 interface LogStats {
   totalLogs: number;
@@ -26,6 +39,10 @@ interface LogStats {
   browserCounts: Record<string, number>;
   languageCounts: Record<string, number>;
   timezoneCounts: Record<string, number>;
+  dailySeries: Array<{ date: string; total: number; interacted: number }>;
+  weeklySeries: Array<{ week: string; total: number; interacted: number }>;
+  weekdaySeries: Array<{ day: string; total: number; interacted: number }>;
+  hourlySeries: Array<{ hour: string; total: number; interacted: number }>;
   recentLogs: Array<{
     session_id: string;
     vehicle_type: string | null;
@@ -138,6 +155,98 @@ export function ComparisonAnalytics() {
       }
     });
 
+    // === Time-based aggregation (JST) ===
+    const jstParts = (iso: string) => {
+      const d = new Date(iso);
+      // Get JST components via Intl
+      const fmt = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Tokyo",
+        year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", second: "2-digit",
+        weekday: "short", hour12: false,
+      });
+      const parts = fmt.formatToParts(d).reduce<Record<string, string>>((acc, p) => {
+        acc[p.type] = p.value; return acc;
+      }, {});
+      return {
+        date: `${parts.year}-${parts.month}-${parts.day}`,
+        hour: parseInt(parts.hour, 10),
+        weekday: parts.weekday, // Mon, Tue, ...
+        jsDate: new Date(`${parts.year}-${parts.month}-${parts.day}T00:00:00+09:00`),
+      };
+    };
+
+    const dailyMap: Record<string, { total: number; interacted: number }> = {};
+    const weeklyMap: Record<string, { total: number; interacted: number }> = {};
+    const weekdayMap: Record<string, { total: number; interacted: number }> = {};
+    const hourlyMap: Record<number, { total: number; interacted: number }> = {};
+
+    // Get ISO week (year-Www) of a JST date
+    const getISOWeek = (d: Date) => {
+      const tmp = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      const dayNum = tmp.getUTCDay() || 7;
+      tmp.setUTCDate(tmp.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 1));
+      const week = Math.ceil((((tmp.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+      return `${tmp.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
+    };
+
+    data.forEach((log: any) => {
+      if (!log.created_at) return;
+      const p = jstParts(log.created_at);
+      const interacted = log.has_interacted ? 1 : 0;
+
+      dailyMap[p.date] = dailyMap[p.date] || { total: 0, interacted: 0 };
+      dailyMap[p.date].total++;
+      dailyMap[p.date].interacted += interacted;
+
+      const wk = getISOWeek(p.jsDate);
+      weeklyMap[wk] = weeklyMap[wk] || { total: 0, interacted: 0 };
+      weeklyMap[wk].total++;
+      weeklyMap[wk].interacted += interacted;
+
+      weekdayMap[p.weekday] = weekdayMap[p.weekday] || { total: 0, interacted: 0 };
+      weekdayMap[p.weekday].total++;
+      weekdayMap[p.weekday].interacted += interacted;
+
+      hourlyMap[p.hour] = hourlyMap[p.hour] || { total: 0, interacted: 0 };
+      hourlyMap[p.hour].total++;
+      hourlyMap[p.hour].interacted += interacted;
+    });
+
+    // Build daily series: last 30 days (fill gaps with 0)
+    const dailySeries: Array<{ date: string; total: number; interacted: number }> = [];
+    const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      const v = dailyMap[key] || { total: 0, interacted: 0 };
+      dailySeries.push({ date: `${d.getMonth() + 1}/${d.getDate()}`, total: v.total, interacted: v.interacted });
+    }
+
+    // Weekly series: last 12 weeks present, sorted ascending
+    const weeklySeries = Object.entries(weeklyMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-12)
+      .map(([week, v]) => ({ week, ...v }));
+
+    // Weekday: fixed order Mon-Sun
+    const weekdayOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const weekdayLabels: Record<string, string> = { Mon: "月", Tue: "火", Wed: "水", Thu: "木", Fri: "金", Sat: "土", Sun: "日" };
+    const weekdaySeries = weekdayOrder.map((d) => ({
+      day: weekdayLabels[d],
+      total: weekdayMap[d]?.total || 0,
+      interacted: weekdayMap[d]?.interacted || 0,
+    }));
+
+    // Hourly: 0-23
+    const hourlySeries = Array.from({ length: 24 }, (_, h) => ({
+      hour: `${h}時`,
+      total: hourlyMap[h]?.total || 0,
+      interacted: hourlyMap[h]?.interacted || 0,
+    }));
+
     setStats({
       totalLogs: data.length,
       interactedLogs,
@@ -153,6 +262,10 @@ export function ComparisonAnalytics() {
       browserCounts,
       languageCounts,
       timezoneCounts,
+      dailySeries,
+      weeklySeries,
+      weekdaySeries,
+      hourlySeries,
       recentLogs: data.slice(0, 20) as any,
     });
     setLoading(false);
@@ -233,7 +346,82 @@ export function ComparisonAnalytics() {
         })()}
       </div>
 
-      {/* Summary Cards */}
+      {/* Time-based Charts */}
+      <div className="space-y-3 pt-2 border-t border-border">
+        <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+          <TrendingUp className="w-4 h-4" />
+          📊 アクセス推移
+        </h3>
+        <Tabs defaultValue="daily" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="daily">日別</TabsTrigger>
+            <TabsTrigger value="weekly">週別</TabsTrigger>
+            <TabsTrigger value="weekday">曜日別</TabsTrigger>
+            <TabsTrigger value="hourly">時間帯別</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="daily" className="mt-3">
+            <p className="text-xs text-muted-foreground mb-2">直近30日間の日別アクセス推移（JST）</p>
+            <ResponsiveContainer width="100%" height={260}>
+              <LineChart data={stats.dailySeries} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Line type="monotone" dataKey="total" name="総アクセス" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 2 }} />
+                <Line type="monotone" dataKey="interacted" name="操作あり" stroke="hsl(var(--foreground))" strokeWidth={2} dot={{ r: 2 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </TabsContent>
+
+          <TabsContent value="weekly" className="mt-3">
+            <p className="text-xs text-muted-foreground mb-2">直近12週間の週別アクセス（ISO週番号、JST）</p>
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={stats.weeklySeries} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="week" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Bar dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
+                <Bar dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
+              </BarChart>
+            </ResponsiveContainer>
+          </TabsContent>
+
+          <TabsContent value="weekday" className="mt-3">
+            <p className="text-xs text-muted-foreground mb-2">曜日別の合計アクセス数（JST、全期間）</p>
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={stats.weekdaySeries} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="day" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
+                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Bar dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
+                <Bar dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
+              </BarChart>
+            </ResponsiveContainer>
+          </TabsContent>
+
+          <TabsContent value="hourly" className="mt-3">
+            <p className="text-xs text-muted-foreground mb-2">時間帯別アクセス数（JST、全期間）</p>
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={stats.hourlySeries} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="hour" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} interval={1} />
+                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Bar dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
+                <Bar dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
+              </BarChart>
+            </ResponsiveContainer>
+          </TabsContent>
+        </Tabs>
+      </div>
+
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <div className="p-3 rounded-lg bg-muted/30 border border-border text-center">
           <p className="text-2xl font-bold text-foreground">{stats.totalLogs}</p>
