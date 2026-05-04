@@ -264,6 +264,9 @@ const Index = () => {
 
           {/* Comparison Tab */}
           <TabsContent value="compare" className="space-y-6">
+            {/* Preset Buttons (C-1) */}
+            <PresetButtons onApply={applyPreset} />
+
             {/* Input Section */}
             <section className="bg-card rounded-xl p-5 card-shadow border border-border animate-fade-in">
               <h2 className="text-lg font-bold text-foreground mb-5">利用条件を入力</h2>
