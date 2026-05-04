@@ -286,10 +286,11 @@ const Index = () => {
                       value={distance}
                       onChange={(v) => { setDistance(v); setHasInteracted(true); }}
                       min={settings.limits.distance.min}
-                      max={settings.limits.distance.max}
-                      unit="km"
-                      icon={MapPin}
-                    />
+                       max={settings.limits.distance.max}
+                       unit="km"
+                       icon={MapPin}
+                       step={10}
+                     />
                     <p className="text-sm text-muted-foreground pl-1">
                       東京発の目安: 箱根往復 約180km / 軽井沢往復 約300km
                     </p>
@@ -300,10 +301,11 @@ const Index = () => {
                     onChange={(v) => { setTollFee(v); setHasInteracted(true); }}
                     min={settings.limits.tollFee.min}
                     max={settings.limits.tollFee.max}
-                    unit="円"
-                    icon={Banknote}
-                    optional
-                  />
+                     unit="円"
+                     icon={Banknote}
+                     optional
+                     step={500}
+                   />
                 </div>
 
                 {/* Service-specific Settings */}
