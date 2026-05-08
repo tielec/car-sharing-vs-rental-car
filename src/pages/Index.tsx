@@ -37,7 +37,7 @@ const Index = () => {
   const [distance, setDistance] = useState(initialUrl.distance ?? settings.defaults.distance);
   const [hasRefuel, setHasRefuel] = useState(initialUrl.hasRefuel ?? settings.defaults.hasRefuel);
   const [hasWash, setHasWash] = useState(initialUrl.hasWash ?? settings.defaults.hasWash);
-  const [hasCarShareInsurance, setHasCarShareInsurance] = useState(initialUrl.hasCarShareInsurance ?? false);
+  const [hasCarShareInsurance, setHasCarShareInsurance] = useState(initialUrl.hasCarShareInsurance ?? settings.defaults.hasCarShareInsurance);
   const [tollFee, setTollFee] = useState(initialUrl.tollFee ?? settings.defaults.tollFee);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [donationClicked, setDonationClicked] = useState(false);
