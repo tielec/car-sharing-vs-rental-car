@@ -54,6 +54,7 @@ export interface Settings {
     distance: number;
     hasRefuel: boolean;
     hasWash: boolean;
+    hasCarShareInsurance: boolean;
     tollFee: number;
     fuelPrice: number;
     isMember: boolean;
