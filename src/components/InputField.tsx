@@ -35,9 +35,14 @@ export function InputField({
       <div className="relative">
         <Input
           type="number"
-          value={value || ""}
+          value={Number.isFinite(value) ? value : ""}
           onChange={(e) => {
-            const val = parseInt(e.target.value) || 0;
+            const raw = e.target.value;
+            if (raw === "") {
+              onChange(min);
+              return;
+            }
+            const val = parseInt(raw) || 0;
             const clampedVal = max ? Math.min(val, max) : val;
             onChange(Math.max(min, clampedVal));
           }}
