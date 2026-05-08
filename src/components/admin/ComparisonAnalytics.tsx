@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { BarChart3, Filter, Monitor, Smartphone, Tablet, HelpCircle, TrendingUp } from "lucide-react";
 import {
@@ -79,16 +79,19 @@ function classifySource(domain: string | null, utmSource: string | null): string
   return d;
 }
 
+type Segment = "all" | "fresh" | "url";
+
 export function ComparisonAnalytics() {
-  const [stats, setStats] = useState<LogStats | null>(null);
+  const [rawData, setRawData] = useState<any[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [filterInteracted, setFilterInteracted] = useState(false);
+  const [segment, setSegment] = useState<Segment>("all");
 
   useEffect(() => {
-    fetchStats();
+    fetchData();
   }, []);
 
-  const fetchStats = async () => {
+  const fetchData = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("comparison_logs")
@@ -98,7 +101,40 @@ export function ComparisonAnalytics() {
 
     if (error || !data) {
       setLoading(false);
+      setRawData([]);
       return;
+    }
+    setRawData(data);
+    setLoading(false);
+  };
+
+  // URLパラメータ有無による再訪推定: has_url_params フラグ、または landing_path にクエリ含む
+  const isUrlVisit = (log: any) =>
+    log?.has_url_params === true || (typeof log?.landing_path === "string" && log.landing_path.includes("?"));
+
+  const totalCount = rawData?.length ?? 0;
+  const urlVisitCount = useMemo(
+    () => (rawData ? rawData.filter(isUrlVisit).length : 0),
+    [rawData]
+  );
+
+  const stats: LogStats | null = useMemo(() => {
+    if (!rawData) return null;
+    const data =
+      segment === "all"
+        ? rawData
+        : segment === "fresh"
+        ? rawData.filter((l) => !isUrlVisit(l))
+        : rawData.filter(isUrlVisit);
+    if (data.length === 0) {
+      return {
+        totalLogs: 0, interactedLogs: 0, vehicleCounts: {}, cheaperCounts: {},
+        avgHours: 0, avgDistance: 0, donationClicks: 0, donationAmountCounts: {},
+        sourceCounts: {}, campaignCounts: {}, deviceCounts: {}, browserCounts: {},
+        languageCounts: {}, timezoneCounts: {},
+        dailySeries: [], weeklySeries: [], weekdaySeries: [], hourlySeries: [],
+        recentLogs: [],
+      };
     }
 
     const vehicleCounts: Record<string, number> = {};
