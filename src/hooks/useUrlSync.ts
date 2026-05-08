@@ -25,7 +25,7 @@ export function readUrlState(): Partial<UrlState> {
   const h = Number(p.get("h"));
   if (Number.isFinite(h) && h > 0 && h <= 240) out.totalHours = Math.round(h);
   const d = Number(p.get("d"));
-  if (Number.isFinite(d) && d >= 0 && d <= 3000) out.distance = Math.round(d);
+  if (Number.isFinite(d) && d > 0 && d <= 3000) out.distance = Math.round(d);
   const t = Number(p.get("t"));
   if (Number.isFinite(t) && t >= 0 && t <= 100000) out.tollFee = Math.round(t);
   if (p.has("r")) out.hasRefuel = p.get("r") === "1";
