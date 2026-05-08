@@ -315,7 +315,7 @@ export function ComparisonAnalytics() {
     );
   }
 
-  if (!stats || stats.totalLogs === 0) {
+  if (!stats || totalCount === 0) {
     return (
       <section className="bg-card rounded-xl p-5 border border-border">
         <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
@@ -339,10 +339,50 @@ export function ComparisonAnalytics() {
 
   return (
     <section className="bg-card rounded-xl p-5 border border-border space-y-4">
-      <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-        <BarChart3 className="w-5 h-5" />
-        利用データ分析
-      </h2>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+          <BarChart3 className="w-5 h-5" />
+          利用データ分析
+        </h2>
+        <div className="text-xs text-muted-foreground">
+          URL経由訪問: <span className="font-bold text-foreground">{urlVisitCount}件</span>
+          {totalCount > 0 && (
+            <span className="ml-1">
+              （全体の {((urlVisitCount / totalCount) * 100).toFixed(1)}%）
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Segment Filter */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-xs text-muted-foreground">セグメント:</span>
+        {([
+          { key: "all", label: "全体" },
+          { key: "fresh", label: "新規流入のみ" },
+          { key: "url", label: "URL経由訪問のみ" },
+        ] as { key: Segment; label: string }[]).map((s) => (
+          <Button
+            key={s.key}
+            variant={segment === s.key ? "default" : "outline"}
+            size="sm"
+            className="text-xs h-7"
+            onClick={() => setSegment(s.key)}
+          >
+            {s.label}
+          </Button>
+        ))}
+        <span className="text-xs text-muted-foreground ml-1">
+          （対象: {stats.totalLogs}件）
+        </span>
+      </div>
+
+      {stats.totalLogs === 0 ? (
+        <p className="text-muted-foreground text-sm">このセグメントに該当するデータがありません。</p>
+      ) : (
+        <></>
+      )}
+
 
       {/* Funnel Analysis */}
       <div className="space-y-1">
