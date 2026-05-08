@@ -284,7 +284,7 @@ export function ComparisonAnalytics() {
       return { hour: `${h}時`, total: t, interacted: i, cvr: cvr(t, i) };
     });
 
-    setStats({
+    return {
       totalLogs: data.length,
       interactedLogs,
       vehicleCounts,
@@ -304,9 +304,8 @@ export function ComparisonAnalytics() {
       weekdaySeries,
       hourlySeries,
       recentLogs: data.slice(0, 20) as any,
-    });
-    setLoading(false);
-  };
+    };
+  }, [rawData, segment]);
 
   if (loading) {
     return (
