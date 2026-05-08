@@ -31,6 +31,7 @@ interface AccessInfo {
   screen_width: number | null;
   language: string | null;
   timezone: string | null;
+  has_url_params: boolean;
 }
 
 function detectDeviceType(): string {
@@ -70,12 +71,13 @@ function collectAccessInfo(): AccessInfo {
       utm_source: params.get("utm_source"),
       utm_medium: params.get("utm_medium"),
       utm_campaign: params.get("utm_campaign"),
-      landing_path: window.location.pathname || null,
+      landing_path: (window.location.pathname || "") + (window.location.search || "") || null,
       device_type: detectDeviceType(),
       browser: detectBrowser(),
       screen_width: window.innerWidth || null,
       language: navigator.language || null,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || null,
+      has_url_params: !!window.location.search && window.location.search.length > 1,
     };
   } catch {
     return {
@@ -83,6 +85,7 @@ function collectAccessInfo(): AccessInfo {
       utm_source: null, utm_medium: null, utm_campaign: null,
       landing_path: null, device_type: null, browser: null,
       screen_width: null, language: null, timezone: null,
+      has_url_params: false,
     };
   }
 }
@@ -160,6 +163,7 @@ export function useComparisonLogger(data: ComparisonLogData) {
           p_screen_width: access.screen_width,
           p_language: access.language,
           p_timezone: access.timezone,
+          p_has_url_params: access.has_url_params,
         });
         state.hasLogged = true;
       } catch {

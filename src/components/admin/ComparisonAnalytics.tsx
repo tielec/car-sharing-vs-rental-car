@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { BarChart3, Filter, Monitor, Smartphone, Tablet, HelpCircle, TrendingUp } from "lucide-react";
 import {
@@ -79,16 +79,19 @@ function classifySource(domain: string | null, utmSource: string | null): string
   return d;
 }
 
+type Segment = "all" | "fresh" | "url";
+
 export function ComparisonAnalytics() {
-  const [stats, setStats] = useState<LogStats | null>(null);
+  const [rawData, setRawData] = useState<any[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [filterInteracted, setFilterInteracted] = useState(false);
+  const [segment, setSegment] = useState<Segment>("all");
 
   useEffect(() => {
-    fetchStats();
+    fetchData();
   }, []);
 
-  const fetchStats = async () => {
+  const fetchData = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("comparison_logs")
@@ -98,7 +101,40 @@ export function ComparisonAnalytics() {
 
     if (error || !data) {
       setLoading(false);
+      setRawData([]);
       return;
+    }
+    setRawData(data);
+    setLoading(false);
+  };
+
+  // URLパラメータ有無による再訪推定: has_url_params フラグ、または landing_path にクエリ含む
+  const isUrlVisit = (log: any) =>
+    log?.has_url_params === true || (typeof log?.landing_path === "string" && log.landing_path.includes("?"));
+
+  const totalCount = rawData?.length ?? 0;
+  const urlVisitCount = useMemo(
+    () => (rawData ? rawData.filter(isUrlVisit).length : 0),
+    [rawData]
+  );
+
+  const stats: LogStats | null = useMemo(() => {
+    if (!rawData) return null;
+    const data =
+      segment === "all"
+        ? rawData
+        : segment === "fresh"
+        ? rawData.filter((l) => !isUrlVisit(l))
+        : rawData.filter(isUrlVisit);
+    if (data.length === 0) {
+      return {
+        totalLogs: 0, interactedLogs: 0, vehicleCounts: {}, cheaperCounts: {},
+        avgHours: 0, avgDistance: 0, donationClicks: 0, donationAmountCounts: {},
+        sourceCounts: {}, campaignCounts: {}, deviceCounts: {}, browserCounts: {},
+        languageCounts: {}, timezoneCounts: {},
+        dailySeries: [], weeklySeries: [], weekdaySeries: [], hourlySeries: [],
+        recentLogs: [],
+      };
     }
 
     const vehicleCounts: Record<string, number> = {};
@@ -248,7 +284,7 @@ export function ComparisonAnalytics() {
       return { hour: `${h}時`, total: t, interacted: i, cvr: cvr(t, i) };
     });
 
-    setStats({
+    return {
       totalLogs: data.length,
       interactedLogs,
       vehicleCounts,
@@ -268,9 +304,8 @@ export function ComparisonAnalytics() {
       weekdaySeries,
       hourlySeries,
       recentLogs: data.slice(0, 20) as any,
-    });
-    setLoading(false);
-  };
+    };
+  }, [rawData, segment]);
 
   if (loading) {
     return (
@@ -280,7 +315,7 @@ export function ComparisonAnalytics() {
     );
   }
 
-  if (!stats || stats.totalLogs === 0) {
+  if (!stats || totalCount === 0) {
     return (
       <section className="bg-card rounded-xl p-5 border border-border">
         <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
@@ -304,10 +339,50 @@ export function ComparisonAnalytics() {
 
   return (
     <section className="bg-card rounded-xl p-5 border border-border space-y-4">
-      <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-        <BarChart3 className="w-5 h-5" />
-        利用データ分析
-      </h2>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+          <BarChart3 className="w-5 h-5" />
+          利用データ分析
+        </h2>
+        <div className="text-xs text-muted-foreground">
+          URL経由訪問: <span className="font-bold text-foreground">{urlVisitCount}件</span>
+          {totalCount > 0 && (
+            <span className="ml-1">
+              （全体の {((urlVisitCount / totalCount) * 100).toFixed(1)}%）
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Segment Filter */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-xs text-muted-foreground">セグメント:</span>
+        {([
+          { key: "all", label: "全体" },
+          { key: "fresh", label: "新規流入のみ" },
+          { key: "url", label: "URL経由訪問のみ" },
+        ] as { key: Segment; label: string }[]).map((s) => (
+          <Button
+            key={s.key}
+            variant={segment === s.key ? "default" : "outline"}
+            size="sm"
+            className="text-xs h-7"
+            onClick={() => setSegment(s.key)}
+          >
+            {s.label}
+          </Button>
+        ))}
+        <span className="text-xs text-muted-foreground ml-1">
+          （対象: {stats.totalLogs}件）
+        </span>
+      </div>
+
+      {stats.totalLogs === 0 ? (
+        <p className="text-muted-foreground text-sm">このセグメントに該当するデータがありません。</p>
+      ) : (
+        <></>
+      )}
+
 
       {/* Funnel Analysis */}
       <div className="space-y-1">
