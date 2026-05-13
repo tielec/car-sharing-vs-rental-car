@@ -168,6 +168,9 @@ export function ComparisonAnalytics() {
           donationAmountCounts[log.donation_amount] = (donationAmountCounts[log.donation_amount] || 0) + 1;
         }
       }
+      if (log.donation_confirmed) {
+        donationConfirms++;
+      }
       if (log.vehicle_type) {
         vehicleCounts[log.vehicle_type] = (vehicleCounts[log.vehicle_type] || 0) + 1;
       }
