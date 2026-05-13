@@ -16,6 +16,7 @@ interface ComparisonLogData {
   cheaperService: string | null;
   hasInteracted: boolean;
   donationClicked: boolean;
+  donationConfirmed: boolean;
   donationAmount: number | null;
 }
 
