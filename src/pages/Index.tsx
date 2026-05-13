@@ -42,6 +42,7 @@ const Index = () => {
   const [tollFee, setTollFee] = useState(initialUrl.tollFee ?? settings.defaults.tollFee);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [donationClicked, setDonationClicked] = useState(false);
+  const [donationConfirmed, setDonationConfirmed] = useState(false);
   const [donationAmount, setDonationAmount] = useState<number | null>(null);
   const [donationDialog, setDonationDialog] = useState<{
     open: boolean;
