@@ -188,6 +188,7 @@ export function useComparisonLogger(data: ComparisonLogData) {
     data.insuranceType,
     data.cheaperService,
     data.donationClicked,
+    data.donationConfirmed,
     data.donationAmount,
   ]);
 }
