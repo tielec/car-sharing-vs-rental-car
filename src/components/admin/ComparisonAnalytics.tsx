@@ -150,6 +150,7 @@ export function ComparisonAnalytics() {
     let totalDistanceInteracted = 0;
     let interactedLogs = 0;
     let donationClicks = 0;
+    let donationConfirms = 0;
     const donationAmountCounts: Record<number, number> = {};
 
     data.forEach((log: any) => {
