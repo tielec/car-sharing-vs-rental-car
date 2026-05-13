@@ -397,7 +397,8 @@ export function ComparisonAnalytics() {
           const steps = [
             { label: "ページアクセス", count: stats.totalLogs, rate: null as number | null },
             { label: "操作あり", count: stats.interactedLogs, rate: stats.totalLogs > 0 ? (stats.interactedLogs / stats.totalLogs) * 100 : 0 },
-            { label: "投げ銭クリック", count: stats.donationClicks, rate: stats.interactedLogs > 0 ? (stats.donationClicks / stats.interactedLogs) * 100 : 0 },
+            { label: "投げ銭ボタンクリック", count: stats.donationClicks, rate: stats.interactedLogs > 0 ? (stats.donationClicks / stats.interactedLogs) * 100 : 0 },
+            { label: "決済画面へ進む", count: stats.donationConfirms, rate: stats.donationClicks > 0 ? (stats.donationConfirms / stats.donationClicks) * 100 : 0 },
           ];
           const maxCount = steps[0].count || 1;
           return (
