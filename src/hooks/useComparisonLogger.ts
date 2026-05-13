@@ -153,6 +153,7 @@ export function useComparisonLogger(data: ComparisonLogData) {
           p_has_interacted: data.hasInteracted,
           p_donation_clicked: data.donationClicked,
           p_donation_amount: data.donationAmount,
+          p_donation_confirmed: data.donationConfirmed,
           p_referrer: access.referrer,
           p_referrer_domain: access.referrer_domain,
           p_utm_source: access.utm_source,
