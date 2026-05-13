@@ -297,6 +297,7 @@ export function ComparisonAnalytics() {
       avgHours: interactedLogs > 0 ? Math.round(totalHoursInteracted / interactedLogs) : 0,
       avgDistance: interactedLogs > 0 ? Math.round(totalDistanceInteracted / interactedLogs) : 0,
       donationClicks,
+      donationConfirms,
       donationAmountCounts,
       sourceCounts,
       campaignCounts,
