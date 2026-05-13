@@ -41,6 +41,7 @@ export type Database = {
           distance: number | null
           donation_amount: number | null
           donation_clicked: boolean
+          donation_confirmed: boolean
           has_car_share_insurance: boolean | null
           has_interacted: boolean
           has_refuel: boolean | null
@@ -72,6 +73,7 @@ export type Database = {
           distance?: number | null
           donation_amount?: number | null
           donation_clicked?: boolean
+          donation_confirmed?: boolean
           has_car_share_insurance?: boolean | null
           has_interacted?: boolean
           has_refuel?: boolean | null
@@ -103,6 +105,7 @@ export type Database = {
           distance?: number | null
           donation_amount?: number | null
           donation_clicked?: boolean
+          donation_confirmed?: boolean
           has_car_share_insurance?: boolean | null
           has_interacted?: boolean
           has_refuel?: boolean | null
@@ -264,6 +267,38 @@ export type Database = {
               p_distance?: number
               p_donation_amount?: number
               p_donation_clicked?: boolean
+              p_has_car_share_insurance?: boolean
+              p_has_interacted?: boolean
+              p_has_refuel?: boolean
+              p_has_url_params?: boolean
+              p_has_wash?: boolean
+              p_insurance_type?: string
+              p_is_member?: boolean
+              p_landing_path?: string
+              p_language?: string
+              p_referrer?: string
+              p_referrer_domain?: string
+              p_screen_width?: number
+              p_session_id: string
+              p_timezone?: string
+              p_toll_fee?: number
+              p_total_hours?: number
+              p_utm_campaign?: string
+              p_utm_medium?: string
+              p_utm_source?: string
+              p_vehicle_type?: string
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              p_browser?: string
+              p_cheaper_service?: string
+              p_device_type?: string
+              p_distance?: number
+              p_donation_amount?: number
+              p_donation_clicked?: boolean
+              p_donation_confirmed?: boolean
               p_has_car_share_insurance?: boolean
               p_has_interacted?: boolean
               p_has_refuel?: boolean
