@@ -31,6 +31,7 @@ interface LogStats {
   avgHours: number;
   avgDistance: number;
   donationClicks: number;
+  donationConfirms: number;
   donationAmountCounts: Record<number, number>;
   sourceCounts: Record<string, number>;
   campaignCounts: Record<string, number>;
@@ -129,7 +130,7 @@ export function ComparisonAnalytics() {
     if (data.length === 0) {
       return {
         totalLogs: 0, interactedLogs: 0, vehicleCounts: {}, cheaperCounts: {},
-        avgHours: 0, avgDistance: 0, donationClicks: 0, donationAmountCounts: {},
+        avgHours: 0, avgDistance: 0, donationClicks: 0, donationConfirms: 0, donationAmountCounts: {},
         sourceCounts: {}, campaignCounts: {}, deviceCounts: {}, browserCounts: {},
         languageCounts: {}, timezoneCounts: {},
         dailySeries: [], weeklySeries: [], weekdaySeries: [], hourlySeries: [],
@@ -149,6 +150,7 @@ export function ComparisonAnalytics() {
     let totalDistanceInteracted = 0;
     let interactedLogs = 0;
     let donationClicks = 0;
+    let donationConfirms = 0;
     const donationAmountCounts: Record<number, number> = {};
 
     data.forEach((log: any) => {
@@ -165,6 +167,9 @@ export function ComparisonAnalytics() {
         if (log.donation_amount) {
           donationAmountCounts[log.donation_amount] = (donationAmountCounts[log.donation_amount] || 0) + 1;
         }
+      }
+      if (log.donation_confirmed) {
+        donationConfirms++;
       }
       if (log.vehicle_type) {
         vehicleCounts[log.vehicle_type] = (vehicleCounts[log.vehicle_type] || 0) + 1;
@@ -292,6 +297,7 @@ export function ComparisonAnalytics() {
       avgHours: interactedLogs > 0 ? Math.round(totalHoursInteracted / interactedLogs) : 0,
       avgDistance: interactedLogs > 0 ? Math.round(totalDistanceInteracted / interactedLogs) : 0,
       donationClicks,
+      donationConfirms,
       donationAmountCounts,
       sourceCounts,
       campaignCounts,
@@ -391,7 +397,8 @@ export function ComparisonAnalytics() {
           const steps = [
             { label: "ページアクセス", count: stats.totalLogs, rate: null as number | null },
             { label: "操作あり", count: stats.interactedLogs, rate: stats.totalLogs > 0 ? (stats.interactedLogs / stats.totalLogs) * 100 : 0 },
-            { label: "投げ銭クリック", count: stats.donationClicks, rate: stats.interactedLogs > 0 ? (stats.donationClicks / stats.interactedLogs) * 100 : 0 },
+            { label: "投げ銭ボタンクリック", count: stats.donationClicks, rate: stats.interactedLogs > 0 ? (stats.donationClicks / stats.interactedLogs) * 100 : 0 },
+            { label: "決済画面へ進む", count: stats.donationConfirms, rate: stats.donationClicks > 0 ? (stats.donationConfirms / stats.donationClicks) * 100 : 0 },
           ];
           const maxCount = steps[0].count || 1;
           return (

@@ -42,6 +42,7 @@ const Index = () => {
   const [tollFee, setTollFee] = useState(initialUrl.tollFee ?? settings.defaults.tollFee);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [donationClicked, setDonationClicked] = useState(false);
+  const [donationConfirmed, setDonationConfirmed] = useState(false);
   const [donationAmount, setDonationAmount] = useState<number | null>(null);
   const [donationDialog, setDonationDialog] = useState<{
     open: boolean;
@@ -97,7 +98,7 @@ const Index = () => {
     vehicleType, totalHours, distance, tollFee,
     hasRefuel, hasWash, hasCarShareInsurance,
     isMember, insuranceType, cheaperService,
-    hasInteracted, donationClicked, donationAmount,
+    hasInteracted, donationClicked, donationConfirmed, donationAmount,
   });
 
   // URL ↔ state sync (B-2)
@@ -526,21 +527,21 @@ const Index = () => {
                 <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full max-w-sm">
                   <button
                     type="button"
-                    onClick={() => setDonationDialog({ open: true, amount: 300, url: "https://buy.stripe.com/28E7sMbdP9AL5Ok6Tw8og00" })}
+                    onClick={() => { setDonationClicked(true); setDonationAmount(300); setDonationDialog({ open: true, amount: 300, url: "https://buy.stripe.com/28E7sMbdP9AL5Ok6Tw8og00" }); }}
                     className="flex items-center justify-center border-2 border-amber-500 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/50 px-3 py-2.5 rounded-lg font-medium transition-colors"
                   >
                     300円
                   </button>
                   <button
                     type="button"
-                    onClick={() => setDonationDialog({ open: true, amount: 500, url: "https://buy.stripe.com/28E3cw0zb28jfoU3Hk8og01" })}
+                    onClick={() => { setDonationClicked(true); setDonationAmount(500); setDonationDialog({ open: true, amount: 500, url: "https://buy.stripe.com/28E3cw0zb28jfoU3Hk8og01" }); }}
                     className="flex items-center justify-center bg-amber-500 hover:bg-amber-600 text-white px-3 py-2.5 rounded-lg font-medium transition-colors shadow-md"
                   >
                     500円
                   </button>
                   <button
                     type="button"
-                    onClick={() => setDonationDialog({ open: true, amount: 1000, url: "https://buy.stripe.com/4gM8wQeq1bIT2C86Tw8og02" })}
+                    onClick={() => { setDonationClicked(true); setDonationAmount(1000); setDonationDialog({ open: true, amount: 1000, url: "https://buy.stripe.com/4gM8wQeq1bIT2C86Tw8og02" }); }}
                     className="flex items-center justify-center border-2 border-amber-500 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/50 px-3 py-2.5 rounded-lg font-medium transition-colors"
                   >
                     1000円
@@ -556,7 +557,7 @@ const Index = () => {
               stripeUrl={donationDialog.url}
               onConfirm={() => {
                 if (donationDialog.amount !== null) {
-                  setDonationClicked(true);
+                  setDonationConfirmed(true);
                   setDonationAmount(donationDialog.amount);
                   unlock();
                 }
