@@ -98,7 +98,7 @@ const Index = () => {
     vehicleType, totalHours, distance, tollFee,
     hasRefuel, hasWash, hasCarShareInsurance,
     isMember, insuranceType, cheaperService,
-    hasInteracted, donationClicked, donationAmount,
+    hasInteracted, donationClicked, donationConfirmed, donationAmount,
   });
 
   // URL ↔ state sync (B-2)
