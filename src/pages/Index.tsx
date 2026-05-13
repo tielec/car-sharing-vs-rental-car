@@ -24,6 +24,7 @@ import { ResultSummaryCard } from "@/components/ResultSummaryCard";
 import { NextActionCTA } from "@/components/NextActionCTA";
 import { HistoryList } from "@/components/HistoryList";
 import { useDonationUnlock } from "@/hooks/useDonationUnlock";
+import { DonationConfirmDialog } from "@/components/DonationConfirmDialog";
 import { useComparisonHistory, useAutoHistorySave, type HistoryEntry } from "@/hooks/useComparisonHistory";
 import { useUrlSync, readUrlState } from "@/hooks/useUrlSync";
 
@@ -42,6 +43,11 @@ const Index = () => {
   const [hasInteracted, setHasInteracted] = useState(false);
   const [donationClicked, setDonationClicked] = useState(false);
   const [donationAmount, setDonationAmount] = useState<number | null>(null);
+  const [donationDialog, setDonationDialog] = useState<{
+    open: boolean;
+    amount: number | null;
+    url: string | null;
+  }>({ open: false, amount: null, url: null });
 
   // Rental car specific settings
   const [isMember, setIsMember] = useState(initialUrl.isMember ?? settings.defaults.isMember);
@@ -518,36 +524,44 @@ const Index = () => {
                   </p>
                 </div>
                 <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full max-w-sm">
-                  <a
-                    href="https://buy.stripe.com/28E7sMbdP9AL5Ok6Tw8og00"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => { setDonationClicked(true); setDonationAmount(300); unlock(); }}
+                  <button
+                    type="button"
+                    onClick={() => setDonationDialog({ open: true, amount: 300, url: "https://buy.stripe.com/28E7sMbdP9AL5Ok6Tw8og00" })}
                     className="flex items-center justify-center border-2 border-amber-500 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/50 px-3 py-2.5 rounded-lg font-medium transition-colors"
                   >
                     300円
-                  </a>
-                  <a
-                    href="https://buy.stripe.com/28E3cw0zb28jfoU3Hk8og01"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => { setDonationClicked(true); setDonationAmount(500); unlock(); }}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDonationDialog({ open: true, amount: 500, url: "https://buy.stripe.com/28E3cw0zb28jfoU3Hk8og01" })}
                     className="flex items-center justify-center bg-amber-500 hover:bg-amber-600 text-white px-3 py-2.5 rounded-lg font-medium transition-colors shadow-md"
                   >
                     500円
-                  </a>
-                  <a
-                    href="https://buy.stripe.com/4gM8wQeq1bIT2C86Tw8og02"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => { setDonationClicked(true); setDonationAmount(1000); unlock(); }}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDonationDialog({ open: true, amount: 1000, url: "https://buy.stripe.com/4gM8wQeq1bIT2C86Tw8og02" })}
                     className="flex items-center justify-center border-2 border-amber-500 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/50 px-3 py-2.5 rounded-lg font-medium transition-colors"
                   >
                     1000円
-                  </a>
+                  </button>
                 </div>
               </div>
             </section>
+
+            <DonationConfirmDialog
+              open={donationDialog.open}
+              onOpenChange={(open) => setDonationDialog((prev) => ({ ...prev, open }))}
+              amount={donationDialog.amount}
+              stripeUrl={donationDialog.url}
+              onConfirm={() => {
+                if (donationDialog.amount !== null) {
+                  setDonationClicked(true);
+                  setDonationAmount(donationDialog.amount);
+                  unlock();
+                }
+              }}
+            />
 
             {/* Next Action CTA (A-2) — gated by donation click */}
             <NextActionCTA
