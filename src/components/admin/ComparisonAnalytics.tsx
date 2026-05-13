@@ -130,7 +130,7 @@ export function ComparisonAnalytics() {
     if (data.length === 0) {
       return {
         totalLogs: 0, interactedLogs: 0, vehicleCounts: {}, cheaperCounts: {},
-        avgHours: 0, avgDistance: 0, donationClicks: 0, donationAmountCounts: {},
+        avgHours: 0, avgDistance: 0, donationClicks: 0, donationConfirms: 0, donationAmountCounts: {},
         sourceCounts: {}, campaignCounts: {}, deviceCounts: {}, browserCounts: {},
         languageCounts: {}, timezoneCounts: {},
         dailySeries: [], weeklySeries: [], weekdaySeries: [], hourlySeries: [],
