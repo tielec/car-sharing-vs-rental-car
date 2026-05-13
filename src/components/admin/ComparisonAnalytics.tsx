@@ -31,6 +31,7 @@ interface LogStats {
   avgHours: number;
   avgDistance: number;
   donationClicks: number;
+  donationConfirms: number;
   donationAmountCounts: Record<number, number>;
   sourceCounts: Record<string, number>;
   campaignCounts: Record<string, number>;
