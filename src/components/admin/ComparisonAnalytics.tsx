@@ -120,6 +120,14 @@ export function ComparisonAnalytics() {
     [rawData]
   );
 
+  const filteredData = useMemo(() => {
+    if (!rawData) return [];
+    if (segment === "all") return rawData;
+    if (segment === "fresh") return rawData.filter((l) => !isUrlVisit(l));
+    return rawData.filter(isUrlVisit);
+  }, [rawData, segment]);
+
+
   const stats: LogStats | null = useMemo(() => {
     if (!rawData) return null;
     const data =
