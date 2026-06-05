@@ -1,75 +1,37 @@
-# クリック前ミニ確認モーダル実装
+# クロス分析の追加
 
-## ゴール
-投げ銭ボタン → 即 Stripe 遷移をやめ、間に確認モーダルを挟むことで「Stripeへの不信感」と「誤クリック離脱」を減らす。
+`/admin` の「アクセス推移」タブ群に、2軸でデータを見られる **クロス分析** タブを追加します。曜日×時間帯のヒートマップを中心に、軸を切り替えて違う角度から傾向を見られるようにします。
 
-## 仕様
+## 追加するUI
 
-### トリガー
-`src/pages/Index.tsx` の300円/500円/1000円の `<a href="...">` ボタン3つを `<button>` 化し、クリックでモーダルを開く。
+`ComparisonAnalytics.tsx` の「アクセス推移」`Tabs` に **「クロス分析」タブ** を1つ追加（既存4タブの末尾）。
 
-### モーダル内容（shadcn `Dialog` を流用）
+タブ内の構成：
 
-```text
-┌─────────────────────────────────┐
-│  ☕ 開発を応援する               │
-│                                 │
-│  500円で応援します              │
-│                                 │
-│  次の画面で安全な決済（Stripe） │
-│  にてお支払いいただきます。     │
-│  ・カード / Apple Pay / Google Pay 対応 │
-│  ・登録不要・1回限りの決済      │
-│                                 │
-│   [キャンセル]  [決済画面へ進む]│
-└─────────────────────────────────┘
-```
+1. **軸セレクター** — 行軸 / 列軸を `Select` で切り替え可能
+   - 選択肢: 曜日 / 時間帯 / デバイス / 流入元（分類済み）
+   - デフォルト: 行=曜日（月〜日）、列=時間帯（0-23時、JST）
+2. **指標セレクター** — `ToggleGroup` で切り替え
+   - アクセス数 / 操作率(CVR) / 投げ銭クリック率
+3. **ヒートマップ表** — セル背景を指標値に応じて `bg-primary` の不透明度で濃淡表示
+   - セル内に数値（件数 or %）
+   - 右端と下端に行合計・列合計
+4. **軽い解説テキスト** — 「最もアクセスが多いのは○曜日○時です」など、最大値セルの自動キャプション
 
-- タイトル: `☕ 開発を応援する`
-- 金額表示: 大きめ太字で「{amount}円で応援します」
-- 説明文（小さめ）: 「次の画面で安全な決済サービス（Stripe）にてお支払いいただきます」「カード / Apple Pay / Google Pay 対応」「登録不要 / 1回限り」
-- ボタン:
-  - 「キャンセル」(variant=outline) → モーダル閉じる
-  - 「決済画面へ進む」(variant=default, primary色) → Stripe Payment Link を新規タブで開く + モーダル閉じる
+## 技術メモ（実装詳細）
 
-### 既存挙動の維持
-「決済画面へ進む」を押した時点で、現在の `onClick` と同じ処理を実行する：
-- `setDonationClicked(true)`
-- `setDonationAmount(amount)`
-- `unlock()`（Next-Action CTA 解放）
-- `window.open(stripeUrl, "_blank", "noopener,noreferrer")`
+- 既存の `jstParts()` で取れる `weekday` / `hour` をそのまま使う。デバイス・流入元は既存の `device_type` / `classifySource()` を流用。
+- `useMemo` で `data` から `Map<rowKey, Map<colKey, {total, interacted, donationClicks}>>` を作り、選択中の軸ペアでピボット。
+- 指標が「率」のときは分母が0のセルはハイフン表示。
+- ヒートマップは Recharts ではなく、Tailwind のグリッドで実装（軽量・行/列ラベルが扱いやすい）。色は `style={{ backgroundColor: \`hsl(var(--primary) / ${ratio})\` }}` 形式で濃淡。
+- 既存の `segment` フィルター（全体 / 新規流入 / URL経由）はそのまま適用される（同じ `stats` データソースを使う）。
 
-→ つまり「決済画面に進んだ」ことを既存の `donation_clicked` として記録（仕様変更なし）。キャンセル時は何も記録しない。
+## 変更ファイル
 
-### コンポーネント設計
-新規ファイル：`src/components/DonationConfirmDialog.tsx`
+- `src/components/admin/ComparisonAnalytics.tsx` のみ（UI/集計の追加。既存ロジックは変更しない）
 
-Props:
-```text
-- open: boolean
-- onOpenChange: (open: boolean) => void
-- amount: number | null     // 表示金額
-- stripeUrl: string | null  // 進む先
-- onConfirm: () => void     // 親側で donationClicked / unlock 等を実行
-```
+## スコープ外
 
-Index.tsx 側の状態:
-```text
-const [donationDialog, setDonationDialog] = useState<{
-  open: boolean;
-  amount: number | null;
-  url: string | null;
-}>({ open: false, amount: null, url: null });
-```
-
-各金額ボタンの onClick は `setDonationDialog({ open: true, amount, url })` のみを行う。
-
-## 影響範囲
-- 編集: `src/pages/Index.tsx`（投げ銭セクションのボタン3つを書き換え + ダイアログ呼び出し追加）
-- 新規: `src/components/DonationConfirmDialog.tsx`
-- 計測仕様・DB・他コンポーネント: 変更なし
-
-## 範囲外（今回はやらない）
-- Webhook による決済完了計測
-- 100円ボタン / 任意金額
-- Stripe Payment Link 側の設定変更（Apple Pay 有効化等は Stripe ダッシュボードで別途実施）
+- DB スキーマ変更なし
+- 既存の日別 / 週別 / 曜日別 / 時間帯別タブは変更しない
+- エクスポート機能やドリルダウンは今回追加しない（必要なら次の依頼で）
