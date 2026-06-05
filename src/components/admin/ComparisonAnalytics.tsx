@@ -22,6 +22,7 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
+import { CrossAnalysis } from "./CrossAnalysis";
 
 interface LogStats {
   totalLogs: number;
