@@ -22,6 +22,7 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
+import { CrossAnalysis } from "./CrossAnalysis";
 
 interface LogStats {
   totalLogs: number;
@@ -118,6 +119,14 @@ export function ComparisonAnalytics() {
     () => (rawData ? rawData.filter(isUrlVisit).length : 0),
     [rawData]
   );
+
+  const filteredData = useMemo(() => {
+    if (!rawData) return [];
+    if (segment === "all") return rawData;
+    if (segment === "fresh") return rawData.filter((l) => !isUrlVisit(l));
+    return rawData.filter(isUrlVisit);
+  }, [rawData, segment]);
+
 
   const stats: LogStats | null = useMemo(() => {
     if (!rawData) return null;
@@ -436,12 +445,14 @@ export function ComparisonAnalytics() {
           📊 アクセス推移
         </h3>
         <Tabs defaultValue="daily" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="daily">日別</TabsTrigger>
             <TabsTrigger value="weekly">週別</TabsTrigger>
             <TabsTrigger value="weekday">曜日別</TabsTrigger>
             <TabsTrigger value="hourly">時間帯別</TabsTrigger>
+            <TabsTrigger value="cross">クロス分析</TabsTrigger>
           </TabsList>
+
 
           <TabsContent value="daily" className="mt-3">
             <p className="text-xs text-muted-foreground mb-2">直近30日間の日別アクセス推移とCVR（JST）</p>
@@ -510,7 +521,13 @@ export function ComparisonAnalytics() {
               </ComposedChart>
             </ResponsiveContainer>
           </TabsContent>
+
+          <TabsContent value="cross" className="mt-3">
+            <p className="text-xs text-muted-foreground mb-2">2軸でクロス集計（JST、現在のセグメント適用）</p>
+            <CrossAnalysis data={filteredData} classifySource={classifySource} />
+          </TabsContent>
         </Tabs>
+
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
