@@ -521,7 +521,13 @@ export function ComparisonAnalytics() {
               </ComposedChart>
             </ResponsiveContainer>
           </TabsContent>
+
+          <TabsContent value="cross" className="mt-3">
+            <p className="text-xs text-muted-foreground mb-2">2軸でクロス集計（JST、現在のセグメント適用）</p>
+            <CrossAnalysis data={filteredData} classifySource={classifySource} />
+          </TabsContent>
         </Tabs>
+
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
