@@ -332,6 +332,7 @@ export function ComparisonAnalytics() {
       timezoneCounts,
       dailySeries,
       weeklySeries,
+      monthlySeries,
       weekdaySeries,
       hourlySeries,
       recentLogs: data.slice(0, 20) as any,
