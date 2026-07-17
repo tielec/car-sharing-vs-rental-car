@@ -506,6 +506,24 @@ export function ComparisonAnalytics() {
             </ResponsiveContainer>
           </TabsContent>
 
+          <TabsContent value="monthly" className="mt-3">
+            <p className="text-xs text-muted-foreground mb-2">直近12ヶ月の月別アクセスとCVR（JST）</p>
+            <ResponsiveContainer width="100%" height={260}>
+              <ComposedChart data={stats.monthlySeries} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+                <YAxis yAxisId="left" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
+                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} unit="%" domain={[0, 100]} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} formatter={(v: any, n: any) => n === "CVR" ? [`${v}%`, n] : [v, n]} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Bar yAxisId="left" dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
+                <Bar yAxisId="left" dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
+                <Line yAxisId="right" type="linear" dataKey="cvr" name="CVR" stroke="hsl(var(--accent-foreground))" strokeWidth={2} dot={{ r: 3 }} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </TabsContent>
+
+
           <TabsContent value="weekday" className="mt-3">
             <p className="text-xs text-muted-foreground mb-2">曜日別の合計アクセスとCVR（JST、全期間）</p>
             <ResponsiveContainer width="100%" height={260}>
