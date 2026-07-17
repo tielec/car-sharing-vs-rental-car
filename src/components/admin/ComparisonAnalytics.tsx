@@ -42,6 +42,7 @@ interface LogStats {
   timezoneCounts: Record<string, number>;
   dailySeries: Array<{ date: string; total: number; interacted: number; cvr: number }>;
   weeklySeries: Array<{ week: string; total: number; interacted: number; cvr: number }>;
+  monthlySeries: Array<{ month: string; total: number; interacted: number; cvr: number }>;
   weekdaySeries: Array<{ day: string; total: number; interacted: number; cvr: number }>;
   hourlySeries: Array<{ hour: string; total: number; interacted: number; cvr: number }>;
   recentLogs: Array<{
@@ -142,7 +143,7 @@ export function ComparisonAnalytics() {
         avgHours: 0, avgDistance: 0, donationClicks: 0, donationConfirms: 0, donationAmountCounts: {},
         sourceCounts: {}, campaignCounts: {}, deviceCounts: {}, browserCounts: {},
         languageCounts: {}, timezoneCounts: {},
-        dailySeries: [], weeklySeries: [], weekdaySeries: [], hourlySeries: [],
+        dailySeries: [], weeklySeries: [], monthlySeries: [], weekdaySeries: [], hourlySeries: [],
         recentLogs: [],
       };
     }
@@ -227,6 +228,7 @@ export function ComparisonAnalytics() {
 
     const dailyMap: Record<string, { total: number; interacted: number }> = {};
     const weeklyMap: Record<string, { total: number; interacted: number }> = {};
+    const monthlyMap: Record<string, { total: number; interacted: number }> = {};
     const weekdayMap: Record<string, { total: number; interacted: number }> = {};
     const hourlyMap: Record<number, { total: number; interacted: number }> = {};
 
@@ -253,6 +255,11 @@ export function ComparisonAnalytics() {
       weeklyMap[wk] = weeklyMap[wk] || { total: 0, interacted: 0 };
       weeklyMap[wk].total++;
       weeklyMap[wk].interacted += interacted;
+
+      const mo = p.date.slice(0, 7); // YYYY-MM
+      monthlyMap[mo] = monthlyMap[mo] || { total: 0, interacted: 0 };
+      monthlyMap[mo].total++;
+      monthlyMap[mo].interacted += interacted;
 
       weekdayMap[p.weekday] = weekdayMap[p.weekday] || { total: 0, interacted: 0 };
       weekdayMap[p.weekday].total++;
@@ -281,6 +288,15 @@ export function ComparisonAnalytics() {
       .sort(([a], [b]) => a.localeCompare(b))
       .slice(-12)
       .map(([week, v]) => ({ week, total: v.total, interacted: v.interacted, cvr: cvr(v.total, v.interacted) }));
+
+    // Monthly series: last 12 months present, sorted ascending
+    const monthlySeries = Object.entries(monthlyMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-12)
+      .map(([month, v]) => {
+        const [y, m] = month.split("-");
+        return { month: `${y}/${m}`, total: v.total, interacted: v.interacted, cvr: cvr(v.total, v.interacted) };
+      });
 
     // Weekday: fixed order Mon-Sun
     const weekdayOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -316,6 +332,7 @@ export function ComparisonAnalytics() {
       timezoneCounts,
       dailySeries,
       weeklySeries,
+      monthlySeries,
       weekdaySeries,
       hourlySeries,
       recentLogs: data.slice(0, 20) as any,
@@ -445,9 +462,10 @@ export function ComparisonAnalytics() {
           📊 アクセス推移
         </h3>
         <Tabs defaultValue="daily" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="daily">日別</TabsTrigger>
             <TabsTrigger value="weekly">週別</TabsTrigger>
+            <TabsTrigger value="monthly">月別</TabsTrigger>
             <TabsTrigger value="weekday">曜日別</TabsTrigger>
             <TabsTrigger value="hourly">時間帯別</TabsTrigger>
             <TabsTrigger value="cross">クロス分析</TabsTrigger>
@@ -487,6 +505,24 @@ export function ComparisonAnalytics() {
               </ComposedChart>
             </ResponsiveContainer>
           </TabsContent>
+
+          <TabsContent value="monthly" className="mt-3">
+            <p className="text-xs text-muted-foreground mb-2">直近12ヶ月の月別アクセスとCVR（JST）</p>
+            <ResponsiveContainer width="100%" height={260}>
+              <ComposedChart data={stats.monthlySeries} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+                <YAxis yAxisId="left" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} allowDecimals={false} />
+                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} unit="%" domain={[0, 100]} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }} formatter={(v: any, n: any) => n === "CVR" ? [`${v}%`, n] : [v, n]} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Bar yAxisId="left" dataKey="total" name="総アクセス" fill="hsl(var(--primary))" />
+                <Bar yAxisId="left" dataKey="interacted" name="操作あり" fill="hsl(var(--foreground))" />
+                <Line yAxisId="right" type="linear" dataKey="cvr" name="CVR" stroke="hsl(var(--accent-foreground))" strokeWidth={2} dot={{ r: 3 }} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </TabsContent>
+
 
           <TabsContent value="weekday" className="mt-3">
             <p className="text-xs text-muted-foreground mb-2">曜日別の合計アクセスとCVR（JST、全期間）</p>
