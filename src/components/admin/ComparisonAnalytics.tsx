@@ -462,9 +462,10 @@ export function ComparisonAnalytics() {
           📊 アクセス推移
         </h3>
         <Tabs defaultValue="daily" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="daily">日別</TabsTrigger>
             <TabsTrigger value="weekly">週別</TabsTrigger>
+            <TabsTrigger value="monthly">月別</TabsTrigger>
             <TabsTrigger value="weekday">曜日別</TabsTrigger>
             <TabsTrigger value="hourly">時間帯別</TabsTrigger>
             <TabsTrigger value="cross">クロス分析</TabsTrigger>
