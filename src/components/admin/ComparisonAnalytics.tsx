@@ -289,6 +289,15 @@ export function ComparisonAnalytics() {
       .slice(-12)
       .map(([week, v]) => ({ week, total: v.total, interacted: v.interacted, cvr: cvr(v.total, v.interacted) }));
 
+    // Monthly series: last 12 months present, sorted ascending
+    const monthlySeries = Object.entries(monthlyMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-12)
+      .map(([month, v]) => {
+        const [y, m] = month.split("-");
+        return { month: `${y}/${m}`, total: v.total, interacted: v.interacted, cvr: cvr(v.total, v.interacted) };
+      });
+
     // Weekday: fixed order Mon-Sun
     const weekdayOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     const weekdayLabels: Record<string, string> = { Mon: "月", Tue: "火", Wed: "水", Thu: "木", Fri: "金", Sat: "土", Sun: "日" };
