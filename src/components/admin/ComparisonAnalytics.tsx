@@ -42,6 +42,7 @@ interface LogStats {
   timezoneCounts: Record<string, number>;
   dailySeries: Array<{ date: string; total: number; interacted: number; cvr: number }>;
   weeklySeries: Array<{ week: string; total: number; interacted: number; cvr: number }>;
+  monthlySeries: Array<{ month: string; total: number; interacted: number; cvr: number }>;
   weekdaySeries: Array<{ day: string; total: number; interacted: number; cvr: number }>;
   hourlySeries: Array<{ hour: string; total: number; interacted: number; cvr: number }>;
   recentLogs: Array<{
