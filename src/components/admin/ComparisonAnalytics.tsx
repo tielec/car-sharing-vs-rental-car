@@ -143,7 +143,7 @@ export function ComparisonAnalytics() {
         avgHours: 0, avgDistance: 0, donationClicks: 0, donationConfirms: 0, donationAmountCounts: {},
         sourceCounts: {}, campaignCounts: {}, deviceCounts: {}, browserCounts: {},
         languageCounts: {}, timezoneCounts: {},
-        dailySeries: [], weeklySeries: [], weekdaySeries: [], hourlySeries: [],
+        dailySeries: [], weeklySeries: [], monthlySeries: [], weekdaySeries: [], hourlySeries: [],
         recentLogs: [],
       };
     }
