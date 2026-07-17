@@ -228,6 +228,7 @@ export function ComparisonAnalytics() {
 
     const dailyMap: Record<string, { total: number; interacted: number }> = {};
     const weeklyMap: Record<string, { total: number; interacted: number }> = {};
+    const monthlyMap: Record<string, { total: number; interacted: number }> = {};
     const weekdayMap: Record<string, { total: number; interacted: number }> = {};
     const hourlyMap: Record<number, { total: number; interacted: number }> = {};
 
