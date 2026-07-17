@@ -256,6 +256,11 @@ export function ComparisonAnalytics() {
       weeklyMap[wk].total++;
       weeklyMap[wk].interacted += interacted;
 
+      const mo = p.date.slice(0, 7); // YYYY-MM
+      monthlyMap[mo] = monthlyMap[mo] || { total: 0, interacted: 0 };
+      monthlyMap[mo].total++;
+      monthlyMap[mo].interacted += interacted;
+
       weekdayMap[p.weekday] = weekdayMap[p.weekday] || { total: 0, interacted: 0 };
       weekdayMap[p.weekday].total++;
       weekdayMap[p.weekday].interacted += interacted;
