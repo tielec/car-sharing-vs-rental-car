@@ -141,6 +141,8 @@ export function CrossAnalysis({ data, classifySource }: Props) {
         }
       });
     });
+    // TS can't see assignments inside forEach callbacks; restore the declared type.
+    const peakResult = peak as { row: string; col: string; val: number } | null;
 
     // Concentration: max(day) / sum(day) per cell — only meaningful if total >= 3
     const concentrationMap = new Map<string, number>();
@@ -153,7 +155,7 @@ export function CrossAnalysis({ data, classifySource }: Props) {
       });
     });
 
-    return { rows, cols, matrix, rowTotals, colTotals, grandTotal, maxVal, peak, cellMap, concentrationMap };
+    return { rows, cols, matrix, rowTotals, colTotals, grandTotal, maxVal, peak: peakResult, cellMap, concentrationMap };
   }, [data, rowAxis, colAxis, metric, classifySource]);
 
   const formatAxisLabel = (axis: AxisKey, key: string): string => {

@@ -3,7 +3,6 @@ import { createServerFn } from "@tanstack/react-start";
 export interface GasolinePriceData {
   average_price?: number | string;
   fetch_date?: string;
-  [key: string]: unknown;
 }
 
 /**
