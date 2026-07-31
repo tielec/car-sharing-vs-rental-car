@@ -1,0 +1,4 @@
+{"functions": [
+  {"name": "gasoline-price", "classification": "internal-only", "signal": "called from 2 src/ files (Admin.tsx, useGasolinePrice.ts); simple external-JSON proxy", "outcome": "migrated"},
+  {"name": "gasoline-price-scheduled", "classification": "cron target", "signal": "pg_cron extension enabled in migrations; weekly schedule created from dashboard (name matches *-scheduled); uses service-role key", "outcome": "left"}
+]}

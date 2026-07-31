@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGasolinePrice } from "@/hooks/useGasolinePrice";
+import { fetchGasolinePrices } from "@/lib/gasoline-price.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,7 +27,7 @@ interface PriceOverride {
   note: string | null;
   is_active: boolean;
   created_at: string;
-  set_by: string;
+  set_by: string | null;
 }
 
 export default function Admin() {
@@ -111,8 +112,8 @@ export default function Admin() {
     if (!user) return;
     setFetchingApi(true);
     try {
-      const { data, error } = await supabase.functions.invoke("gasoline-price", { method: "GET" });
-      if (error || !data) throw new Error("API取得に失敗しました");
+      const data = await fetchGasolinePrices();
+      if (!data) throw new Error("API取得に失敗しました");
       const avg = Math.round(Number(data.average_price));
       if (avg <= 0) throw new Error("有効な価格が取得できませんでした");
 
