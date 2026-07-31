@@ -1,0 +1,289 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Source+Serif+Pro:wght@400;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;700&display=swap");
+
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design system definition (ported from the pre-migration src/index.css +
+ * tailwind.config.ts — Times Car Share brand theme).
+ *
+ * The @theme inline block maps CSS custom properties to Tailwind utility
+ * classes (e.g. --color-primary -> bg-primary, text-primary).
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Brand tokens: Car Share (Times Yellow), Rental (Black), Savings (Orange) */
+  --color-carshare: var(--carshare);
+  --color-carshare-light: var(--carshare-light);
+  --color-carshare-foreground: var(--carshare-foreground);
+  --color-rental: var(--rental);
+  --color-rental-light: var(--rental-light);
+  --color-rental-foreground: var(--rental-foreground);
+  --color-savings: var(--savings);
+  --color-savings-light: var(--savings-light);
+  --color-savings-foreground: var(--savings-foreground);
+
+  /* Fonts */
+  --font-sans: 'Source Sans Pro', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  --font-serif: 'Source Serif Pro', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+  --font-mono: 'Source Code Pro', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
+  /* Shadow scale (preserves the v3 config's custom shadow values) */
+  --shadow-2xs: var(--shadow-2xs-token);
+  --shadow-xs: var(--shadow-xs-token);
+  --shadow-sm: var(--shadow-sm-token);
+  --shadow: var(--shadow-token);
+  --shadow-md: var(--shadow-md-token);
+  --shadow-lg: var(--shadow-lg-token);
+  --shadow-xl: var(--shadow-xl-token);
+  --shadow-2xl: var(--shadow-2xl-token);
+  --shadow-card: var(--shadow-card-token);
+
+  /* Animations */
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-fade-in: fade-in 0.4s ease-out;
+  --animate-slide-in: slide-in 0.3s ease-out;
+  --animate-scale-in: scale-in 0.3s ease-out;
+  --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
+
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+}
+
+:root {
+  --radius: 1rem;
+
+  /* Base colors */
+  --background: hsl(60 4% 95%);
+  --foreground: hsl(24 9% 10%);
+
+  --card: hsl(60 9% 97%);
+  --card-foreground: hsl(24 9% 10%);
+
+  --popover: hsl(20 5% 90%);
+  --popover-foreground: hsl(24 9% 10%);
+
+  /* Car Share - Times Yellow theme (#FDD101) */
+  --carshare: hsl(50 99% 50%);
+  --carshare-light: hsl(50 99% 92%);
+  --carshare-foreground: hsl(0 0% 0%);
+
+  /* Rental Car - Black theme (#000000) */
+  --rental: hsl(0 0% 25%);
+  --rental-light: hsl(0 0% 92%);
+  --rental-foreground: hsl(0 0% 100%);
+
+  /* Savings/Cheaper - Orange accent theme */
+  --savings: hsl(40 95% 50%);
+  --savings-light: hsl(45 100% 92%);
+  --savings-foreground: hsl(0 0% 0%);
+
+  --primary: hsl(50 99% 50%);
+  --primary-foreground: hsl(0 0% 0%);
+
+  --secondary: hsl(24 5% 44%);
+  --secondary-foreground: hsl(60 9% 97%);
+
+  --muted: hsl(23 5% 82%);
+  --muted-foreground: hsl(24 9% 10%);
+
+  --accent: hsl(50 99% 92%);
+  --accent-foreground: hsl(0 0% 0%);
+
+  --destructive: hsl(0 72% 50%);
+  --destructive-foreground: hsl(0 85% 97%);
+
+  --border: hsl(23 5% 82%);
+  --input: hsl(23 5% 82%);
+  --ring: hsl(50 99% 50%);
+
+  /* Shadows */
+  --shadow-2xs-token: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+  --shadow-xs-token: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+  --shadow-sm-token: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow-token: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow-md-token: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
+  --shadow-lg-token: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
+  --shadow-xl-token: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
+  --shadow-2xl-token: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+  --shadow-card-token: 0 4px 20px -4px hsl(220 20% 20% / 0.12);
+
+  --sidebar: hsl(60 9% 97%);
+  --sidebar-foreground: hsl(0 0% 0%);
+  --sidebar-primary: hsl(50 99% 50%);
+  --sidebar-primary-foreground: hsl(0 0% 0%);
+  --sidebar-accent: hsl(40 95% 50%);
+  --sidebar-accent-foreground: hsl(0 0% 0%);
+  --sidebar-border: hsl(0 0% 80%);
+  --sidebar-ring: hsl(50 99% 50%);
+  --chart-1: hsl(50 99% 50%);
+  --chart-2: hsl(45 95% 60%);
+  --chart-3: hsl(40 95% 50%);
+  --chart-4: hsl(0 0% 20%);
+  --chart-5: hsl(0 0% 40%);
+}
+
+.dark {
+  --background: hsl(24 9% 10%);
+  --foreground: hsl(60 9% 97%);
+
+  --card: hsl(12 6% 15%);
+  --card-foreground: hsl(60 9% 97%);
+
+  --popover: hsl(30 6% 25%);
+  --popover-foreground: hsl(60 9% 97%);
+
+  --carshare: hsl(50 99% 55%);
+  --carshare-light: hsl(50 60% 20%);
+  --carshare-foreground: hsl(0 0% 0%);
+
+  --rental: hsl(0 0% 60%);
+  --rental-light: hsl(0 0% 20%);
+  --rental-foreground: hsl(0 0% 100%);
+
+  --savings: hsl(40 95% 55%);
+  --savings-light: hsl(40 60% 20%);
+  --savings-foreground: hsl(0 0% 0%);
+
+  --primary: hsl(50 99% 55%);
+  --primary-foreground: hsl(0 0% 0%);
+
+  --secondary: hsl(24 5% 44%);
+  --secondary-foreground: hsl(60 9% 97%);
+
+  --muted: hsl(24 5% 44%);
+  --muted-foreground: hsl(60 9% 97%);
+
+  --accent: hsl(25 83% 14%);
+  --accent-foreground: hsl(47 95% 53%);
+
+  --destructive: hsl(0 84% 60%);
+  --destructive-foreground: hsl(0 85% 97%);
+
+  --border: hsl(33 5% 32%);
+  --input: hsl(33 5% 32%);
+  --ring: hsl(43 96% 56%);
+
+  --sidebar: hsl(12 6% 15%);
+  --sidebar-foreground: hsl(60 9% 97%);
+  --sidebar-primary: hsl(50 99% 55%);
+  --sidebar-primary-foreground: hsl(0 0% 0%);
+  --sidebar-accent: hsl(40 95% 55%);
+  --sidebar-accent-foreground: hsl(0 0% 0%);
+  --sidebar-border: hsl(0 0% 25%);
+  --sidebar-ring: hsl(50 99% 55%);
+  --chart-1: hsl(50 99% 55%);
+  --chart-2: hsl(45 95% 65%);
+  --chart-3: hsl(40 95% 55%);
+  --chart-4: hsl(0 0% 60%);
+  --chart-5: hsl(0 0% 40%);
+}
+
+/* Container matches the v3 config: centered, 1rem padding, 2xl capped at 1000px */
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1rem;
+  width: 100%;
+  @media (min-width: 96rem) {
+    max-width: 1000px;
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: 'Noto Sans JP', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+@utility price-text {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+@utility card-shadow {
+  box-shadow: var(--shadow-card-token);
+}
