@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { Link2, Copy, Image as ImageIcon, Share2 } from "lucide-react";
-import { toPng } from "html-to-image";
+
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import type { ComparisonResult, VehicleType } from "@/lib/pricing";
@@ -76,6 +76,7 @@ export function ResultSummaryCard({ result, vehicleType, totalHours, distance, t
   const handleSaveImage = async () => {
     if (!cardRef.current) return;
     try {
+      const { toPng } = await import("html-to-image");
       const dataUrl = await toPng(cardRef.current, {
         cacheBust: true,
         pixelRatio: 2,
