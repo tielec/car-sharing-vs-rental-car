@@ -111,8 +111,8 @@ export default function Admin() {
     if (!user) return;
     setFetchingApi(true);
     try {
-      const { data, error } = await supabase.functions.invoke("gasoline-price", { method: "GET" });
-      if (error || !data) throw new Error("API取得に失敗しました");
+      const data = await fetchGasolinePrices();
+      if (!data) throw new Error("API取得に失敗しました");
       const avg = Math.round(Number(data.average_price));
       if (avg <= 0) throw new Error("有効な価格が取得できませんでした");
 

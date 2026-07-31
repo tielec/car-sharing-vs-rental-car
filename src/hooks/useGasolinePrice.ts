@@ -92,11 +92,11 @@ export function useGasolinePrice(): GasolinePriceResult {
         return;
       }
 
-      // 4. Fetch from API via edge function
+      // 4. Fetch from API via server function
       try {
-        const { data, error } = await supabase.functions.invoke("gasoline-price", { method: "GET" });
+        const data = await fetchGasolinePrices();
         if (cancelled) return;
-        if (error || !data) throw new Error("fetch failed");
+        if (!data) throw new Error("fetch failed");
         const avg = Math.round(Number(data.average_price));
         if (avg > 0) {
           const now = new Date().toISOString();
