@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { settings } from "@/config";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchGasolinePrices } from "@/lib/gasoline-price.functions";
 
 const CACHE_KEY = "gasolineAveragePrice";
 const CACHE_DATE_KEY = "gasolinePriceUpdatedAt";

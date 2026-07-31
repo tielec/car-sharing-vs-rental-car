@@ -3,6 +3,7 @@ import { useNavigate } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGasolinePrice } from "@/hooks/useGasolinePrice";
+import { fetchGasolinePrices } from "@/lib/gasoline-price.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
