@@ -27,7 +27,7 @@ interface PriceOverride {
   note: string | null;
   is_active: boolean;
   created_at: string;
-  set_by: string;
+  set_by: string | null;
 }
 
 export default function Admin() {
